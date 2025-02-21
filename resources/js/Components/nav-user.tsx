@@ -1,5 +1,4 @@
 "use client"
-
 import {
   BadgeCheck,
   Bell,
@@ -8,7 +7,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react"
-
+import Dropdown from '@/Components/Dropdown';
 import {
   Avatar,
   AvatarFallback,
@@ -30,6 +29,7 @@ import {
   useSidebar,
 } from "@/Components/ui/sidebar"
 import { User } from '@/types'
+import { Inertia } from '@inertiajs/inertia'
 import { cn } from "@/lib/utils"
 
 type Props ={
@@ -40,8 +40,8 @@ type Props ={
 
 export function NavUser({ user, isNavbar, btnClassName }: Props) {
   const { isMobile } = useSidebar()
-
-  return (
+  
+  return(
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
@@ -93,27 +93,43 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
             </>
           )}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+              <Dropdown.Link
+                href={route('logout')} //replace with Account
+                method="post"
+                as="button"
+                > 
+              <BadgeCheck />
+              Account
+            </Dropdown.Link>
+              <Dropdown.Link
+                href={route('logout')} //replace with billing
+                method="post"
+                as="button"
+                > 
+              <CreditCard />
+              Billing
+            </Dropdown.Link>
+              <Dropdown.Link
+                href={route('logout')} //replace with notifications
+                method="post"
+                as="button"
+                > 
+              <Bell />
+              Notifications
+            </Dropdown.Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <Dropdown.Link
+                href={route('logout')}
+                method="post"
+                as="button"
+                > 
               <LogOut />
-              Log out
-            </DropdownMenuItem>
+                  Log Out
+            </Dropdown.Link>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }
