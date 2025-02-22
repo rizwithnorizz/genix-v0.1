@@ -66,10 +66,11 @@ const Dashboard = () => {
             <Button>View All Departments</Button>
         </div>
         </div>
+        <Chart2  />
       </div>
 
       <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-2">
-        <Chart2  />
+        
       </div>
   <div className="order-1 lg:order-2 border p-2 rounded-lg">   
   <Table>
