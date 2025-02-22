@@ -56,7 +56,7 @@ export default function Chart2() {
   }, [])
 
   return (
-    <Card className="flex flex-col">
+    <Card className="rounded-xl border-2 bg-card text-card-foreground shadow w-full sm:w-72 md:w-80 lg:w-96 sm:h-72 md:h-80 lg:h-[389px] pb-8 absolute right-20 -mr-10 z-0">
       <CardHeader className="items-center pb-0">
         <CardTitle>Room Occupation Rate</CardTitle>
         <CardDescription>Percentage of Rooms Occupied</CardDescription>
