@@ -93,22 +93,6 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
               <BadgeCheck />
               Account
             </Dropdown.Link>
-              <Dropdown.Link
-                href={route('logout')} //replace with billing
-                method="post"
-                as="button"
-                > 
-              <CreditCard />
-              Billing
-            </Dropdown.Link>
-              <Dropdown.Link
-                href={route('logout')} //replace with notifications
-                method="post"
-                as="button"
-                > 
-              <Bell />
-              Notifications
-            </Dropdown.Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <Dropdown.Link
