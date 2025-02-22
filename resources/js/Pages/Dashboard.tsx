@@ -3,6 +3,7 @@ import  Layout  from '@/Components/ui/layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from "@/Components/ui/table";
+import { Card, CardContent } from '@/Components/ui/card';
 
 const data = [
   { department: "CICT", yearLevel: "1", program: "BSIT", building: "Building A" },
@@ -19,8 +20,9 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-2">
-        <div className="order-2 lg:order-1 border p-2 rounded-lg"> 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <Card className="order-2 lg:order-1 border p-2 rounded-lg"> 
+          <CardContent>
+          <div className="pt-10 pb-5 grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-2">
             <Avatar className="h-16 w-16 rounded-full">
               <AvatarImage src="/path/to/avatar1.jpg" alt="CICT" />
               <AvatarFallback>CICT</AvatarFallback>
@@ -64,8 +66,9 @@ const Dashboard = () => {
           </div>
           <div className="flex justify-center mt-4">
             <Button>View All Departments</Button>
-        </div>
-        </div>
+          </div>
+          </CardContent>
+        </Card>
         <Chart2  />
       </div>
 
