@@ -32,8 +32,17 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        $userPerms = $request->user()->user_type;
+        switch($userPerms){
+            case 0:
+                return redirect()->intended(route('sa-dashboard', absolute: false));
+                break;
+            case 1:
+                return redirect()->intended(route('dashboard', absolute: false));
+                break;
+            default:
+                return redirect()->intended(route('login', absolute: false));   
+        }
     }
 
     /**
