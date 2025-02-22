@@ -82,14 +82,6 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             </>
           )}
             <DropdownMenuGroup>
