@@ -13,7 +13,7 @@ const DepAdminDashboard = () => {
       <Chart2 />
       <Pendings />
       <News />
-
+    
     </Layout>
   );
 };
