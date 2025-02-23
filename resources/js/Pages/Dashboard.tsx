@@ -8,12 +8,12 @@ import News from '@/Components/ui/news';
 const Dashboard = () => {
   return (
     <Layout>
-
+    
       <Department />
       <Chart2 />
       <Pendings />
       <News />
-
+    
     </Layout>
   );
 };
