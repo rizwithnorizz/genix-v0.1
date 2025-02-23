@@ -39,7 +39,7 @@ class RoleManager
                 return redirect()->route('sa-dashboard');
                 break;
             case 1:
-                return redirect()->route('dashboard');
+                return redirect()->route('dep-dashboard');
                 break;
         }
         return redirect()->route('login');

@@ -21,7 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
             'rolemanager' => RoleManager::class,
         ]);
-
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {

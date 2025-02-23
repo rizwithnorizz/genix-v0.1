@@ -13,7 +13,7 @@ class RoleAuthRedirect extends Controller
     }
 
     public function userindex(){
-        return Inertia::render('Dashboard');
+        return Inertia::render('depadmin/depadmin_dashboard');
     }
 }
 

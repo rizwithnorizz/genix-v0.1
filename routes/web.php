@@ -10,7 +10,9 @@ Route::get('/', function () {
     return redirect('login');
 });
 
-Route::get('/dashboard', [RoleAuthRedirect::class, 'userindex'])->middleware(['auth', 'verified', 'rolemanager:user'])->name('dashboard');
+Route::get('admin/dashboard-sa', [RoleAuthRedirect::class, 'index'])->middleware(['auth', 'verified', 'rolemanager:admin'])->name('sa-dashboard');
+
+Route::get('dep-admin/dashboard', [RoleAuthRedirect::class, 'userindex'])->middleware(['auth', 'verified', 'rolemanager:user'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -18,7 +20,5 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-Route::get('admin/dashboard-sa', [RoleAuthRedirect::class, 'index'])->middleware(['auth', 'verified', 'rolemanager:admin'])->name('sa-dashboard');
 
 require __DIR__.'/auth.php';

@@ -3,10 +3,12 @@ import Layout  from '@/Components/ui/layout';
 import Department from '@/Components/ui/department';
 import Pendings from '@/Components/ui/pendings';
 import News from '@/Components/ui/news';
-const SuperAdminDashboard = () => {
+
+
+const DepAdminDashboard = () => {
   return (
     <Layout>
-      <h1>Super Admin Dashboard</h1>
+      <h1>Department Admin Dashboard</h1>
       <Department />
       <Chart2 />
       <Pendings />
@@ -16,4 +18,4 @@ const SuperAdminDashboard = () => {
   );
 };
 
-export default SuperAdminDashboard;
+export default DepAdminDashboard;
