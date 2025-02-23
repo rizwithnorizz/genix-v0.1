@@ -57,104 +57,158 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Dashboard",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "1",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "2",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "3",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Department",
       url: "#",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
+          title: "1",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "2",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "3",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Feedback",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
+          title: "1",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "2",
           url: "#",
         },
         {
-          title: "Tutorials",
+          title: "3",
           url: "#",
         },
-        {
-          title: "Changelog",
-          url: "#",
-        },
+
       ],
     },
     {
-      title: "Settings",
+      title: "Schedules",
       url: "#",
       icon: Settings2,
       items: [
         {
-          title: "General",
+          title: "1",
           url: "#",
         },
         {
-          title: "Team",
+          title: "2",
           url: "#",
         },
         {
-          title: "Billing",
+          title: "3",
+          url: "#",
+        },
+        
+      ],
+    },
+    {
+      title: "Train A.I.",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "1",
           url: "#",
         },
         {
-          title: "Limits",
+          title: "2",
           url: "#",
         },
+        {
+          title: "3",
+          url: "#",
+        },
+        
+      ],
+    },
+    {
+      title: "Help",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "1",
+          url: "#",
+        },
+        {
+          title: "2",
+          url: "#",
+        },
+        {
+          title: "3",
+          url: "#",
+        },
+        
+      ],
+    },
+    {
+      title: "About",
+      url: "#",
+      icon: Settings2,
+      items: [
+        {
+          title: "1",
+          url: "#",
+        },
+        {
+          title: "2",
+          url: "#",
+        },
+        {
+          title: "3",
+          url: "#",
+        },
+        
       ],
     },
   ],
   projects: [
     {
-      name: "Design Engineering",
+      name: "-",
       url: "#",
       icon: Frame,
     },
     {
-      name: "Sales & Marketing",
+      name: "-",
       url: "#",
       icon: PieChart,
     },
     {
-      name: "Travel",
+      name: "-",
       url: "#",
       icon: Map,
     },
