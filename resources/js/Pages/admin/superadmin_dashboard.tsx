@@ -5,10 +5,10 @@ import Pendings from '@/Components/ui/pendings';
 import News from '@/Components/ui/news';
 
 
-const Dashboard = () => {
+const SuperAdminDashboard = () => {
   return (
     <Layout>
-
+      <h1>Super Admin Dashboard</h1>
       <Department />
       <Chart2 />
       <Pendings />
@@ -18,4 +18,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default SuperAdminDashboard;

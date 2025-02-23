@@ -8,7 +8,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react"
-
+import Dropdown from '@/Components/Dropdown';
 import {
   Avatar,
   AvatarFallback,
@@ -84,33 +84,29 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             </>
           )}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
+              <Dropdown.Link
+                href={route('logout')} //replace with Account
+                method="post"
+                as="button"
+                > 
+              <BadgeCheck />
+              Account
+            </Dropdown.Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <Dropdown.Link
+                href={route('logout')}
+                method="post"
+                as="button"
+                > 
               <LogOut />
-              Log out
-            </DropdownMenuItem>
+                  Log Out
+            </Dropdown.Link>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
