@@ -6,12 +6,12 @@ import News from '@/Components/ui/news';
 const SuperAdminDashboard = () => {
   return (
     <Layout>
-      <h1>Super Admin Dashboard</h1>
+    
       <Department />
       <Chart2 />
       <Pendings />
       <News />
-
+    
     </Layout>
   );
 };
