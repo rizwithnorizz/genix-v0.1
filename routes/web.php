@@ -10,9 +10,11 @@ Route::get('/', function () {
     return redirect('login');
 });
 
-Route::get('admin/dashboard-sa', [RoleAuthRedirect::class, 'index'])->middleware(['auth', 'verified', 'rolemanager:admin'])->name('sa-dashboard');
+Route::get('admin/dashboard-sa', [RoleAuthRedirect::class, 'adminsuperIndex'])->middleware(['auth', 'verified', 'rolemanager:sa_admin'])->name('sa-dashboard');
 
-Route::get('dep-admin/dashboard', [RoleAuthRedirect::class, 'userindex'])->middleware(['auth', 'verified', 'rolemanager:user'])->name('dashboard');
+Route::get('dep-admin/dashboard', [RoleAuthRedirect::class, 'depadminIndex'])->middleware(['auth', 'verified', 'rolemanager:dep_admin'])->name('dep-dashboard');
+
+Route::get('guest/dashboard', [RoleAuthRedirect::class, 'guestIndex'])->middleware(['auth', 'verified', 'rolemanager:guest'])->name('guest-dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

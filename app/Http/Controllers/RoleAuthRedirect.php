@@ -8,12 +8,16 @@ use Inertia\Inertia;
 
 class RoleAuthRedirect extends Controller
 {
-    public function index(){
+    public function adminsuperIndex(){
         return Inertia::render('admin/superadmin_dashboard');
     }
 
-    public function userindex(){
+    public function depadminIndex(){
         return Inertia::render('depadmin/depadmin_dashboard');
+    }
+
+    public function guestIndex(){
+        return Inertia::render('GuestViewSchedule/schedule');
     }
 }
 

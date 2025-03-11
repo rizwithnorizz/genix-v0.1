@@ -29,7 +29,6 @@ import {
   useSidebar,
 } from "@/Components/ui/sidebar"
 import { User } from '@/types'
-import { Inertia } from '@inertiajs/inertia'
 import { cn } from "@/lib/utils"
 
 type Props ={
