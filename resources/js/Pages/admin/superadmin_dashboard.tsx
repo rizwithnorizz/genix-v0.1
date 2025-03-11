@@ -13,7 +13,7 @@ const SuperAdminDashboard = () => {
       <Chart2 />
       <Pendings />
       <News />
-
+    
     </Layout>
   );
 };
