@@ -9,7 +9,7 @@ const News = () => {
 
   return (
     <div className="relative">
-      <Card className="rounded-xl border-2 bg-card text-card-foreground p-4 w-full sm:w-48 md:w-56 lg:w-[384px]">
+      <Card className="absolute rounded-xl border-2 bg-card text-card-foreground pt-3 w-full sm:w-48 md:w-56 lg:w-[384px] sm:h-48 md:h-56 lg:h-[273px] right-[20px] top-[410px]">
         <CardHeader>
           <CardTitle className="text-center font-bold text-lg">News</CardTitle>
         </CardHeader>
