@@ -61,6 +61,7 @@ const data = {
       url: "#",
       icon: SquareTerminal,
       isActive: true,
+      isCollapsible: false,
       items: [
         {
           title: "1",
@@ -80,20 +81,8 @@ const data = {
       title: "Department",
       url: "#",
       icon: Bot,
-      items: [
-        {
-          title: "1",
-          url: "#",
-        },
-        {
-          title: "2",
-          url: "#",
-        },
-        {
-          title: "3",
-          url: "#",
-        },
-      ],
+      isCollapsible: true,
+      items: [],
     },
     {
       title: "Feedback",
@@ -119,6 +108,7 @@ const data = {
       title: "Schedules",
       url: "#",
       icon: Settings2,
+      isCollapsible: true,
       items: [
         {
           title: "1",
@@ -139,6 +129,7 @@ const data = {
       title: "Train A.I.",
       url: "#",
       icon: Settings2,
+      isCollapsible: true,
       items: [
         {
           title: "1",
@@ -159,6 +150,7 @@ const data = {
       title: "Help",
       url: "#",
       icon: Settings2,
+      isCollapsible: true,
       items: [
         {
           title: "1",
@@ -179,6 +171,7 @@ const data = {
       title: "About",
       url: "#",
       icon: Settings2,
+      isCollapsible: true,
       items: [
         {
           title: "1",
