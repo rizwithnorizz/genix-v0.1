@@ -102,7 +102,7 @@ const data = {
       items: [
         {
           title: "1",
-          url: "#",
+          url: "feedback",
         },
         {
           title: "2",
@@ -122,7 +122,7 @@ const data = {
       items: [
         {
           title: "1",
-          url: "Pages/GuestViewSchedule/schedule",
+          url: "#",
         },
         {
           title: "2",

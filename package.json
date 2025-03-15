@@ -12,6 +12,7 @@
         "@types/node": "^18.13.0",
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.0.10",
+        "@types/react-router-dom": "^5.3.3",
         "@vitejs/plugin-react": "^4.2.0",
         "autoprefixer": "^10.4.12",
         "axios": "^1.7.4",
@@ -42,6 +43,7 @@
         "date-fns": "^3.6.0",
         "lucide-react": "^0.475.0",
         "react-day-picker": "^8.10.1",
+        "react-router-dom": "^7.3.0",
         "recharts": "^2.15.1",
         "tailwind-merge": "^3.0.1",
         "tailwindcss-animate": "^1.0.7"
