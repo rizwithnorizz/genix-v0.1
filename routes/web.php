@@ -1,12 +1,17 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RoleAuthRedirect;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RoleAuthRedirect;
 use App\Http\Controllers\GeneticAlgorithmController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\HelpController;
+use App\Http\Controllers\AboutController;
 
 Route::get('/', function () {
     return redirect('login');
@@ -41,10 +46,16 @@ Route::middleware(['auth', 'rolemanager:guest'])->group(function () {
 //Super Admin Routes
 Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/dashboard-sa', [RoleAuthRedirect::class, 'adminsuperIndex'])->name('sa-dashboard');
-    //Route::get('admin/departments', [DepartmentController::class, 'index'])->name('admin.departments');
-    //Route::get('admin/schedules', [ScheduleController::class, 'index'])->name('admin.schedules');
+    Route::get('admin/departments', [DepartmentController::class, 'index'])->name('admin.departments');
+    Route::get('admin/schedules', [ScheduleController::class, 'index'])->name('admin.schedules');
     Route::get('admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback'); 
+    Route::get('admin/help', [HelpController::class, 'index'])->name('admin.help');
+    Route::get('admin/about', [AboutController::class, 'index'])->name('admin.about');
     // Add more routes for super admin
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/getusersidebar', [ProfileController::class, 'getUser']);
 });
 
 Route::get('/run-genetic-algorithm', [GeneticAlgorithmController::class, 'run']);

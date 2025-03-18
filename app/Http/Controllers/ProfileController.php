@@ -60,4 +60,13 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    public function getUser(Request $request){
+        $user = Auth::user();
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->user_type,
+        ]);
+    }
 }

@@ -8,6 +8,6 @@ use Inertia\Inertia;
 class FeedbackController extends Controller
 {
     public function index(){
-        return Inertia::render('Feedback');
+        return Inertia::render('admin/feedback');
     }
 }
