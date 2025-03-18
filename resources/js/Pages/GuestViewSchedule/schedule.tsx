@@ -23,7 +23,7 @@ const scheduleData = [
   { time: "7:00-8:00", monday: "", tuesday: "", wednesday: "", thursday: "", friday: "", saturday: "" },
 ];
 
-const Schedule1 = () => {
+const Schedule = () => {
   return (
     <Layout>
       <Table>
@@ -57,4 +57,4 @@ const Schedule1 = () => {
   );
 };
 
-export default Schedule1;
+export default Schedule;
