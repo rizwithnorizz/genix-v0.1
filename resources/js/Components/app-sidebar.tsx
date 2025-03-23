@@ -87,6 +87,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isCollapsible: false,
               },
               {
+                title: "Rooms",
+                url: "#",
+                icon: Settings2,  
+                isCollapsible: false,
+              },
+              {
                 title: "Feedback",
                 url: "feedback",
                 icon: BookOpen,
@@ -140,6 +146,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon: BookOpen,
                 isCollapsible: false,
               },
+              {
+                title: "Help",
+                url: "#",
+                icon: Settings2,
+                isCollapsible: false,
+              },
+              {
+                title: "About",
+                url: "#",
+                icon: Settings2,
+                isCollapsible: false
+              }
             ];
             break;
           case 2: //Guest User
@@ -150,6 +168,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon: Settings2,
                 isCollapsible: false,
               },
+              {
+                title: "Help",
+                url: "#",
+                icon: Settings2,
+                isCollapsible: false,
+              },
+              {
+                title: "About",
+                url: "#",
+                icon: Settings2,
+                isCollapsible: false
+              }
             ];
             break;
           default:
