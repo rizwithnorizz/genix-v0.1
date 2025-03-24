@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('instructors', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('department')->nullable();
-
-            $table->foreign('department')->references('department_name')->on('departments')->onDelete('cascade');
+            $table->string('instructor_id')->unique();
+            $table->string('name'); 
             $table->timestamps();
+
         });
     }
 

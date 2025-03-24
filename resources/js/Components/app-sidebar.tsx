@@ -163,7 +163,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           case 2: //Guest User
             navMainItems = [
               {
-                title: "Schedules",
+                title: "Student Schedule",
+                url: "#",
+                icon: Settings2,
+                isCollapsible: false,
+              },
+              {
+                title: "Instructor Schedule",
                 url: "#",
                 icon: Settings2,
                 isCollapsible: false,
