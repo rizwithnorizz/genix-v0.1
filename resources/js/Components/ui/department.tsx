@@ -14,7 +14,7 @@ const department = () => {
                     <div className="grid lg:grid-cols-5 md:grid-cols-2 sm:grid-cols-1 gap-3 -mt-4">
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -23,7 +23,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -32,7 +32,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -41,7 +41,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -50,7 +50,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -59,7 +59,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -68,7 +68,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -78,7 +78,7 @@ const department = () => {
                     
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -87,7 +87,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">
@@ -96,7 +96,7 @@ const department = () => {
                         </Card>
                         <Card className="rounded-xl border bg-card h-32 w-32 flex flex-col items-center justify-center">
                             <Avatar className="flex items-center justify-center h-20 w-20 mt-6">
-                                <AvatarImage className="h-full w-full" src="/path/to/avatar1.jpg" alt="CICT"  />
+                                <AvatarImage className="h-full w-full" src="#" alt="CICT"  />
                                 <AvatarFallback>Logo</AvatarFallback>
                             </Avatar>
                         <CardFooter className="text-center mt-2">

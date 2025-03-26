@@ -1,75 +1,114 @@
-import Chart2 from '@/Components/ui/chart2';
 import Layout  from '@/Components/ui/layout';
-import Department from '@/Components/ui/department';
-import Pendings from '@/Components/ui/pendings';
-import News from '@/Components/ui/news';
+import React, { useState } from 'react';
 
+interface Department {
+  id: number;
+  name: string;
+  shortName: string;
+  logo: string;
+}
 
-export default function DepartmentWindow (){
+const DepartmentPage: React.FC = () => {
+  const [departments, setDepartments] = useState<Department[]>([
+    { id: 1, name: 'Computer Science', shortName: 'CS', logo: '' },
+    { id: 2, name: 'Information Technology', shortName: 'IT', logo: '' },
+    { id: 3, name: 'Civil Engineering', shortName: 'CE', logo: '' },
+    { id: 4, name: 'Electrical Engineering', shortName: 'EE', logo: '' },
+    { id: 5, name: 'Mechanical Engineering', shortName: 'ME', logo: '' },
+    { id: 6, name: 'Chemical Engineering', shortName: 'ChE', logo: '' },
+    { id: 7, name: 'Industrial Engineering', shortName: 'IE', logo: '' },
+  ]);
+  const [showMenuIndex, setShowMenuIndex] = useState<number | null>(null);
+  const [showAdminPopup, setShowAdminPopup] = useState<boolean>(false);
+
+  const handleEdit = (department: Department) => {
+    console.log('Edit:', department);
+  };
+
+  const handleDelete = (department: Department) => {
+    console.log('Delete:', department);
+  };
+
+  const handleAdmin = (department: Department) => {
+    console.log('Admin:', department);
+    setShowAdminPopup(true);
+  };
+
+  const toggleMenu = (index: number) => {
+    setShowMenuIndex(prev => (prev === index ? null : index));
+  };
+
+  const closeAdminPopup = () => {
+    setShowAdminPopup(false);
+  };
+
   return (
-    <div className="p-2 md:p-5 bg-gray-100 min-h-screen">
-      <Layout>
-      
-      <h1 className="font-bold text-2xl mb-4">Department</h1>
-      <main className="space-y-4">
-        <div className="grid md:grid-cols-2 sm:grid-cols-1 gap-4 ">
-          <div className="bg-white p-4 rounded-2xl shadow-lg col-span-2 h-[300px] overflow-y-auto">
-              <h2 className="font-semibold text-lg mb-2">Feedback Pending for Approval</h2>
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b">
-                    <th className="p-2">Department</th>
-                    <th className="p-2">Year Level</th>
-                    <th className="p-2">Program</th>
-                    <th className="p-2">Building</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { dept: 'CICT', year: 1, section: 'IT4-1', subject: 'HC101' },
-                    { dept: 'CAS', year: 2, section: 'PSYCH2-2', subject: 'MIND102' },
-                    { dept: 'CENG', year: 3, section: 'CIVENG3-2', subject: 'CALC101' },
-                    { dept: 'CTHM', year: 4, section: 'HOSMNG1-4', subject: 'BAR202' },
-                    { dept: 'CBA', year: 5, section: 'ACC2-1', subject: 'STATS101' },
-                    { dept: 'CCJE', year: 6, section: 'CRIM3-2', subject: 'JUS102' },
-                  ].map((row, idx) => (
-                    <tr key={idx} className="border-b">
-                      <td className="p-2">{row.dept}</td>
-                      <td className="p-2">{row.year}</td>
-                      <td className="p-2">{row.section}</td>
-                      <td className="p-2">{row.subject}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+    <Layout>
+      <main className="col-span-3 space-y-4">
+        <h1 className="font-bold text-2xl mb-4">Department</h1>
 
-
-            <div className="bg-white p-4 rounded-2xl shadow-lg row-start-2 col-span-1 ">
-              <div className="p-5 grid grid-cols-3 md:grid-cols-3  gap-4 h-[200px] overflow-y-auto">
-                {['CAS', 'CENG', 'CBA', 'CCJE', 'CTHM', 'CEDU', 'CAMS', 'CIT', 'DE', 'ETEEAP'].map((dept) => (
-                  <div key={dept} className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-30">
-
-                    <div className="bg-gray-200 w-16 h-16 rounded-full mb-2"></div>
-                    <span>{dept}</span>
+        <div className="bg-white p-4 rounded-2xl shadow-lg">
+          <h2 className="font-semibold text-lg mb-2">List of departments</h2>
+          <div className="space-y-4 h-[300px] overflow-y-auto">
+            {departments.map((department, idx) => (
+              <div key={idx} className="bg-gray-800 text-white p-4 rounded-full flex justify-between items-center shadow relative">
+                <div className="flex items-center">
+                  <div className="bg-white w-10 h-10 rounded-full mr-4"></div>
+                  <span>{department.shortName}</span>
+                </div>
+                <button onClick={() => toggleMenu(idx)} className="text-2xl focus:outline-none relative z-10">&#x22EE;</button>
+                {showMenuIndex === idx && (
+                  <div className="absolute bg-gray-100 rounded-lg shadow-lg p-4 right-10 top-0 mt-2 z-20">
+                    <button onClick={() => handleEdit(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Edit Department Details</button>
+                    <button onClick={() => handleDelete(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Delete Department</button>
+                    <button onClick={() => handleAdmin(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Department Admin</button>
+                    <button className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Room Assignments</button>
                   </div>
-                ))}
+                )}
               </div>
-            <button className="mt-4 bg-black text-white py-2 px-4 rounded-lg">View All Departments</button>
+            ))}
           </div>
-          
-          <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-2 row-start-3 h-[300px] overflow-y-auto">
-              <h2 className="font-semibold text-lg">News</h2>
-              <p className="mt-2">ang lupet ni jud mag computer sheeesh</p>
-              <p>time check, 7:46 am!!!!!!!!!
-              </p>
-              <p>tulog na ko goodnight mahal ko kayong lahat mwah</p>
+        </div>
+
+        <div className="bg-white p-4 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input type="text" placeholder="Department Name..." className="p-2 rounded-lg border" />
+          <select className="p-2 rounded-lg border">
+            <option>Department Admin</option>
+          </select>
+          <button className="bg-blue-500 text-white p-2 rounded-lg">Upload Logo</button>
+
+          <input type="text" placeholder="Department Short Name..." className="p-2 rounded-lg border" />
+          <select className="p-2 rounded-lg border">
+            <option>Assigned Rooms</option>
+          </select>
+          <button className="bg-green-500 text-white p-2 rounded-lg">Create Department</button>
+        </div>
+
+        {showAdminPopup && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
+            <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
+              <h2 className="text-xl font-semibold mb-4">Department Admin</h2>
+              <input type="text" placeholder="Search Name" className="p-2 border rounded-lg w-full mb-4" />
+              <div className="space-y-2">
+                <div className="flex justify-between items-center p-2 bg-gray-100 rounded-lg">
+                  <span>Department Admin Name</span>
+                  <button className="text-red-500">&#10060;</button>
+                </div>
+                <div className="flex justify-between items-center p-2 bg-gray-100 rounded-lg">
+                  <span>Department Admin Name</span>
+                  <button className="text-red-500">&#10060;</button>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2 mt-4">
+                <button onClick={closeAdminPopup} className="bg-green-500 text-white p-2 rounded-lg">Confirm</button>
+                <button onClick={closeAdminPopup} className="bg-gray-500 text-white p-2 rounded-lg">Cancel</button>
+              </div>
             </div>
           </div>
-        </main>
-      </Layout>
-
-      </div>
+        )}
+      </main>
+    </Layout>
   );
 };
 
+export default DepartmentPage;

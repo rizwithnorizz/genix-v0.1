@@ -87,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
               {
                 title: "Rooms",
-                url: "#",
+                url: "rooms",
                 icon: Settings2,  
                 isCollapsible: false,
               },

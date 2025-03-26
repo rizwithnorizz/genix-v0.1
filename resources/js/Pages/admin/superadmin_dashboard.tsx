@@ -5,11 +5,10 @@ import Pendings from '@/Components/ui/pendings';
 import News from '@/Components/ui/news';
 const SuperAdminDashboard = () => {
   return (
-    <div className="p-2 md:p-5 bg-gray-100 min-h-screen">
       <Layout>
       
       <h1 className="font-bold text-2xl mb-4">Super Admin Dashboard</h1>
-      <main className="space-y-4">
+      <main className="col-span-3 space-y-4">
         <div className="grid md:grid-cols-2 sm:grid-cols-1 gap-4 ">
           <div className="bg-white p-4 rounded-2xl shadow-lg col-span-2 h-[300px] overflow-y-auto">
               <h2 className="font-semibold text-lg mb-2">Feedback Pending for Approval</h2>
@@ -47,13 +46,14 @@ const SuperAdminDashboard = () => {
               <div className="p-5 grid grid-cols-3 md:grid-cols-3  gap-4 h-[200px] overflow-y-auto">
                 {['CAS', 'CENG', 'CBA', 'CCJE', 'CTHM', 'CEDU', 'CAMS', 'CIT', 'DE', 'ETEEAP'].map((dept) => (
                   <div key={dept} className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-30">
-
-                    <div className="bg-gray-200 w-16 h-16 rounded-full mb-2"></div>
-                    <span>{dept}</span>
-                  </div>
+                    <div className="bg-gray-200 w-16 h-16 rounded-full mb-2"></div> 
+                    <span>{dept}</span> 
+                  </div> //Department Logo and Department Name
                 ))}
               </div>
-            <button className="mt-4 bg-black text-white py-2 px-4 rounded-lg">View All Departments</button>
+            <a href = "departments">
+              <button className="mt-4 bg-black text-white py-2 px-4 rounded-lg">View All Departments</button>
+            </a> 
           </div>
           
           <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-2 row-start-3 h-[300px] overflow-y-auto">
@@ -66,8 +66,6 @@ const SuperAdminDashboard = () => {
           </div>
         </main>
       </Layout>
-
-      </div>
   );
 };
 export default SuperAdminDashboard;
