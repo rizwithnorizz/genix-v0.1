@@ -51,14 +51,14 @@ const DepartmentPage: React.FC = () => {
           <h2 className="font-semibold text-lg mb-2">List of departments</h2>
           <div className="space-y-4 h-[300px] overflow-y-auto">
             {departments.map((department, idx) => (
-              <div key={idx} className="bg-gray-800 text-white p-4 rounded-full flex justify-between items-center shadow relative">
+              <div key={idx} className="bg-gray-800 text-white p-2 rounded-full flex justify-between items-center shadow relative">
                 <div className="flex items-center">
                   <div className="bg-white w-10 h-10 rounded-full mr-4"></div>
                   <span>{department.shortName}</span>
                 </div>
-                <button onClick={() => toggleMenu(idx)} className="text-2xl focus:outline-none relative z-10">&#x22EE;</button>
+                <button onClick={() => toggleMenu(idx)} className="pr-5 text-4xl focus:outline-none relative z-10">&#x22EE;</button>
                 {showMenuIndex === idx && (
-                  <div className="absolute bg-gray-100 rounded-lg shadow-lg p-4 right-10 top-0 mt-2 z-20">
+                  <div className="absolute bg-gray-100 rounded-lg shadow-lg p-4 right-10 mr-3 top-0 mt-2 z-20">
                     <button onClick={() => handleEdit(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Edit Department Details</button>
                     <button onClick={() => handleDelete(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Delete Department</button>
                     <button onClick={() => handleAdmin(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Department Admin</button>
