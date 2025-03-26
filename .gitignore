@@ -6,6 +6,7 @@ node_modules
 /storage/*.key
 /storage/pail
 /vendor
+/node_modules
 .env
 .env.backup
 .env.production
