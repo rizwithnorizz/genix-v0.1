@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Auth;
 
 class RoleManager
 {
@@ -22,14 +22,19 @@ class RoleManager
         $userRole = Auth::user()->user_type;
 
         switch($role){
-            case 'admin':
+            case 'sa_admin':
                 if($userRole == 0){
                     return $next($request);
                 }
                 break;
-            case 'user':
+            case 'dep_admin':
                 if($userRole == 1){
                     return $next($request);;
+                }
+                break;
+            case 'guest':
+                if($userRole == 2){
+                    return $next($request);
                 }
                 break;
         }
@@ -40,6 +45,9 @@ class RoleManager
                 break;
             case 1:
                 return redirect()->route('dep-dashboard');
+                break;
+            case 2: 
+                return redirect()->route('guest-dashboard');
                 break;
         }
         return redirect()->route('login');

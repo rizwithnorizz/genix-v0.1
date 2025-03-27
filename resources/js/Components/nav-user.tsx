@@ -1,5 +1,4 @@
 "use client"
-
 import {
   BadgeCheck,
   Bell,
@@ -40,8 +39,8 @@ type Props ={
 
 export function NavUser({ user, isNavbar, btnClassName }: Props) {
   const { isMobile } = useSidebar()
-
-  return (
+  
+  return(
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
@@ -82,10 +81,6 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
             </>
           )}
             <DropdownMenuGroup>
@@ -111,5 +106,5 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }
