@@ -1,8 +1,5 @@
-import Chart2 from '@/Components/ui/chart2';
+
 import Layout  from '@/Components/ui/layout';
-import Department from '@/Components/ui/department';
-import Pendings from '@/Components/ui/pendings';
-import News from '@/Components/ui/news';
 
 import React, { useState } from 'react';
 
@@ -33,12 +30,16 @@ const FeedbackPage: React.FC = () => {
     console.log('Deny:', feedback);
   };
 
+  const handleView = (feedback: Feedback) => {
+    console.log('View:', feedback);
+  }
+
   return (
     <Layout>
       <main className="col-span-3 space-y-4">
         <h1 className="font-bold text-2xl mb-4">Feedback</h1>
 
-        <div className="bg-gray-200 p-4 rounded-2xl shadow-lg">
+        <div className="bg-white p-4 rounded-2xl shadow-lg">
           <div className="space-y-4 overflow-y-auto h-[500px]">
             {feedbacks.map((feedback) => (
               <div key={feedback.id} className="bg-gray-800 text-white p-4 rounded-full flex justify-between items-center shadow">
@@ -56,9 +57,23 @@ const FeedbackPage: React.FC = () => {
                     className="bg-red-500 text-white p-2 rounded-lg">
                     Deny
                   </button>
+                  <button 
+                    onClick={() => handleView(feedback)} 
+                    className="bg-blue-500 text-white p-2 rounded-lg">
+                    View
+                  </button>
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+        
+        <h1 className="pt-10 pl-2 font-bold text-lg">Generate Class Schedule from Accumulated and Approved Feedback</h1>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-white p-4 rounded-2xl shadow-lg grid lg:grid-cols-3 grid-cols-1 gap-4">
+            <button className="text-pretty bg-blue-500 text-white p-2 rounded-lg  w-full">Generate</button>
+            <button className="lg:col-start-3 bg-red-500 text-white p-2 rounded-lg  w-full">Settings</button>
+    
           </div>
         </div>
       </main>
