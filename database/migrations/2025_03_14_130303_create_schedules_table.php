@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('subject_code'); // String instead of foreignId
             $table->string('room_id'); // String instead of foreignId
-            $table->int('day'); //Day of the week
+            $table->integer('day'); //Day of the week
             $table->integer('timeslot')->nullable();
             $table->timestamps();
 
