@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('subject_code'); // String instead of foreignId
             $table->string('room_id'); // String instead of foreignId
-            $table->integer('course_req'); // 3 = 3 units (3 hours/week), 5 = 5-10 hours/week
+            $table->int('day'); //Day of the week
             $table->integer('timeslot')->nullable();
             $table->timestamps();
 

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
+            $table->string('subject_name');
             $table->string('subject_code')->unique();
             $table->integer('room_req');
             $table->integer('course_req'); // 3 = 3 units (3 hours/week), 5 = 5-10 hours/week
