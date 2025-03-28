@@ -18,7 +18,7 @@ const SuperAdminDashboard: React.FC = () => {
   const [news, setNews] = useState<News[]>([
     { id: 1, name: 'Computer Science', content: 'Newly added department CENG' },
     { id: 2, name: 'Information Technology', content: 'Newly added department CICT' },
-    { id: 3, name: 'Civil Engineering', content: 'Newly added department CENG' },
+    { id: 3, name: 'Civil Engineering', content: 'Newly added department CIT' },
     { id: 4, name: 'Electrical Engineering', content: 'Newly added department CEE' },
   ]);
   const [schedule, setSchedule] = useState<Schedule[]>([

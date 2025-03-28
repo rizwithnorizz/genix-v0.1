@@ -41,6 +41,9 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
 //Guest Routes
 Route::middleware(['auth', 'rolemanager:guest'])->group(function () {
     Route::get('guest/dashboard', [RoleAuthRedirect::class, 'guestIndex'])->name('guest-dashboard');
+    Route::get('guest/feedback', [FeedbackController::class, 'index'])->name('guest.feedback');
+    Route::get('guest/help', [HelpController::class, 'index'])->name('guest.help');
+    Route::get('guest/about', [AboutController::class, 'index'])->name('guest.about');
     // Add more routes for guest
 });
 

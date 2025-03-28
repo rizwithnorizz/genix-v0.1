@@ -147,13 +147,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
               {
                 title: "Help",
-                url: "#",
+                url: "help",
                 icon: Settings2,
                 isCollapsible: false,
               },
               {
                 title: "About",
-                url: "#",
+                url: "about",
                 icon: Settings2,
                 isCollapsible: false
               }
@@ -175,13 +175,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
               {
                 title: "Help",
-                url: "#",
+                url: "help",
                 icon: Settings2,
                 isCollapsible: false,
               },
               {
                 title: "About",
-                url: "#",
+                url: "about",
                 icon: Settings2,
                 isCollapsible: false
               }
