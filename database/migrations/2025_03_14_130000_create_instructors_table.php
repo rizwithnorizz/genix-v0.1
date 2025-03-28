@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('instructor_id')->unique();
             $table->string('name'); 
+            $table->integer('department_id');
             $table->timestamps();
 
         });

@@ -64,7 +64,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [data, setData] = useState<Data>(initialData);
 
   useEffect(() => {
-    console.log('Fetching user data...');
     axios.get('/getusersidebar') // Update the endpoint to fetch user data
       .then(response => {
         const user: User = response.data;
@@ -88,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
               {
                 title: "Rooms",
-                url: "#",
+                url: "rooms",
                 icon: Settings2,  
                 isCollapsible: false,
               },

@@ -12,6 +12,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\RoomController;
 
 Route::get('/', function () {
     return redirect('login');
@@ -47,10 +48,12 @@ Route::middleware(['auth', 'rolemanager:guest'])->group(function () {
 Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/dashboard-sa', [RoleAuthRedirect::class, 'adminsuperIndex'])->name('sa-dashboard');
     Route::get('admin/departments', [DepartmentController::class, 'index'])->name('admin.departments');
+    Route::get('admin/rooms' , [RoomController::class, 'index'])->name('admin.rooms');
     Route::get('admin/schedules', [ScheduleController::class, 'index'])->name('admin.schedules');
     Route::get('admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback'); 
     Route::get('admin/help', [HelpController::class, 'index'])->name('admin.help');
     Route::get('admin/about', [AboutController::class, 'index'])->name('admin.about');
+
     // Add more routes for super admin
 });
 

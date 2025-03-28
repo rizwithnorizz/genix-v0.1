@@ -211,9 +211,9 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         ),
         'phpDocumentor\\Reflection\\' => 
         array (
-            0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
+            0 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
             1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
-            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
         ),
         'Whoops\\' => 
         array (
@@ -373,8 +373,8 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -446,8 +446,8 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         ),
         'League\\Uri\\' => 
         array (
-            0 => __DIR__ . '/..' . '/league/uri-interfaces',
-            1 => __DIR__ . '/..' . '/league/uri',
+            0 => __DIR__ . '/..' . '/league/uri',
+            1 => __DIR__ . '/..' . '/league/uri-interfaces',
         ),
         'League\\MimeTypeDetection\\' => 
         array (
@@ -609,6 +609,7 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\AboutController' => __DIR__ . '/../..' . '/app/Http/Controllers/AboutController.php',
         'App\\Http\\Controllers\\Auth\\AuthenticatedSessionController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php',
         'App\\Http\\Controllers\\Auth\\ConfirmablePasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ConfirmablePasswordController.php',
         'App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/EmailVerificationNotificationController.php',
@@ -619,11 +620,26 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'App\\Http\\Controllers\\Auth\\RegisteredUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisteredUserController.php',
         'App\\Http\\Controllers\\Auth\\VerifyEmailController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/VerifyEmailController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\DepartmentController' => __DIR__ . '/../..' . '/app/Http/Controllers/DepartmentController.php',
+        'App\\Http\\Controllers\\FeedbackController' => __DIR__ . '/../..' . '/app/Http/Controllers/FeedbackController.php',
+        'App\\Http\\Controllers\\GeneticAlgorithmController' => __DIR__ . '/../..' . '/app/Http/Controllers/GeneticAlgorithmController.php',
+        'App\\Http\\Controllers\\HelpController' => __DIR__ . '/../..' . '/app/Http/Controllers/HelpController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
+        'App\\Http\\Controllers\\RoleAuthRedirect' => __DIR__ . '/../..' . '/app/Http/Controllers/RoleAuthRedirect.php',
+        'App\\Http\\Controllers\\RoomController' => __DIR__ . '/../..' . '/app/Http/Controllers/RoomController.php',
+        'App\\Http\\Controllers\\RoomManager' => __DIR__ . '/../..' . '/app/Http/Controllers/RoomManager.php',
+        'App\\Http\\Controllers\\ScheduleController' => __DIR__ . '/../..' . '/app/Http/Controllers/ScheduleController.php',
         'App\\Http\\Middleware\\HandleInertiaRequests' => __DIR__ . '/../..' . '/app/Http/Middleware/HandleInertiaRequests.php',
+        'App\\Http\\Middleware\\RoleManager' => __DIR__ . '/../..' . '/app/Http/Middleware/RoleManager.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Models\\classCourse' => __DIR__ . '/../..' . '/app/Models/classCourse.php',
+        'App\\Models\\classroom' => __DIR__ . '/../..' . '/app/Models/classroom.php',
+        'App\\Models\\departments' => __DIR__ . '/../..' . '/app/Models/departments.php',
+        'App\\Models\\instructors' => __DIR__ . '/../..' . '/app/Models/instructors.php',
+        'App\\Models\\schedule' => __DIR__ . '/../..' . '/app/Models/schedule.php',
+        'App\\Models\\subject' => __DIR__ . '/../..' . '/app/Models/subject.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
@@ -744,6 +760,7 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'Cron\\MonthField' => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
+        'Database\\Seeders\\UserTableSeeder' => __DIR__ . '/../..' . '/database/seeders/UserTableSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',
