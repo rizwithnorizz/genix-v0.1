@@ -126,18 +126,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isCollapsible: false,
               },
               {
-                title: "Course Sections",
-                url: "#",
+                title: "Course Offerings & Sections",
+                url: "courseOfferings",
                 icon: SquareTerminal,
                 isActive: true,
                 isCollapsible: false,
-              },
-              {
-                title: "Subjects",
-                url: "#",
-                icon: Bot,
-                isCollapsible: false,
-                items: [],
               },
               {
                 title: "Feedback",
