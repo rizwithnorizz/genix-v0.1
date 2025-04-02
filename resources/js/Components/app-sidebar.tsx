@@ -120,7 +120,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             navMainItems = [
               {
                 title: "Dashboard",
-                url: "#",
+                url: "dashboard",
                 icon: SquareTerminal,
                 isActive: true,
                 isCollapsible: false,
@@ -128,6 +128,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "Course Offerings & Sections",
                 url: "courseOfferings",
+                icon: SquareTerminal,
+                isActive: true,
+                isCollapsible: false,
+              },
+              {
+                title: "Instructors",
+                url: "instructors",
                 icon: SquareTerminal,
                 isActive: true,
                 isCollapsible: false,

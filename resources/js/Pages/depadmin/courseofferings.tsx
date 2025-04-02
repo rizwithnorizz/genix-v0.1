@@ -49,7 +49,9 @@ const CourseOfferingsPage: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showCreateCourse, setShowCreateCourse] = useState<boolean>(false);
 
+  const [profSubChecked, setProfSubChecked] = useState<boolean>(false);
 
+  const [editCourseName, setEditCourseName] = useState<string>('');
 
   const [subjects, setSubjects] = useState<Subject[]>([
     { id: 1, name: 'Subject name' },
@@ -64,7 +66,18 @@ const CourseOfferingsPage: React.FC = () => {
   const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
     setShowCourseDetails(true);
+    setEditCourseName(course.name);
   };
+
+  const handleUpdateCourse = () => {
+         
+    const updatedCourse = courses.map(inst =>
+      inst.id === selectedCourse?.id ? { ...inst, name: editCourseName } : inst
+    );
+    setCourses(updatedCourse);
+    handleCloseCourseDetails();
+    setEditCourseName('');
+  }
 
   const handleSectionClick = (sections: Section) => {
     setSelectedCourse(sections);
@@ -111,6 +124,9 @@ const CourseOfferingsPage: React.FC = () => {
     setShowCreateCourse(false);
   }
 
+  const handleProfSubChecked = (profSub: boolean) => {
+    setProfSubChecked(profSub);
+  }
   
 
   // Menu toggle for each course (three dots)
@@ -227,6 +243,16 @@ const CourseOfferingsPage: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4">Course Details</h2>
               
               <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="col-span-2">
+                    <input
+                      key="courseName"
+                      value={editCourseName}
+                      onChange={(e) => setEditCourseName(e.target.value)}
+                      type="text"
+                      placeholder="Course Name..." 
+                      className="rounded-xl w-full p-3 border border-gray-300"
+                    />
+                </div>
                 <div>
                   <div className="relative">
                     <select className="appearance-none bg-gray-200 p-3 rounded-lg w-full">
@@ -266,9 +292,9 @@ const CourseOfferingsPage: React.FC = () => {
               <div className="flex justify-end space-x-2 mt-4">
                 <button 
                   className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                  onClick={handleCloseCourseDetails}
+                  onClick={handleUpdateCourse}
                 >
-                  Done
+                  Update
                 </button>
                 <button 
                   className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
@@ -329,10 +355,20 @@ const CourseOfferingsPage: React.FC = () => {
                 />
                 
                 <div>
-                  <p className="mb-2">Professional Subject</p>
+                  <div>
+                    <div className="flex items-center pb-2">
+                      <label className="mr-5">Professional Subject</label>
+                      <input type="checkbox" 
+                      id="profSub" 
+                      name="profSub" 
+                      checked={profSubChecked}
+                      onChange = {() => setProfSubChecked(!profSubChecked)} 
+                      className="mr-2" />
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <input type="radio" id="lecture" name="subjectType" checked className="mr-2" />
+                      <input type="radio" id="lecture" name="subjectType" className="mr-2" />
                       <label htmlFor="lecture">Lecture</label>
                     </div>
                     <div className="flex items-center">

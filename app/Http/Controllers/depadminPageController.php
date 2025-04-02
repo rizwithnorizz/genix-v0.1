@@ -14,4 +14,8 @@ class depadminPageController extends Controller
     {
         return Inertia::render('depadmin/courseofferings');
     }
+    public function instructors()
+    {
+        return Inertia::render('depadmin/instructors');
+    }
 }
