@@ -1,6 +1,6 @@
 import Layout  from '@/Components/ui/layout';
 import { useState } from 'react';
-import { Bell, type LucideIcon } from "lucide-react"
+import { Bell, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 
 interface Courses {
@@ -103,18 +103,30 @@ const DepAdminDashboard:React.FC = () => {
           <div className="bg-white rounded-2xl shadow-lg col-span-2 h-[300px] overflow-y-auto flex md:flex-col flex-row p-4">
             <div className="ml-4">
               <h2 className="font-semibold text-lg mb-2">Faculty</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
+              <div className="gap-7 flex flex-wrap pt-6 pl-2">
                 {instructors.map((instructor) => (
                     <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
                       <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
                         <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                          <AvatarFallback className="text-center">Prof</AvatarFallback>
+                          <AvatarFallback className="text-center">{instructor.initials}</AvatarFallback>
                       </Avatar>
                       <span className="mt-2 text-sm font-medium text-gray-700">{instructor.name}</span>
                     </div>
                 ))}
+                
                 </div>
-              </div>
+                <div className="flex gap-4 justify-end mt-4">
+                  <button className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">View All</button>
+                </div>
+                <div className='absolute inset-0 flex items-center justify-between p-3 pt-36'>
+                  <button className='pl-1'>
+                    <ChevronLeft size={40}/>
+                  </button>
+                  <button className='pr-3'>
+                    <ChevronRight size={40}/>
+                  </button>
+                </div>
+            </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-3 col-start-1 h-[300px] overflow-y-auto">
