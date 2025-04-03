@@ -609,7 +609,6 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
     );
 
     public static $classMap = array (
-        'App\\Http\\Controllers\\AboutController' => __DIR__ . '/../..' . '/app/Http/Controllers/AboutController.php',
         'App\\Http\\Controllers\\Auth\\AuthenticatedSessionController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php',
         'App\\Http\\Controllers\\Auth\\ConfirmablePasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ConfirmablePasswordController.php',
         'App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/EmailVerificationNotificationController.php',
@@ -620,15 +619,13 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'App\\Http\\Controllers\\Auth\\RegisteredUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisteredUserController.php',
         'App\\Http\\Controllers\\Auth\\VerifyEmailController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/VerifyEmailController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
-        'App\\Http\\Controllers\\DepartmentController' => __DIR__ . '/../..' . '/app/Http/Controllers/DepartmentController.php',
-        'App\\Http\\Controllers\\FeedbackController' => __DIR__ . '/../..' . '/app/Http/Controllers/FeedbackController.php',
         'App\\Http\\Controllers\\GeneticAlgorithmController' => __DIR__ . '/../..' . '/app/Http/Controllers/GeneticAlgorithmController.php',
-        'App\\Http\\Controllers\\HelpController' => __DIR__ . '/../..' . '/app/Http/Controllers/HelpController.php',
         'App\\Http\\Controllers\\ProfileController' => __DIR__ . '/../..' . '/app/Http/Controllers/ProfileController.php',
         'App\\Http\\Controllers\\RoleAuthRedirect' => __DIR__ . '/../..' . '/app/Http/Controllers/RoleAuthRedirect.php',
-        'App\\Http\\Controllers\\RoomController' => __DIR__ . '/../..' . '/app/Http/Controllers/RoomController.php',
         'App\\Http\\Controllers\\RoomManager' => __DIR__ . '/../..' . '/app/Http/Controllers/RoomManager.php',
-        'App\\Http\\Controllers\\ScheduleController' => __DIR__ . '/../..' . '/app/Http/Controllers/ScheduleController.php',
+        'App\\Http\\Controllers\\depadminPageController' => __DIR__ . '/../..' . '/app/Http/Controllers/depadminPageController.php',
+        'App\\Http\\Controllers\\guestPageController' => __DIR__ . '/../..' . '/app/Http/Controllers/guestPageController.php',
+        'App\\Http\\Controllers\\sadminPageController' => __DIR__ . '/../..' . '/app/Http/Controllers/sadminPageController.php',
         'App\\Http\\Middleware\\HandleInertiaRequests' => __DIR__ . '/../..' . '/app/Http/Middleware/HandleInertiaRequests.php',
         'App\\Http\\Middleware\\RoleManager' => __DIR__ . '/../..' . '/app/Http/Middleware/RoleManager.php',
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',

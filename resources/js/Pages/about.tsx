@@ -1,7 +1,4 @@
-import Chart2 from '@/Components/ui/chart2';
 import Layout  from '@/Components/ui/layout';
-import Department from '@/Components/ui/department';
-import { Card, CardFooter } from '@/Components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 
 

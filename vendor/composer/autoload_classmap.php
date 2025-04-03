@@ -6,7 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'App\\Http\\Controllers\\AboutController' => $baseDir . '/app/Http/Controllers/AboutController.php',
     'App\\Http\\Controllers\\Auth\\AuthenticatedSessionController' => $baseDir . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php',
     'App\\Http\\Controllers\\Auth\\ConfirmablePasswordController' => $baseDir . '/app/Http/Controllers/Auth/ConfirmablePasswordController.php',
     'App\\Http\\Controllers\\Auth\\EmailVerificationNotificationController' => $baseDir . '/app/Http/Controllers/Auth/EmailVerificationNotificationController.php',
@@ -17,15 +16,13 @@ return array(
     'App\\Http\\Controllers\\Auth\\RegisteredUserController' => $baseDir . '/app/Http/Controllers/Auth/RegisteredUserController.php',
     'App\\Http\\Controllers\\Auth\\VerifyEmailController' => $baseDir . '/app/Http/Controllers/Auth/VerifyEmailController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
-    'App\\Http\\Controllers\\DepartmentController' => $baseDir . '/app/Http/Controllers/DepartmentController.php',
-    'App\\Http\\Controllers\\FeedbackController' => $baseDir . '/app/Http/Controllers/FeedbackController.php',
     'App\\Http\\Controllers\\GeneticAlgorithmController' => $baseDir . '/app/Http/Controllers/GeneticAlgorithmController.php',
-    'App\\Http\\Controllers\\HelpController' => $baseDir . '/app/Http/Controllers/HelpController.php',
     'App\\Http\\Controllers\\ProfileController' => $baseDir . '/app/Http/Controllers/ProfileController.php',
     'App\\Http\\Controllers\\RoleAuthRedirect' => $baseDir . '/app/Http/Controllers/RoleAuthRedirect.php',
-    'App\\Http\\Controllers\\RoomController' => $baseDir . '/app/Http/Controllers/RoomController.php',
     'App\\Http\\Controllers\\RoomManager' => $baseDir . '/app/Http/Controllers/RoomManager.php',
-    'App\\Http\\Controllers\\ScheduleController' => $baseDir . '/app/Http/Controllers/ScheduleController.php',
+    'App\\Http\\Controllers\\depadminPageController' => $baseDir . '/app/Http/Controllers/depadminPageController.php',
+    'App\\Http\\Controllers\\guestPageController' => $baseDir . '/app/Http/Controllers/guestPageController.php',
+    'App\\Http\\Controllers\\sadminPageController' => $baseDir . '/app/Http/Controllers/sadminPageController.php',
     'App\\Http\\Middleware\\HandleInertiaRequests' => $baseDir . '/app/Http/Middleware/HandleInertiaRequests.php',
     'App\\Http\\Middleware\\RoleManager' => $baseDir . '/app/Http/Middleware/RoleManager.php',
     'App\\Http\\Requests\\Auth\\LoginRequest' => $baseDir . '/app/Http/Requests/Auth/LoginRequest.php',
