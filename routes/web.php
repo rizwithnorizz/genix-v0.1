@@ -40,14 +40,8 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
 });
 
 
-//Guest Routes
-Route::middleware(['auth', 'rolemanager:guest'])->group(function () {
-    Route::get('guest/dashboard', [RoleAuthRedirect::class, 'guestIndex'])->name('guest-dashboard');
-    //Route::get('guest/feedback', [FeedbackController::class, 'index'])->name('guest.feedback');
-    //Route::get('guest/help', [HelpController::class, 'index'])->name('guest.help');
-    //Route::get('guest/about', [AboutController::class, 'index'])->name('guest.about');
-    // Add more routes for guest
-});
+Route::get('guest/student', [guestPageController::class, 'student'])->name('guest.student');
+Route::get('guest/instructor', [guestPageController::class, 'instructor'])->name('guest.instructor');
 
 //Super Admin Routes
 Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {

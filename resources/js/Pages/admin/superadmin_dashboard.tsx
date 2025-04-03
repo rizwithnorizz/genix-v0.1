@@ -1,7 +1,11 @@
 
 import Layout  from '@/Components/ui/layout';
 import { useState } from 'react';
-import { Bell, type LucideIcon } from "lucide-react"
+import { Bell,
+        House,
+        Network,
+        Users,
+        type LucideIcon } from "lucide-react"
 
 interface News {
   id: number;
@@ -14,6 +18,14 @@ interface Schedule {
   name: string;
   content: string;
 }
+
+interface HeaderCount{
+  id: number;
+  icon: LucideIcon;
+  desc: string;
+  count: number;
+}
+
 const SuperAdminDashboard: React.FC = () => {
   const [news, setNews] = useState<News[]>([
     { id: 1, name: 'Computer Science', content: 'Newly added department CENG' },
@@ -27,23 +39,66 @@ const SuperAdminDashboard: React.FC = () => {
     { id: 3, name: 'Generated Schedule', content: 'Class Schedule 06/15/2025' },
     { id: 4, name: 'Generated Schedule', content: 'Class Schedule 06/29/2025' },
   ]);
+  const [roomCount, setRoomCount] = useState<number>(0);
+  const [instructorCount, setInstructorCount] = useState<number>(0);
+  const [departmentCount, setDepartmentCount] = useState<number>(0);
+
+  const headerCount: HeaderCount[] = [
+    {
+      id: 1,
+      icon: House,
+      desc: "Rooms",
+      count: roomCount,
+    },
+    {
+      id: 2,
+      icon: Users,
+      desc: "Instructors",
+      count: instructorCount,
+    },
+    {
+      id: 3,
+      icon: Network,
+      desc: "Departments",
+      count: departmentCount,
+    },
+
+  ]
   return (
       <Layout>
       
       <h1 className="font-bold text-2xl mb-4">Super Admin Dashboard</h1>
       <main className="col-span-3 space-y-4">
+        <div className="grid md:grid-cols-5 grid-cols-1 gap-4">
+          {headerCount.map((count, idx) => (
+              <div key={idx} className="bg-white p-4 rounded-2xl shadow-lg md:row-start-1 s:h-70">
+                <div className="flex items-center justify-center">
+                  <count.icon className="h-20 w-20"/>
+                </div>
+                <div>
+                  <label className="text-lg">{count.desc}</label>
+                </div>
+                <div>
+                  <label className="text-4xl font-bold">{count.count}</label>
+                </div>
+            </div>
+          ))}
+        </div>
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4 ">
             <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-1 s:h-70">
               <h2 className="font-semibold text-lg">Generate Schedule</h2>
-              <div className="mt-5 space-y-4 h-[130px] overflow-y-auto">
-                    {schedule.map((schedule, idx) => (
-                      <div key={idx} className="bg-gray-800 text-white p-2 rounded-full flex justify-between items-center shadow relative">
-                        <div className="pl-5 flex items-center">
-                          <span>{schedule.content}</span>
-                        </div>
-                        <button className="bg-green-500 text-white rounded-3xl p-2 mr-2">View File</button>
-                      </div>
-                    ))}
+              <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
+                {schedule.map((schedule, idx) => (
+                  <div key={idx} className="bg-gray-800 text-white p-2 rounded-full flex shadow relative items-center justify-between">
+                    <div className="pl-5 flex items-center">
+                      <span>{schedule.content}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="bg-green-500 text-white rounded-3xl p-2">View File</button>
+                      <button className="bg-red-800 text-white rounded-3xl p-2">Delete File</button>
+                    </div>
+                  </div>
+                ))}
               </div>
               <button className="mt-10 bg-black text-white py-2 px-4 rounded-lg ">Generate New Class Schedule</button>
             </div>
