@@ -9,6 +9,12 @@ interface Courses {
   content: string;
 }
 
+interface Instructor {
+  id: number;
+  name: string;
+  initials: string;
+}
+
 interface ProfessionalSubjects {
   id: number;
   name: string;
@@ -51,6 +57,15 @@ const DepAdminDashboard:React.FC = () => {
       { id: 4, name: 'Electrical Engineering', content: 'Newly added department CEE' },
     ]);  
 
+    const [instructors, setInstructors] = useState<Instructor[]>([
+        { id: 1, name: 'Rhueliza Tordecilla', initials: 'RT'},
+        { id: 2, name: 'Alvin Mercado', initials: 'AM'},
+        { id: 3, name: 'Elvie Evangelista', initials: 'EE' },
+        { id: 4, name: 'Rene Magpantay', initials: 'RM'},
+        { id: 5, name: 'Charles Leoj Roxas', initials: 'CR'},
+        { id: 6, name: 'Bernadet Macaraig', initials: 'BM'},
+      ]);
+
   return (
     <Layout>
       <h1>Department Admin Dashboard</h1>
@@ -85,60 +100,21 @@ const DepAdminDashboard:React.FC = () => {
               </div>
           </div>
 
-          <div className="bg-white p-4 rounded-2xl shadow-lg col-span-2 h-[300px] overflow-y-auto flex flex-col items-center">
-            <h2 className="font-semibold text-lg mb-2 self-start">Faculty</h2>
-              <div className="flex flex-col items-center justify-center flex-grow">
-                <div className="flex flex-row gap-x-4">
-                  <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
-                    <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
-                      <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                        <AvatarFallback className="text-center">Prof</AvatarFallback>
-                    </Avatar>
-                  <span className="mt-2 text-sm font-medium text-gray-700">Alvin Mercado</span>
+          <div className="bg-white rounded-2xl shadow-lg col-span-2 h-[300px] overflow-y-auto flex md:flex-col flex-row p-4">
+            <div className="ml-4">
+              <h2 className="font-semibold text-lg mb-2">Faculty</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
+                {instructors.map((instructor) => (
+                    <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
+                      <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
+                        <AvatarImage className="h-full w-full" src="#" alt="CICT" />
+                          <AvatarFallback className="text-center">Prof</AvatarFallback>
+                      </Avatar>
+                      <span className="mt-2 text-sm font-medium text-gray-700">{instructor.name}</span>
+                    </div>
+                ))}
                 </div>
-
-              <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
-                    <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
-                      <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                        <AvatarFallback className="text-center">Prof</AvatarFallback>
-                    </Avatar>
-                  <span className="mt-2 text-sm font-medium text-gray-700">Bernadet Macarandang</span>
-                </div>
-
-              <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
-                    <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
-                      <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                        <AvatarFallback className="text-center">Prof</AvatarFallback>
-                    </Avatar>
-                <span className="mt-2 text-sm font-medium text-gray-700">Rene Magpantay</span>
-                </div>
-
-              <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
-                    <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
-                      <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                        <AvatarFallback className="text-center">Prof</AvatarFallback>
-                    </Avatar>
-                <span className="mt-2 text-sm font-medium text-gray-700">Rhueliza Tordecilla</span>
-                </div>
-
-                <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
-                    <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
-                      <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                        <AvatarFallback className="text-center">Prof</AvatarFallback>
-                    </Avatar>
-                <span className="mt-2 text-sm font-medium text-gray-700">Rhueliza Tordecilla</span>
-                </div>
-
-                <div className="rounded-xl border bg-card h-40 w-40 flex flex-col items-center justify-center">
-                    <Avatar className="bg-gray-100 rounded-full flex items-center justify-center h-32 w-32">
-                      <AvatarImage className="h-full w-full" src="#" alt="CICT" />
-                        <AvatarFallback className="text-center">Prof</AvatarFallback>
-                    </Avatar>
-                <span className="mt-2 text-sm font-medium text-gray-700">Rhueliza Tordecilla</span>
-                </div>
-                
               </div>
-            </div>
           </div>
 
           <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-3 col-start-1 h-[300px] overflow-y-auto">
