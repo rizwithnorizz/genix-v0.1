@@ -53,6 +53,8 @@ const CourseOfferingsPage: React.FC = () => {
 
   const [editCourseName, setEditCourseName] = useState<string>('');
 
+  const [editSubject, showEditSubject] = useState<boolean>(false);
+
   const [subjects, setSubjects] = useState<Subject[]>([
     { id: 1, name: 'Subject name' },
     { id: 2, name: 'Subject name' },
@@ -151,7 +153,7 @@ const CourseOfferingsPage: React.FC = () => {
   return (
     <Layout>
       <main className="col-span-3 space-y-4">
-        <h1 className="font-bold text-2xl mb-4">Course Offerings & Sections</h1>
+        <h1 className="font-bold text-2xl mb-4">Curriculum & Sections</h1>
 
         <div className="bg-white p-4 rounded-2xl shadow-lg">
           {/* Tabs */}
@@ -266,7 +268,6 @@ const CourseOfferingsPage: React.FC = () => {
                 <div>
                   <div className="relative">
                     <select className="appearance-none bg-gray-200 p-3 rounded-lg w-full">
-                      <option>Semester</option>
                       <option>First Semester</option>
                       <option>Second Semester</option>
                       <option>Summer</option>

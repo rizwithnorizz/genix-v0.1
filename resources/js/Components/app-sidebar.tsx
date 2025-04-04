@@ -52,9 +52,9 @@ type Data = {
 const initialData: Data = {
   user: {
     id: 1,
-    name: "Kyoto",
-    email: "Kyoto@gmail.com",
-    avatar: "/logo.png",
+    name: "Guest",
+    email: "Guest",
+    avatar: "#",
     role: 2, // Default role
   },
   navMain: [],
@@ -126,8 +126,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isCollapsible: false,
               },
               {
-                title: "Course Offerings & Sections",
+                title: "Programs and Sections",
                 url: "courseOfferings",
+                icon: SquareTerminal,
+                isActive: true,
+                isCollapsible: false,
+              },
+              {
+                title: "Curriculum",
+                url: "#",
                 icon: SquareTerminal,
                 isActive: true,
                 isCollapsible: false,

@@ -111,7 +111,7 @@ const SchedulePage: React.FC = () => {
         <h1 className="font-bold text-2xl mb-4">Schedule</h1>
         
         <div className="bg-white p-4 rounded-2xl shadow-lg">
-          <div className="flex justify-between mb-4 gap-10">
+          <div className="flex justify-end mb-4 gap-10">
             <div className="relative w-1/3">
               <select className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none">
                 <option>Department</option>
@@ -122,19 +122,8 @@ const SchedulePage: React.FC = () => {
             </div>
             
             <div className="relative w-1/3">
-              <select className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none">
-                <option>Program</option>
-                {/* Program options here */}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              </div>
-            </div>
-            
-            <div className="relative w-1/3">
-              <select className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none">
-                <option>Section</option>
-                {/* Section options here */}
-              </select>
+              <input className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none"
+                placeholder="Instructor Name"/>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               </div>
             </div>

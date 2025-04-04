@@ -1,4 +1,5 @@
 import Layout  from '@/Components/ui/layout';
+import { Upload } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface Department {
@@ -70,8 +71,7 @@ const DepartmentPage: React.FC = () => {
                   <div className="absolute bg-gray-100 rounded-lg shadow-lg p-4 right-10 mr-3 top-0 mt-2 z-20">
                     <button onClick={() => handleEdit(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Edit Department Details</button>
                     <button onClick={() => handleDelete(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Delete Department</button>
-                    <button onClick={() => handleAdmin(department)} className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Department Admin</button>
-                    <button className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">Room Assignments</button>
+                    <button className="text-black block w-full text-left p-2 hover:bg-gray-300 rounded">View Curriculum</button>  
                   </div>
                 )}
               </div>
@@ -91,6 +91,20 @@ const DepartmentPage: React.FC = () => {
             <option>Assigned Rooms</option>
           </select>
           <button className="bg-green-500 text-white p-2 rounded-lg">Create Department</button>
+          <div className="bg-white shadow p-4 rounded-lg col-span-2 grid grid-cols-1 md:grid-row-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h2 className="text-lg font-semibold mb-2">Curriculum</h2>
+                <input className="p-2 rounded-lg border w-full" type="text" placeholder="Curriculum Name..." />
+              </div>
+              <div>
+                <button className="h-full bg-blue-500 text-white p-2 rounded-lg w-full">
+                  <Upload className="inline-block mr-2" />
+                  Upload Curriculum
+                  </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {showAdminPopup && (

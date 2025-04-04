@@ -67,8 +67,9 @@ const SuperAdminDashboard: React.FC = () => {
   return (
       <Layout>
       
-      <h1 className="font-bold text-2xl mb-4">Super Admin Dashboard</h1>
       <main className="col-span-3 space-y-4">
+        
+      <h1 className="font-bold text-2xl mb-4">Super Admin Dashboard</h1>
         <div className="grid md:grid-cols-5 grid-cols-1 gap-4">
           {headerCount.map((count, idx) => (
               <div key={idx} className="bg-white p-4 rounded-2xl shadow-lg md:row-start-1 s:h-70">
