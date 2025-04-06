@@ -166,7 +166,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               }
             ];
             break;
-          case 2: //Guest User
+          default: //Guest User
             navMainItems = [
               {
                 title: "Student Schedule",
@@ -194,8 +194,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               }
             ];
             break;
-          default:
-            navMainItems = [];
         }
 
         setData(prevData => ({
