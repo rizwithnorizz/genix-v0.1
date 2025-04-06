@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('instructors', function (Blueprint $table) {
             $table->id();
-            $table->string('department_name');
-            $table->string('short_name')->unique();
+            $table->string('name');
+            $table->boolean('prof_subject_instructor')->default(false);
+            $table->string('department_short_name');
             $table->timestamps();
+            
+            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
         });
     }
 
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('instructors');
     }
 };

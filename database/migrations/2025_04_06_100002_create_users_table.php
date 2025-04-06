@@ -17,9 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('department_short_name')->nullable();
             $table->integer('user_type')->default(1);
             $table->rememberToken();
             $table->timestamps();
+
+            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
