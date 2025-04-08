@@ -16,7 +16,17 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
+            DepartmentSeeder::class,
+            DepartmentCurriculumSeeder::class,
+            ProgramOfferingsTableSeeder::class,
             UserTableSeeder::class,
+            InstructorSeeder::class,
+            SubjectTableSeeder::class,
+            SubjectInstructorSeeder::class,
+            ClassroomSeeder::class,
+            CourseSectionSeeder::class,
+            RoomAssignmentSeeder::class,
+            ScheduleSeeder::class,
         ]);
     }
 }

@@ -5,17 +5,15 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RoleAuthRedirect;
-use App\Http\Controllers\GeneticAlgorithmController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\HelpController;
-use App\Http\Controllers\AboutController;
-use App\Http\Controllers\RoomController;
 use App\Http\Controllers\depadminPageController;
 use App\Http\Controllers\guestPageController;
 use App\Http\Controllers\sadminPageController;
+
+use App\Http\Controllers\DeepSeekController;
+
+
+Route::get('/api/schedules', [ScheduleController::class, 'index']);
 
 Route::get('/', function () {
     return redirect('login');
@@ -53,6 +51,9 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/help', [sadminPageController::class, 'help'])->name('admin.help');
     Route::get('admin/about', [sadminPageController::class, 'about'])->name('admin.about');
 
+    Route::get('admin/chat', [sadminPageController::class, 'chat'])->name('admin.chat');
+    Route::get('admin/chat/send', [DeepSeekController::class, 'index'])->name('admin.chat.send');
+
     // Add more routes for super admin
 });
 
@@ -61,5 +62,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/run-genetic-algorithm', [GeneticAlgorithmController::class, 'run']);
+
+
 
 require __DIR__.'/auth.php';

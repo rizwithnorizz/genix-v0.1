@@ -38,4 +38,9 @@ class sadminPageController extends Controller
     {
         return Inertia::render('about');
     }
+
+    public function chat()
+    {
+        return Inertia::render('admin/deepseektest');
+    }
 }

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class room_assigments extends Model
+class room_assignments extends Model
 {
     //
 }

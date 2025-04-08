@@ -12,7 +12,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(DeepSeekClient::class, function ($app) {
+            return new DeepSeekClient();
+        });
     }
 
     /**

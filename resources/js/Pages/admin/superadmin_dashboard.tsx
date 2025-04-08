@@ -152,7 +152,7 @@ const SuperAdminDashboard: React.FC = () => {
           
             <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-3 col-start-1 h-[300px] overflow-y-auto">
               <h2 className="font-semibold text-lg">News</h2>
-              <div className="mt-5 space-y-4 h-[200px] s:h-70 overflow-y-auto">
+              <div className="mt-5 space-y-4 h-[200px] s:h-70 ove rflow-y-auto">
                     {news.map((news, idx) => (
                       <div key={idx} className="bg-gray-800 text-white p-4 rounded-full flex justify-between items-center shadow relative">
                        

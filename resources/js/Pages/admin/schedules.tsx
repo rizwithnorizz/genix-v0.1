@@ -1,109 +1,160 @@
 import Layout from '@/Components/ui/layout';
-import React, { useState } from 'react';
+  import React, { useState, useEffect, useCallback } from 'react';
+  import axios from 'axios';
 
-interface Subject {
-  id: number;
-  code: string;
-  name: string;
-  timeSlots: string; // e.g., "123" for slots 1, 2, and 3
-  day: string;
-}
+  interface ScheduleItem {
+    id: number;
+    subject_code: string;
+    subject_name: string;
+    time_slot: number;
+    day_slot: number;
+    room_number: string;
+    section_name: string;
+  }
 
-interface TimeSlot {
-  id: number;
-  display: string; // The display time (e.g., "7:00 - 7:30")
-  actualTime: string; // For internal use
-}
+  interface TimeSlot {
+    id: number;
+    display: string;
+    actualTime: string;
+  }
 
-const SchedulePage: React.FC = () => {
-  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-  const [showFeedbackPopup, setShowFeedbackPopup] = useState<boolean>(false);
-  const [feedbackRemaining, setFeedbackRemaining] = useState<number>(3);
-  const [feedbackText, setFeedbackText] = useState<string>('');
-  
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  
-  // Define time slots with numerical IDs
-  const timeSlots: TimeSlot[] = [
-    { id: 1, display: '7:00 - 7:30', actualTime: '07:00-07:30' },
-    { id: 2, display: '7:30 - 8:00', actualTime: '07:30-08:00' },
-    { id: 3, display: '8:00 - 8:30', actualTime: '08:00-08:30' },
-    { id: 4, display: '8:30 - 9:00', actualTime: '08:30-09:00' },
-    { id: 5, display: '9:00 - 9:30', actualTime: '09:00-09:30' },
-    { id: 6, display: '9:30 - 10:00', actualTime: '09:30-10:00' },
-    { id: 7, display: '10:00 - 10:30', actualTime: '10:00-10:30' },
-    { id: 8, display: '10:30 - 11:00', actualTime: '10:30-11:00' },
-    { id: 9, display: '11:00 - 11:30', actualTime: '11:00-11:30' },
-    { id: 10, display: '11:30 - 12:00', actualTime: '11:30-12:00' },
-    { id: 11, display: '1:00 - 1:30', actualTime: '13:00-13:30' },
-    { id: 12, display: '1:30 - 2:00', actualTime: '13:30-14:00' },
-    { id: 13, display: '2:00 - 2:30', actualTime: '14:00-14:30' },
-    { id: 14, display: '2:30 - 3:00', actualTime: '14:30-15:00' },
-    { id: 15, display: '3:00 - 3:30', actualTime: '15:00-15:30' },
-    { id: 16, display: '3:30 - 4:00', actualTime: '15:30-16:00' },
-    { id: 17, display: '4:00 - 4:30', actualTime: '16:00-16:30' },
-    { id: 18, display: '4:30 - 5:00', actualTime: '16:30-17:00' },
-    { id: 19, display: '5:00 - 5:30', actualTime: '17:00-17:30' },
-    { id: 20, display: '5:30 - 6:00', actualTime: '17:30-18:00' },
-  ];
-  
-  // Sample subjects with time slot numbers instead of time strings
-  const scheduleData: Subject[] = [
-    { id: 1, code: 'COMPROG', name: 'Computer Programming', timeSlots: '789', day: 'Sat' }, // 10:00 - 11:30
-    { id: 2, code: 'THIS101', name: 'Thesis Writing', timeSlots: '12', day: 'Fri' }, // 7:00 - 8:00
-  ];
-  
-  // Helper function to get the time display for a subject
-  const getSubjectTimeDisplay = (subject: Subject): string => {
-    const slots = subject.timeSlots.split('').map(Number);
-    if (slots.length === 0) return '';
+  const SchedulePage: React.FC = () => {
+    const [selectedSubject, setSelectedSubject] = useState<ScheduleItem | null>(null);
+    const [showFeedbackPopup, setShowFeedbackPopup] = useState<boolean>(false);
+    const [feedbackRemaining, setFeedbackRemaining] = useState<number>(3);
+    const [feedbackText, setFeedbackText] = useState<string>('');
+    const [scheduleData, setScheduleData] = useState<ScheduleItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const [transformedData, setTransformedData] = useState<ScheduleItem[]>([]);
     
-    const firstSlot = timeSlots.find(ts => ts.id === slots[0]);
-    const lastSlot = timeSlots.find(ts => ts.id === slots[slots.length - 1]);
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     
-    if (!firstSlot || !lastSlot) return '';
-    
-    // Extract just the start time from first slot and end time from last slot
-    const startTime = firstSlot.display.split(' - ')[0];
-    const endTime = lastSlot.display.split(' - ')[1];
-    
-    return `${startTime} - ${endTime}`;
+    // Define time slots with numerical IDs
+    const timeSlots: TimeSlot[] = [
+      { id: 1, display: '7:00 - 7:30', actualTime: '07:00-07:30' },
+      { id: 2, display: '7:30 - 8:00', actualTime: '07:30-08:00' },
+      { id: 3, display: '8:00 - 8:30', actualTime: '08:00-08:30' },
+      { id: 4, display: '8:30 - 9:00', actualTime: '08:30-09:00' },
+      { id: 5, display: '9:00 - 9:30', actualTime: '09:00-09:30' },
+      { id: 6, display: '9:30 - 10:00', actualTime: '09:30-10:00' },
+      { id: 7, display: '10:00 - 10:30', actualTime: '10:00-10:30' },
+      { id: 8, display: '10:30 - 11:00', actualTime: '10:30-11:00' },
+      { id: 9, display: '11:00 - 11:30', actualTime: '11:00-11:30' },
+      { id: 10, display: '11:30 - 12:00', actualTime: '11:30-12:00' },
+      { id: 11, display: '1:00 - 1:30', actualTime: '13:00-13:30' },
+      { id: 12, display: '1:30 - 2:00', actualTime: '13:30-14:00' },
+      { id: 13, display: '2:00 - 2:30', actualTime: '14:00-14:30' },
+      { id: 14, display: '2:30 - 3:00', actualTime: '14:30-15:00' },
+      { id: 15, display: '3:00 - 3:30', actualTime: '15:00-15:30' },
+      { id: 16, display: '3:30 - 4:00', actualTime: '15:30-16:00' },
+      { id: 17, display: '4:00 - 4:30', actualTime: '16:00-16:30' },
+      { id: 18, display: '4:30 - 5:00', actualTime: '16:30-17:00' },
+      { id: 19, display: '5:00 - 5:30', actualTime: '17:00-17:30' },
+      { id: 20, display: '5:30 - 6:00', actualTime: '17:30-18:00' },
+    ];
+
+    const fetchScheduleData = useCallback(async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('/api/schedules');
+        console.log('API Response:', response.data);
+
+        if (Array.isArray(response.data.schedules)) {
+          const transformedData = response.data.schedules.map((item: any) => ({
+            id: item.id,
+            subject_code: item.subject_code,
+            subject_name: item.subject?.name || item.subject_code,
+            time_slot: item.time_slot,
+            day_slot: item.day_slot,
+            room_number: item.room_number,
+            section_name: item.section_name,
+          }));
+          setScheduleData(transformedData);
+        } else {
+          setError('Unexpected response format');
+          console.error('Unexpected response format:', response.data);
+        }
+      } catch (err) {
+        setError('Failed to fetch schedule data');
+        console.error('API Error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }, []);
+    // Correct useEffect usage
+    useEffect(() => {
+      fetchScheduleData();
+    }, [fetchScheduleData]);
+  // Helper function to get day abbreviation from day number
+  const getDayAbbreviation = (dayNumber: number): string => {
+    const dayMap: Record<number, string> = {
+      1: 'Mon',
+      2: 'Tue',
+      3: 'Wed',
+      4: 'Thu',
+      5: 'Fri',
+      6: 'Sat'
+    };
+    return dayMap[dayNumber] || '';
   };
-  
+
+  // Helper function to get the time display for a subject
+  const getSubjectTimeDisplay = (subject: ScheduleItem): string => {
+    const slot = timeSlots.find(ts => ts.id === subject.time_slot);
+    return slot ? slot.display : '';
+  };
+
   // Check if a cell should display a subject
-  const getSubjectForCell = (timeSlotId: number, day: string): Subject | null => {
+  const getSubjectForCell = (timeSlotId: number, day: string): ScheduleItem | null => {
     return scheduleData.find(subject => 
-      subject.day === day && 
-      subject.timeSlots.includes(timeSlotId.toString())
+      getDayAbbreviation(subject.day_slot) === day && 
+      subject.time_slot === timeSlotId
     ) || null;
   };
-  
-  // Check if this is the first cell for a subject (to avoid duplicates)
-  const isFirstCellForSubject = (timeSlotId: number, day: string, subject: Subject): boolean => {
-    return parseInt(subject.timeSlots[0]) === timeSlotId;
-  };
-  
-  // Calculate how many cells a subject spans
-  const getSubjectRowSpan = (subject: Subject): number => {
-    return subject.timeSlots.length;
-  };
-  
-  const handleSubjectSelect = (subject: Subject) => {
+
+  const handleSubjectSelect = (subject: ScheduleItem) => {
     setSelectedSubject(subject);
     setShowFeedbackPopup(true);
   };
-  
+
   const handleSubmitFeedback = () => {
     console.log('Feedback submitted:', feedbackText);
     setFeedbackRemaining(prev => Math.max(0, prev - 1));
     setShowFeedbackPopup(false);
     setFeedbackText('');
   };
-  
+
   const handleCancelFeedback = () => {
     setShowFeedbackPopup(false);
     setFeedbackText('');
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <main className="col-span-3 space-y-4">
+          <h1 className="font-bold text-2xl mb-4">Schedule</h1>
+          <div>Loading schedule data...</div>
+          <button onClick={fetchScheduleData} className="bg-blue-500 text-white py-2 px-4 rounded-lg mb-4">
+              Refresh Schedule
+            </button>
+        </main>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <main className="col-span-3 space-y-4">
+          <h1 className="font-bold text-2xl mb-4">Schedule</h1>
+          <div className="text-red-500">{error}</div>
+        </main>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -140,7 +191,7 @@ const SchedulePage: React.FC = () => {
             </div>
           </div>
           
-          {/* Improved schedule display */}
+          {/* Schedule display */}
           <div className="overflow-y-auto h-[500px]">
             <table className="w-full border-collapse">
               <thead>
@@ -159,29 +210,20 @@ const SchedulePage: React.FC = () => {
                     </td>
                     {days.map((day) => {
                       const subject = getSubjectForCell(timeSlot.id, day);
-                      const isFirstCell = subject && isFirstCellForSubject(timeSlot.id, day, subject);
                       
-                      // If there's a subject and it's the first cell, render it
-                      if (subject && isFirstCell) {
-                        const rowSpan = getSubjectRowSpan(subject);
+                      if (subject) {
                         return (
                           <td 
                             key={`${day}-${timeSlot.id}`}
                             className="p-2 border bg-yellow-100 text-center cursor-pointer"
-                            rowSpan={rowSpan}
                             onClick={() => handleSubjectSelect(subject)}
                           >
-                            <div className="font-semibold">{subject.code}</div>
-                            <div className="text-xs text-gray-600">{getSubjectTimeDisplay(subject)}</div>
+                            <div className="font-semibold">{subject.subject_code}</div>
+                            <div className="text-xs text-gray-600">{subject.room_number}</div>
+                            <div className="text-xs text-gray-600">{subject.section_name}</div>
                           </td>
                         );
-                      }
-                      // If there's a subject but not the first cell, skip rendering
-                      else if (subject && !isFirstCell) {
-                        return null;
-                      }
-                      // If no subject, render empty cell
-                      else {
+                      } else {
                         return <td key={`${day}-${timeSlot.id}`} className="p-2 border"></td>;
                       }
                     })}
@@ -203,12 +245,12 @@ const SchedulePage: React.FC = () => {
               </div>
               
               <div className="mb-4">
-                <p className="font-semibold">{selectedSubject.code} - {selectedSubject.name}</p>
+                <p className="font-semibold">{selectedSubject.subject_code} - {selectedSubject.subject_name}</p>
                 <p className="text-sm text-gray-600">
-                  {selectedSubject.day}, {getSubjectTimeDisplay(selectedSubject)}
-                  <span className="text-xs ml-2 text-gray-500">
-                    (Slots: {selectedSubject.timeSlots.split('').join(', ')})
-                  </span>
+                  {getDayAbbreviation(selectedSubject.day_slot)}, {getSubjectTimeDisplay(selectedSubject)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Room: {selectedSubject.room_number} | Section: {selectedSubject.section_name}
                 </p>
               </div>
               
