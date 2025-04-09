@@ -1,11 +1,12 @@
 
 import Layout  from '@/Components/ui/layout';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Bell,
         House,
         Network,
         Users,
         type LucideIcon } from "lucide-react"
+import axios from 'axios';
 
 interface News {
   id: number;
@@ -42,6 +43,14 @@ const SuperAdminDashboard: React.FC = () => {
   const [roomCount, setRoomCount] = useState<number>(0);
   const [instructorCount, setInstructorCount] = useState<number>(0);
   const [departmentCount, setDepartmentCount] = useState<number>(0);
+
+  const handleRoomCount = useCallback(async() => {
+    const response = await axios.get('/admin/getRoom');
+    setRoomCount(response.data.length);
+  }, []);
+  useEffect(() => {
+    handleRoomCount();
+  }, [handleRoomCount]);
 
   const headerCount: HeaderCount[] = [
     {

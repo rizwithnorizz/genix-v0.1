@@ -9,7 +9,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\depadminPageController;
 use App\Http\Controllers\guestPageController;
 use App\Http\Controllers\sadminPageController;
-
+use App\Http\Controllers\DataRelay;
 use App\Http\Controllers\DeepSeekController;
 
 
@@ -53,6 +53,8 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
 
     Route::get('admin/chat', [sadminPageController::class, 'chat'])->name('admin.chat');
     Route::get('admin/chat/send', [DeepSeekController::class, 'index'])->name('admin.chat.send');
+
+    Route::get('admin/getRoom', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
 
     // Add more routes for super admin
 });
