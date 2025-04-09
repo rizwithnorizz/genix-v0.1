@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             SubjectInstructorSeeder::class,
             ClassroomSeeder::class,
             CourseSectionSeeder::class,
-            RoomAssignmentSeeder::class,
+            DepartmentRoomSeeder::class,
             ScheduleSeeder::class,
         ]);
     }

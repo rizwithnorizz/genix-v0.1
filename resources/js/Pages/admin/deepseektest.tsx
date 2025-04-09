@@ -5,6 +5,7 @@ const DeepSeekTest = () => {
   const handleSubmit = async () => {
     try {
       const response = await axios.get('/admin/chat/send');
+      const jsonReponse = response.data.message;
       if (response.data.success) {
         console.log('Response:', response.data.message);
         alert(response.data.message);

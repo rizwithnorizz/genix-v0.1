@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('room_assignments', function (Blueprint $table) {
-            $table->string('section_name');
+        Schema::create('department_room', function (Blueprint $table) {
+            $table->id();
+            $table->string('department_short_name');
             $table->string('room_number');
 
             $table->foreign('room_number')->references('room_number')->on('classrooms')->onDelete('cascade');
-            $table->foreign('section_name')->references('section_name')->on('course_sections')->onDelete('cascade');
+            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('room_assignments');
+        Schema::dropIfExists('department_room');
     }
 };

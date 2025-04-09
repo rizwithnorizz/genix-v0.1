@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->integer('room_req')->default(0);
             $table->string('subject_code')->unique();
-            $table->unsignedBigInteger('instructor_id')->nullable();
             $table->boolean('prof_subject')->default(false);
             $table->timestamps();
         });
