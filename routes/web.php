@@ -55,7 +55,7 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/chat/send', [DeepSeekController::class, 'index'])->name('admin.chat.send');
 
     Route::get('admin/getRoom', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
-
+    Route::get('admin/push', [DataRelay::class, 'push'])->name('admin.push');
     // Add more routes for super admin
 });
 
