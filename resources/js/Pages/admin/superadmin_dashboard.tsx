@@ -44,10 +44,11 @@ const SuperAdminDashboard: React.FC = () => {
   const [departmentCount, setDepartmentCount] = useState<number>(0);
 
   const handleRoomCount = useCallback(async() => {
-    const response = await axios.get('/admin/getRoom');
-    setRoomCount(response.data.length);
-    const response2 = await axios.get('admin/getDepartments');
-    setDepartmentCount(response2.data.length);    
+    const response = await axios.get('/admin/getDashboardCount');
+    console.log("fetched data", response.data);
+    console.log("fetched data", response.data);
+    setRoomCount(response.data.classrooms);
+    setDepartmentCount(response.data.departments);
   }, []);
   useEffect(() => {
     handleRoomCount();

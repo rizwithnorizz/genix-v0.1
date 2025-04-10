@@ -11,6 +11,7 @@ use App\Http\Controllers\guestPageController;
 use App\Http\Controllers\sadminPageController;
 use App\Http\Controllers\DataRelay;
 use App\Http\Controllers\DeepSeekController;
+use App\Http\Controllers\DataCreate;
 
 
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
@@ -54,8 +55,11 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/chat', [sadminPageController::class, 'chat'])->name('admin.chat');
     Route::get('admin/chat/send', [DeepSeekController::class, 'index'])->name('admin.chat.send');
 
-    Route::get('admin/getRoom', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
-    Route::get('admin/push', [DataRelay::class, 'push'])->name('admin.push');
+    Route::get('admin/getDashboardCount', [DataRelay::class, 'getDashboardCount'])->name('admin.getDashboardCount');
+    
+
+    Route::post('admin/create-department', [DataCreate::class, 'createDepartment'])->name('admin.create-department');
+    Route::get('admin/get-departments', [DataRelay::class, 'getDepartments'])->name('admin.getDepartment');
     // Add more routes for super admin
 });
 

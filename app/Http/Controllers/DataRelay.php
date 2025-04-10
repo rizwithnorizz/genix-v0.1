@@ -16,21 +16,42 @@ use Illuminate\Http\Request;
 
 class DataRelay extends Controller
 {
+    public function getDashboardCount () 
+    {
+        $classrooms = Classroom::count();
+        $departments = Departments::count();
+
+        return response()->json([
+            'classrooms' => $classrooms,
+            'departments' => $departments,
+        ]);
+    }
     public function getRoom()
     {
         $classrooms = classroom::all();
         return response()->json([
             'name' => "classrooms",
-            'data' => $classrooms
+            'data' => $classrooms,
+            'length' => $classrooms->count(),
         ]);
     }
 
+    public function getDepartments()
+    {
+        $departments = Departments::all();
+        return response()->json([
+            'name' => "departments",
+            'data' => $departments,
+            'length' => $departments->count(),
+        ]);
+    }
+    
     public function getDepartmentRoom()
     {
         $departmentRoom = DepartmentRoom::all();
         return response()->json([
             'name' => "department_room",
-            'data' => $departmentRoom
+            'data' => $departmentRoom,
         ]);
     }
 
@@ -39,7 +60,7 @@ class DataRelay extends Controller
         $courseSubject = CourseSubject::all();
         return response()->json([
             'name' => "course_subject",
-            'data' => $courseSubject
+            'data' => $courseSubject,
         ]);
     }
 
@@ -48,7 +69,8 @@ class DataRelay extends Controller
         $subjectInstructor = subject_instructor::all();
         return response()->json([
             'name' => "subject_instructor",
-            'data' => $subjectInstructor
+            'data' => $subjectInstructor,
+
         ]);
     }
 
@@ -96,14 +118,6 @@ class DataRelay extends Controller
         ]);
     }
 
-    public function getDepartments()
-    {
-        $departments = Departments::all();
-        return response()->json([
-            'name' => "departments",
-            'data' => $departments
-        ]);
-    }
 
     public function getSubject()
     {
