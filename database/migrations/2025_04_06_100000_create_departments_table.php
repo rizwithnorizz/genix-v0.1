@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('departmentID');
             $table->string('department_short_name')->unique();
             $table->string('department_full_name');
+            $table->string('logo_img_path');
             $table->timestamps();
         });
     }

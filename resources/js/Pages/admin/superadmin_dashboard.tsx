@@ -41,12 +41,13 @@ const SuperAdminDashboard: React.FC = () => {
     { id: 4, name: 'Generated Schedule', content: 'Class Schedule 06/29/2025' },
   ]);
   const [roomCount, setRoomCount] = useState<number>(0);
-  const [instructorCount, setInstructorCount] = useState<number>(0);
   const [departmentCount, setDepartmentCount] = useState<number>(0);
 
   const handleRoomCount = useCallback(async() => {
     const response = await axios.get('/admin/getRoom');
     setRoomCount(response.data.length);
+    const response2 = await axios.get('admin/getDepartments');
+    setDepartmentCount(response2.data.length);    
   }, []);
   useEffect(() => {
     handleRoomCount();
@@ -61,12 +62,6 @@ const SuperAdminDashboard: React.FC = () => {
     },
     {
       id: 2,
-      icon: Users,
-      desc: "Instructors",
-      count: instructorCount,
-    },
-    {
-      id: 3,
       icon: Network,
       desc: "Departments",
       count: departmentCount,

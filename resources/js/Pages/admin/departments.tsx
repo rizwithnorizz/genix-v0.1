@@ -1,3 +1,4 @@
+import PrimaryButton from '@/Components/PrimaryButton';
 import Layout  from '@/Components/ui/layout';
 import { Upload } from 'lucide-react';
 import React, { useState } from 'react';
@@ -7,6 +8,17 @@ interface Department {
   name: string;
   shortName: string;
   logo: string;
+}
+
+interface ProgramsOffered { 
+  id: number;
+  name: string;
+  shortName: string;
+}
+interface Curriculum { 
+  id: number;
+  name: string;
+  programs: ProgramsOffered[];
 }
 
 const DepartmentPage: React.FC = () => {
@@ -23,10 +35,15 @@ const DepartmentPage: React.FC = () => {
   const [showAdminPopup, setShowAdminPopup] = useState<boolean>(false);
   const [showEditPopup, setEditPopup] = useState<boolean>(false);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [editDepartmentName, setEditDepartmentName] = useState<string>('');
 
+  const [showCurriculum, setShowCurriculum] = useState<boolean>(false);
+
+  const [newDepartment, setNewDepartment] = useState<Department | null>(null);
   const handleEdit = (department: Department) => {
     console.log('Edit:', department);
     setSelectedDepartment(department);
+    setEditDepartmentName(department.name);
     setEditPopup(true);
   };
 
@@ -51,6 +68,13 @@ const DepartmentPage: React.FC = () => {
     setShowAdminPopup(false);
   };
 
+  const handleUpdateDepartment = () => {
+
+  }
+
+  const handleCreateDepartment = () => {
+
+  }
   return (
     <Layout>
       <main className="col-span-3 space-y-4">
@@ -79,33 +103,25 @@ const DepartmentPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input type="text" placeholder="Department Name..." className="p-2 rounded-lg border" />
-          <select className="p-2 rounded-lg border">
-            <option>Department Admin</option>
-          </select>
-          <button className="bg-blue-500 text-white p-2 rounded-lg">Upload Logo</button>
+        <form onSubmit={handleCreateDepartment}
+          className="bg-white p-4 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input type="text" name="depName" placeholder="Department Name..." className="p-2 rounded-lg border" />
+          <input type="text" name="depAdmin" className="p-2 rounded-lg border" placeholder="Department Admin..."/>  
+          <button className=" xd:row-start-3 sm:row-start-3  md:row-start-1 md:col-start-3 bg-blue-500 text-white p-2 rounded-lg">Upload Logo</button>
 
-          <input type="text" placeholder="Department Short Name..." className="p-2 rounded-lg border" />
+          <input type="text" name="depShortName" placeholder="Department Short Name..." className="p-2 rounded-lg border" />
+          <input type="text" name="logo_img_path" placeholder="Test..." className="p-2 rounded-lg border" />
           <select className="p-2 rounded-lg border">
             <option>Assigned Rooms</option>
           </select>
-          <button className="bg-green-500 text-white p-2 rounded-lg">Create Department</button>
-          <div className="bg-white shadow p-4 rounded-lg col-span-2 grid grid-cols-1 md:grid-row-2 gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h2 className="text-lg font-semibold mb-2">Curriculum</h2>
-                <input className="p-2 rounded-lg border w-full" type="text" placeholder="Curriculum Name..." />
-              </div>
-              <div>
-                <button className="h-full bg-blue-500 text-white p-2 rounded-lg w-full">
-                  <Upload className="inline-block mr-2" />
-                  Upload Curriculum
-                  </button>
-              </div>
-            </div>
+          <button className="md:col-start-3 h-full bg-blue-500 text-white p-2 rounded-lg w-full">
+            <Upload className="inline-block mr-2" />
+            Add Curriculum
+            </button> 
+          <div className="flex justify-center col-start-2">
+            <button type="submit" className="bg-green-500 text-white p-2 rounded-full pr-5 pl-5">Create Department</button>
           </div>
-        </div>
+        </form>
 
         {showAdminPopup && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
@@ -133,7 +149,9 @@ const DepartmentPage: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
             <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
               <h2 className="text-xl font-semibold mb-4">Department Details</h2>
-              <input type="text" placeholder={selectedDepartment.name} className="p-2 border rounded-lg w-full mb-4" />
+              <input type="text" value={editDepartmentName}
+              onChange={(e)=> setEditDepartmentName(e.target.value)}
+              className="p-2 border rounded-lg w-full mb-4" />
               <input type="text" placeholder={selectedDepartment.shortName} className="p-2 border rounded-lg w-full mb-4" />
               <button className="bg-blue-500 text-white p-2 rounded-lg">Upload Logo</button>
               <div className="flex justify-end space-x-2 mt-4">
