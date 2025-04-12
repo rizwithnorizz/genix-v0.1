@@ -62,7 +62,9 @@ const initialData: Data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [data, setData] = useState<Data>(initialData);
+  const [logged, setLogged] = useState<boolean>(false);
 
+  
   useEffect(() => {
     axios.get('/getusersidebar') // Update the endpoint to fetch user data
       .then(response => {
@@ -115,6 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isCollapsible: false,
               },
             ];
+            setLogged(true);
             break;
           case 1: //Department Admin
             navMainItems = [
@@ -165,37 +168,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 isCollapsible: false
               }
             ];
-            break;
-          default: //Guest User
-            navMainItems = [
-              {
-                title: "Student Schedule",
-                url: "#",
-                icon: Settings2,
-                isCollapsible: false,
-              },
-              {
-                title: "Instructor Schedule",
-                url: "#",
-                icon: Settings2,
-                isCollapsible: false,
-              },
-              {
-                title: "Help",
-                url: "help",
-                icon: Settings2,
-                isCollapsible: false,
-              },
-              {
-                title: "About",
-                url: "about",
-                icon: Settings2,
-                isCollapsible: false
-              }
-            ];
+            setLogged(true);
             break;
         }
-
         setData(prevData => ({
           ...prevData,
           user,
@@ -204,6 +179,39 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       })
       .catch(error => {
         console.error('Error fetching user data:', error);
+        
+        if (logged == false){
+          let navMainItems: NavItem[] = [
+            {
+              title: "Student Schedule",
+              url: "student",
+              icon: Settings2,
+              isCollapsible: false,
+            },
+            {
+              title: "Instructor Schedule",
+              url: "instructor",
+              icon: Settings2,
+              isCollapsible: false,
+            },
+            {
+              title: "Login",
+              url: "/login",
+              icon: Settings2,
+              isCollapsible: false,
+            },
+            {
+              title: "About",
+              url: "/   about",
+              icon: Settings2,
+              isCollapsible: false
+            }
+          ];
+          setData(prevData => ({
+            ...prevData,
+            navMain: navMainItems,
+          }));
+        }
       });
   }, []);
 
@@ -217,7 +225,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {logged && (
+          <NavUser user={data.user} />
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
