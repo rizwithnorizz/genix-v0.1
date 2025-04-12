@@ -11,21 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('course_sections', function (Blueprint $table) {
+        Schema::create('department_curriculums', function (Blueprint $table) {
             $table->id();
-            $table->string('section_name')->unique();
+            $table->string('department_short_name');
+            $table->string('curriculum_name')->unique();
             $table->string('program_short_name');
-            $table->integer('year_level');
-            $table->string('semester');
-            $table->string('curriculum_name');
 
             $table->foreign('program_short_name')
                 ->references('program_short_name')
                 ->on('program_offerings')
                 ->onDelete('cascade');
-            $table->foreign('curriculum_name')
-                ->references('curriculum_name')
-                ->on('department_curriculums')
+            $table->foreign('department_short_name')
+                ->references('department_short_name')
+                ->on('departments')
                 ->onDelete('cascade');
             $table->timestamps();
         });
@@ -36,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('course_sections');
+        Schema::dropIfExists('department_curriculums');
     }
 };

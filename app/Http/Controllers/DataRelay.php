@@ -13,6 +13,7 @@ use App\Models\Schedules;
 use App\Models\Instructor;
 use App\Models\Departments;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DataRelay extends Controller
 {
@@ -84,7 +85,13 @@ class DataRelay extends Controller
     }   
     public function getCourseSections()
     {
-        $courseSections = Course_Sections::all();
+        $userDepartmentShortName = auth()->user()->department_short_name;
+        $courseSections = Course_Sections::join('program_offerings', 'course_sections.program_short_name', '=', 'program_offerings.program_short_name')
+            ->select('course_sections.*')
+            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
+                return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
+            })
+            ->get();
         return response()->json([
             'name' => "course_sections",
             'data' => $courseSections
@@ -93,13 +100,23 @@ class DataRelay extends Controller
 
     public function getDepartmentCurriculum()
     {
-        $departmentCurriculum = Department_Curriculum::all();
+        if (!auth()->check()) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        // Retrieve the authenticated user's department_short_name
+        $userDepartmentShortName = auth()->user()->department_short_name;
+        $departmentCurriculum = Department_Curriculum::join('program_offerings', 'department_curriculums.department_short_name', '=', 'program_offerings.department_short_name')
+            ->select('department_curriculums.*', 'program_offerings.*')
+            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
+                return $query->where('department_curriculums.department_short_name', $userDepartmentShortName);
+            })
+            ->get();
+
         return response()->json([
             'name' => "department_curriculum",
             'data' => $departmentCurriculum
         ]);
     }
-
     public function getSchedules()
     {
         $schedules = Schedules::all();

@@ -1,6 +1,7 @@
 import Layout  from '@/Components/ui/layout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, ChevronLeft, ChevronRight, MoreVertical, type LucideIcon } from "lucide-react"
+import PrimaryButton from '@/Components/PrimaryButton';
 
 interface Courses {
   id: number;
@@ -33,7 +34,6 @@ interface Schedule {
 }
 
 const DepAdminDashboard:React.FC = () => {
-  
     const [Courses, setCourses] = useState<Courses[]>([
       { id: 1, name: 'BSCS', content: 'Bachelor of Science in Computer Science' },
       { id: 2, name: 'BSIT', content: 'Bachelor of Science in Information Technology' },
@@ -113,7 +113,7 @@ const DepAdminDashboard:React.FC = () => {
               </div>
             ))}
           </div>
-          <button className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">Generate New Class Schedule</button>
+          <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">Generate New Class Schedule</PrimaryButton>
         </div>
         <div className="bg-white p-4 rounded-2xl shadow-lg">
           <div className="flex justify-between">
@@ -132,18 +132,18 @@ const DepAdminDashboard:React.FC = () => {
               </button>
             ))}
           </div>
-          <button className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">New Curriculum</button>
+          <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">New Curriculum</PrimaryButton>
         </div>
         <div className="mt-4 bg-white p-4 rounded-2xl shadow-lg col-span-2  ">
           <h2 className="font-semibold text-lg mb-4">Faculty</h2>
           <div className="relative">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
               {instructors.map((instructor) => (
-                <button key={instructor.id} 
+                <PrimaryButton key={instructor.id} 
                 className="bg-gray-800 hover:bg-gray-700 text-white p-6 rounded-lg shadow flex flex-col items-center justify-center">
                   <div className="text-6xl font-bold mb-2">{instructor.initials}</div>
                   <div className="text-center">{instructor.name}</div>
-                </button>
+                </PrimaryButton>
               ))}
             </div>
 
@@ -156,7 +156,7 @@ const DepAdminDashboard:React.FC = () => {
           </div>
 
           <div className="mt-4 flex justify-between">
-            <button className="bg-green-600 text-white py-2 px-4 rounded-lg">View All</button>
+            <PrimaryButton className="bg-green-600 text-white py-2 px-4 rounded-lg">View All</PrimaryButton>
           </div>
         </div>
 

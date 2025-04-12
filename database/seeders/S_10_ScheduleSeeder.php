@@ -8,7 +8,7 @@ use App\Models\Subject;
 use App\Models\Classroom;
 use App\Models\Course_Sections;
 
-class ScheduleSeeder extends Seeder
+class S_10_ScheduleSeeder extends Seeder
 {
     private $populationSize = 100;
     private $generationCount = 100;
