@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('department_curriculums', function (Blueprint $table) {
             $table->id();
             $table->string('department_short_name');
-            $table->string('curriculum_name')->unique();
             $table->string('program_short_name');
-
+            $table->string('curriculum_name')->unique();
+            
             $table->foreign('program_short_name')
                 ->references('program_short_name')
                 ->on('program_offerings')

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('room_req')->default(0);
+            $table->integer('lec')->nullable();
+            $table->integer('lab')->nullable();
             $table->string('subject_code')->unique();
             $table->boolean('prof_subject')->default(false);
             $table->timestamps();

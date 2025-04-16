@@ -14,12 +14,16 @@ return new class extends Migration
         Schema::create('course_subjects', function (Blueprint $table) {
             $table->id();
             $table->string('program_short_name');
+            $table->string('curriculum_name');
+            $table->integer('year_level');
+            $table->string('semester');
             $table->string('subject_code');
 
+            $table->foreign('curriculum_name')->references('curriculum_name')->on('department_curriculums')->onDelete('cascade');
             $table->foreign('program_short_name')->references('program_short_name')->on('program_offerings')->onDelete('cascade');
             $table->foreign('subject_code')->references('subject_code')->on('subjects')->onDelete('cascade');
             $table->timestamps();
-        });
+        }); 
     }   
 
     /**

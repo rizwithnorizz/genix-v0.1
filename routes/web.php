@@ -37,6 +37,11 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     
     Route::get('/api/curriculum', [DataRelay::class, 'getDepartmentCurriculum'])->name('depadmin.curriculum');
     Route::get('/api/section', [DataRelay::class, 'getCourseSections'])->name('depadmin.sections');
+    Route::post('/api/course-subject', [DataRelay::class, 'getCourseSubjects'])->name('depadmin.course-subject');
+
+    Route::post('/api/curriculum/upload', [DataCreate::class, 'uploadCurriculum'])->name('depadmin.upload-curriculum');
+    Route::post('/api/curriculum/create', [DataCreate::class, 'createCurriculum'])->name('depadmin.create-curriculum');
+    Route::post('/api/section/create', [DataCreate::class, 'createSection'])->name('depadmin.create-section');
     //Route::get('dep-admin/course-sections', [CourseSectionController::class, 'index'])->name('dep.course-sections');
     //Route::get('dep-admin/subjects', [SubjectController::class, 'index'])->name('dep.subjects');
     // Add more routes for department admin

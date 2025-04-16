@@ -75,14 +75,6 @@ class DataRelay extends Controller
         ]);
     }
 
-    public function getProgramOfferings()
-    {
-        $programOfferings = program_offerings::all();
-        return response()->json([
-            'name' => "program_offerings",
-            'data' => $programOfferings
-        ]);
-    }   
     public function getCourseSections()
     {
         $userDepartmentShortName = auth()->user()->department_short_name;
@@ -105,16 +97,60 @@ class DataRelay extends Controller
         }
         // Retrieve the authenticated user's department_short_name
         $userDepartmentShortName = auth()->user()->department_short_name;
-        $departmentCurriculum = Department_Curriculum::join('program_offerings', 'department_curriculums.department_short_name', '=', 'program_offerings.department_short_name')
+        $departmentCurriculum = Department_Curriculum::join('program_offerings', 'department_curriculums.program_short_name', '=', 'program_offerings.program_short_name')
             ->select('department_curriculums.*', 'program_offerings.*')
             ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
                 return $query->where('department_curriculums.department_short_name', $userDepartmentShortName);
+            })
+            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
+                return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
             })
             ->get();
 
         return response()->json([
             'name' => "department_curriculum",
             'data' => $departmentCurriculum
+        ]);
+    }
+
+    public function yearLevel(String $yearLevel)
+    {
+        switch($yearLevel) {
+            case '1st':
+                return 1;
+            case '2nd':
+                return 2;
+            case '3rd':
+                return 3;
+            case '4th':
+                return 4;
+            default:
+                return null; // or handle the error as needed
+        }
+    }
+    
+    public function getCourseSubjects(Request $request)
+    {
+        $userDepartmentShortName = auth()->user()->department_short_name;
+        $programShortName = $request->input('program_short_name'); 
+        $curriculumName = $request->input('curriculum_name');
+        $courseSubjects = CourseSubject::join('program_offerings', 'course_subjects.program_short_name', '=', 'program_offerings.program_short_name')
+            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
+                return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
+            })
+            ->when($programShortName, function ($query, $programShortName) {
+                return $query->where('course_subjects.program_short_name', $programShortName);
+            })
+            ->when($curriculumName, function ($query, $curriculumName) {
+                return $query->where('course_subjects.curriculum_name', $curriculumName);
+            })
+            ->join('subjects', 'course_subjects.subject_code', '=', 'subjects.subject_code')
+            ->select('subjects.*', 'course_subjects.*')
+            ->get();
+
+        return response()->json([
+            'name' => "course_subjects",
+            'data' => $courseSubjects,
         ]);
     }
     public function getSchedules()

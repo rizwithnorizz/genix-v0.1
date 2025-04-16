@@ -3,49 +3,103 @@
 namespace App\Libraries;
 
 use GuzzleHttp\Client;
-use Exception;
+use Illuminate\Support\Facades\Log;
 
 class DeepSeekClient
 {
     protected $client;
     protected $apiKey;
-    protected $baseUrl = 'https://api.deepseek.com/v1'; // Verify actual API endpoint
+    protected $apiEndpoint = 'https://api.deepseek.com/v1/chat/completions';
+    protected $prompt;
+    protected $model = 'deepseek-coder';
+    protected $temperature = 0.1;
+    protected $maxTokens = 4000; // Default value within allowed range
 
     public function __construct()
     {
+        $this->client = new Client();
         $this->apiKey = env('DEEPSEEK_API_KEY');
-        $this->client = new Client([
-            'base_uri' => $this->baseUrl,
-            'headers' => [
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'Content-Type' => 'application/json',
-            ]
-        ]);
+        
+        if (!$this->apiKey) {
+            throw new \Exception('DeepSeek API key not found in environment');
+        }
     }
 
-    public function query(string $prompt): self
+    public function query($prompt)
     {
         $this->prompt = $prompt;
+        return $this;
+    }
+    
+    public function setModel($model)
+    {
+        $this->model = $model;
+        return $this;
+    }
+    
+    public function setTemperature($temperature)
+    {
+        $this->temperature = $temperature;
+        return $this;
+    }
+    
+    public function setMaxTokens($maxTokens)
+    {
+        // Ensure max_tokens is within valid range (1 to 8192)
+        $this->maxTokens = min(8192, max(1, $maxTokens));
         return $this;
     }
 
     public function run()
     {
         try {
-            $response = $this->client->post('/chat/completions', [
+            // For large files, we may need to truncate the prompt
+            // to ensure the total request size is reasonable
+            $promptLength = strlen($this->prompt);
+            if ($promptLength > 100000) {
+                Log::warning('Large prompt detected, truncating', ['length' => $promptLength]);
+                // Keep some beginning part and some end part
+                $beginPart = substr($this->prompt, 0, 40000);
+                $endPart = substr($this->prompt, -40000);
+                $this->prompt = $beginPart . "\n\n[CONTENT TRUNCATED DUE TO SIZE]\n\n" . $endPart;
+            }
+            
+            $response = $this->client->post($this->apiEndpoint, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $this->apiKey
+                ],
                 'json' => [
-                    'model' => 'deepseek-chat', // Verify correct model name
+                    'model' => $this->model,
                     'messages' => [
-                        ['role' => 'user', 'content' => $this->prompt]
-                    ]
+                        [
+                            'role' => 'system',
+                            'content' => 'You are a curriculum parser AI that extracts structured information from curriculum documents.'
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => $this->prompt
+                        ]
+                    ],
+                    'temperature' => $this->temperature,
+                    'max_tokens' => $this->maxTokens
                 ]
             ]);
 
-            $data = json_decode($response->getBody(), true);
-            return $data['choices'][0]['message']['content'] ?? 'No response';
-
-        } catch (Exception $e) {
-            throw new Exception("DeepSeek API Error: " . $e->getMessage());
+            $body = json_decode($response->getBody(), true);
+            
+            if (isset($body['choices'][0]['message']['content'])) {
+                return $body['choices'][0]['message']['content'];
+            } else {
+                Log::error('Invalid DeepSeek API response format', ['response' => $body]);
+                throw new \Exception('Invalid API response format');
+            }
+        } catch (\Exception $e) {
+            Log::error('DeepSeek API request failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 }

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('section_name')->unique();
             $table->string('program_short_name');
             $table->integer('year_level');
-            $table->string('semester');
             $table->string('curriculum_name');
 
             $table->foreign('program_short_name')
