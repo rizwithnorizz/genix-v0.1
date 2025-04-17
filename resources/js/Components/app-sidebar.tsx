@@ -144,7 +144,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               },
               {
                 title: "Feedback",
-                url: "#",
+                url: "feedback",
                 icon: BookOpen,
                 isCollapsible: false,
               },

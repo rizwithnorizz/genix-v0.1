@@ -455,6 +455,39 @@ PROMPT;
             ], 500);
         }
     }
-    
+    public function approveStudentFeedback(Request $request){
+        DB::table('course_subject_feedback')
+        ->where('id', $request->input('feedback_id'))
+        ->update(['status' => true]);
+        \Log::error("successfully approved student " .  $request->input('feedback_id'));
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback approved successfully'
+        ], 200);
+    }
+
+    public function approveInstructorFeedback(Request $request){
+        DB::table('instructor_feedback')
+        ->where('id', $request->input('feedback_id'))
+        ->update(['status' => true]);
+        \Log::error("successfully approved student");
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback approved successfully'
+        ], 200);
+    }
+
+    public function createRoom(Request $request){
+        DB::table('classrooms')
+        ->insert([
+            'room_number' => $request->input('room_number'),
+            'room_type' => $request->input('room_type'),
+        ]);
+        \Log::error("successfully created room " .  $request->input('room_number'));
+        return response()->json([
+            'success' => true,
+            'message' => 'Room created successfully'
+        ], 200);
+    }
     
 }

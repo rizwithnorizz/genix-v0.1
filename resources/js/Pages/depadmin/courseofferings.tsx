@@ -59,7 +59,12 @@ const CourseOfferingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'Course Offerings' | 'Sections'>('Course Offerings');
   const handleSwitchTabs = (tabName: string) => {
     setOpenSectionMenu(null);
-    setActiveTab(tabName === 'Course Offerings' ? 'Course Offerings' : 'Sections');
+    if (tabName == 'Course Offerings'){
+      setActiveTab('Course Offerings');
+    } else {
+      setActiveTab('Sections');
+      fetchSections();
+    }
   }
   {/* navigation */}
 
@@ -293,33 +298,55 @@ const CourseOfferingsPage: React.FC = () => {
           {/* Course Offerings Tab */}
           {activeTab === 'Course Offerings' && (
             <div className="bg-white p-4 rounded-2xl shadow-lg">
-                <div className="flex justify-between">
-                  <input className="border border-gray-300 rounded-lg p-2" type="text" placeholder="Search curriculum..." />
-                </div>
-                <div  >
-                  <div className="mt-5">
-                    <label className="text-lg font-semibold pl-5 pt-3">Curriculum Name</label>
-                    <label className="text-lg font-semibold ml-5 pl-5 pt-3">Program</label>
-                  </div>
-                </div>
-                <div className="mt-5 space-y-4 max-h-[400px] overflow-y-auto">
-                  {curriculum.map((Curriculum, idx) => (
-                    <button 
-                      onClick={() => handleShowCurriculumCourses(Curriculum)}
-                      key={idx} 
-                      className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-full flex shadow items-center">
-                      <div className="pl-5">
-                        <label className="flex justify-start h-full w-40  ">{Curriculum.curriculum_name}</label>
-                      </div>
-                      <div className="pl-5">
-                        <label className="flex justify-start h-50">{Curriculum.program_name}</label>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+              <div className="flex justify-between mb-4">
+                <input 
+                  className="border border-gray-300 rounded-lg p-2 w-1/3" 
+                  type="text" 
+                  placeholder="Search curriculum..." 
+                />
                 <PrimaryButton 
-                onClick={handleToggleCurriculumPopup}
-                className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">New Curriculum</PrimaryButton>
+                  onClick={handleToggleCurriculumPopup}
+                  className="bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg"
+                >
+                  New Curriculum
+                </PrimaryButton>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Curriculum</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {curriculum.map((curr) => (
+                      <tr key={curr.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {curr.curriculum_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {curr.program_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {curr.department_short_name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <button
+                            onClick={() => handleShowCurriculumCourses(curr)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            View Curriculum
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
           {showCurriculumCourses && selectedCurriculum && (
@@ -577,80 +604,123 @@ const CourseOfferingsPage: React.FC = () => {
           ))}
           {/* Sections Tab */}
           {activeTab === 'Sections' && (
-            
-          <div className="bg-white p-4 rounded-2xl shadow-lg">
-            <div className="flex justify-start gap-5">
-              <input className="border border-gray-300 rounded-lg p-2" type="text" placeholder="Search section..." />
-              <select 
-                className="appearance-none bg-gray-200 rounded-lg w-1/4"
-                value={selectedYearLevel}
-                onChange={(e) => setSelectedYearLevel(e.target.value)}
-              >
-                <option>Year Level</option>
-                <option>First Year</option>
-                <option>Second Year</option>
-                <option>Third Year</option>
-                <option>Fourth Year</option>
-              </select>
-              <select
-                  className="appearance-none bg-gray-200 rounded-lg w-1/4"
+            <div className="bg-white p-4 rounded-2xl shadow-lg">
+              <div className="flex justify-start gap-5 mb-4">
+                <input 
+                  className="border border-gray-300 rounded-lg p-2 w-1/4" 
+                  type="text" 
+                  placeholder="Search section..." 
+                />
+                <select 
+                  className="border border-gray-300 rounded-lg p-2 w-1/4"
+                  value={selectedYearLevel}
+                  onChange={(e) => setSelectedYearLevel(e.target.value)}
+                >
+                  <option value="">All Year Levels</option>
+                  <option value="First Year">First Year</option>
+                  <option value="Second Year">Second Year</option>
+                  <option value="Third Year">Third Year</option>
+                  <option value="Fourth Year">Fourth Year</option>
+                </select>
+                <select
+                  className="border border-gray-300 rounded-lg p-2 w-1/4"
                   onChange={(e) => setSelectedCurriculum(curriculum.find(curr => curr.program_short_name === e.target.value) || null)}
                 >
-                  <option>Program</option>
+                  <option value="">All Programs</option>
                   {curriculum
-                  .filter((curr, index, self) =>
-                    self.findIndex(item => item.program_short_name === curr.program_short_name) === index
-                  )
-                  .map((curriculum) => (
-                    <option key={curriculum.id} value={curriculum.program_short_name}>
-                      {curriculum.program_short_name}
-                    </option>
-                  ))}
+                    .filter((curr, index, self) =>
+                      self.findIndex(item => item.program_short_name === curr.program_short_name) === index
+                    )
+                    .map((curr) => (
+                      <option key={curr.id} value={curr.program_short_name}>
+                        {curr.program_short_name}
+                      </option>
+                    ))}
                 </select>
-            </div>
-
-            <div className="mt-5 space-y-4 max-h-[400px] overflow-y-auto">
-              {sections
-              .filter((section) => {
-                const yearLevelMap: { [key: string]: number } = {
-                  'First Year': 1,
-                  'Second Year': 2,
-                  'Third Year': 3,
-                  'Fourth Year': 4,
-                };
-                return (
-                  section.program_short_name === selectedCurriculum?.program_short_name &&
-                  section.year_level === yearLevelMap[selectedYearLevel]
-                );
-                })
-                .map((sections) => (
-                    <div key={sections.id} className="bg-gray-800 text-white p-3 rounded-full flex justify-between items-center mb-3 shadow">
-                    <span className="text-lg pl-3">{sections.section_name}</span>
-                    <button onClick={() => toggleSectionMenu(sections.id)} className="text-2xl px-4 focus:outline-none relative">
-                      &#x22EE;
-                    </button>
-                    {openSectionMenu === sections.id && (
-                      <div className="mr-8 absolute bg-white rounded-lg shadow-lg p-2 right-16 z-10 mt-2">
-                        <button 
-                          //onClick={() => handleSectionClick(sections)} 
-                          className="text-black block w-full text-left p-2 hover:bg-gray-200 rounded"
-                        >
-                          Section Details
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  ))}
-              <div className="flex justify-end mt-4">
                 <button 
                   onClick={handleToggleAddSection} 
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                  className="ml-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
                 >
                   Add Section
                 </button>
               </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year Level</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {sections
+                      .filter((section) => {
+                        const yearLevelMap: { [key: string]: number } = {
+                          'First Year': 1,
+                          'Second Year': 2,
+                          'Third Year': 3,
+                          'Fourth Year': 4,
+                        };
+
+                        if (selectedYearLevel == 'Year Level' && selectedCurriculum === null) {
+                          return true;
+                        }
+                        return (
+                          (!selectedCurriculum || section.program_short_name === selectedCurriculum?.program_short_name) &&
+                          (!selectedYearLevel || section.year_level === yearLevelMap[selectedYearLevel])
+                        );
+                      })
+                      .map((section) => (
+                        <tr key={section.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {section.section_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {section.program_short_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {section.year_level}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <button 
+                              onClick={() => toggleSectionMenu(section.id)} 
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                              </svg>
+                            </button>
+                            {openSectionMenu === section.id && (
+                              <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                                <div className="py-1">
+                                  <button 
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    View Details
+                                  </button>
+                                  <button 
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button 
+                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
           )}
         </div>
         {addSectionPopup && (

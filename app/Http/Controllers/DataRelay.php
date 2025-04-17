@@ -181,6 +181,40 @@ class DataRelay extends Controller
         ]);
     }
 
+    public function getStudentFeedback()
+    {
+        $userDepartmentShortName = auth()->user()->department_short_name;
+        $studentFeedback = DB::table('course_subject_feedback')
+        ->join('course_sections', 'course_subject_feedback.section_name', '=', 'course_sections.section_name')
+        ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
+            return $query->where('course_subject_feedback.department_short_name', $userDepartmentShortName);
+        })
+        ->select('course_subject_feedback.*', 'course_sections.section_name')
+        ->get();    
+        \Log::info('Student Feedback Data:', ['feedback' => $studentFeedback]);
+        return response()->json([
+            'name' => "student_feedback",
+            'data' => $studentFeedback
+        ]);
+    }
+
+    public function getInstructorFeedback()
+    {
+        $userDepartmentShortName = auth()->user()->department_short_name;
+        $instructorFeedback = DB::table('instructor_feedback')
+            ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
+            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
+                return $query->where('instructor_feedback.department_short_name', $userDepartmentShortName);
+            })
+            ->select('instructor_feedback.*', 'instructors.name as name')
+            ->get();
+
+        \Log::info('Instructor Feedback Data:', ['feedback' => $instructorFeedback]);
+        return response()->json([
+            'name' => "instructor_feedback",
+            'data' => $instructorFeedback
+        ]);
+    }
 
 
 }

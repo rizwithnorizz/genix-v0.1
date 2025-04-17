@@ -33,7 +33,7 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::get('dep-admin/dashboard', [depadminPageController::class, 'dashboard'])->name('dep-dashboard');
     Route::get('dep-admin/courseOfferings', [depadminPageController::class, 'courseOfferings'])->name('depadmin.courseofferings');
     Route::get('dep-admin/instructors', [depadminPageController::class, 'instructors'])->name('depadmin.instructor');
-
+    Route::get('dep-admin/feedback', [depadminPageController::class, 'feedback'])->name('depadmin.feedback');
     
     Route::get('/api/curriculum', [DataRelay::class, 'getDepartmentCurriculum'])->name('depadmin.curriculum');
     Route::get('/api/section', [DataRelay::class, 'getCourseSections'])->name('depadmin.sections');
@@ -42,6 +42,12 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::post('/api/curriculum/upload', [DataCreate::class, 'uploadCurriculum'])->name('depadmin.upload-curriculum');
     Route::post('/api/curriculum/create', [DataCreate::class, 'createCurriculum'])->name('depadmin.create-curriculum');
     Route::post('/api/section/create', [DataCreate::class, 'createSection'])->name('depadmin.create-section');
+
+    Route::get('/api/feedback/student', [DataRelay::class, 'getStudentFeedback'])->name('depadmin.feedback.student');
+    Route::get('/api/feedback/instructor', [DataRelay::class, 'getInstructorFeedback'])->name('depadmin.feedback.instructor');
+
+    Route::post('/api/feedback/student/approve', [DataCreate::class, 'approveStudentFeedback'])->name('depadmin.approve.student');
+    Route::post('/api/feedback/instructor/approve', [DataCreate::class, 'approveInstructorFeedback'])->name('depadmin.approve.instructor');
     //Route::get('dep-admin/course-sections', [CourseSectionController::class, 'index'])->name('dep.course-sections');
     //Route::get('dep-admin/subjects', [SubjectController::class, 'index'])->name('dep.subjects');
     // Add more routes for department admin
@@ -70,6 +76,7 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::post('admin/create-department', [DataCreate::class, 'createDepartment'])->name('admin.create-department');
     Route::get('admin/get-departments', [DataRelay::class, 'getDepartments'])->name('admin.getDepartment');
     Route::get('/api/get-rooms', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
+    Route::post('/api/create-room', [DataCreate::class, 'createRoom'])->name('admin.createRoom');
     // Add more routes for super admin
 });
 

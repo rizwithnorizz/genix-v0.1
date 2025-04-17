@@ -18,4 +18,8 @@ class depadminPageController extends Controller
     {
         return Inertia::render('depadmin/instructors');
     }
+    public function feedback()  
+    {
+        return Inertia::render('depadmin/feedback');
+    }
 }
