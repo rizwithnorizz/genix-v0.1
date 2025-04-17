@@ -18,7 +18,11 @@ return new class extends Migration
             $table->integer('day_slot');
             $table->string('room_number');
             $table->string('section_name');
+            $table->bigInteger('instructor_id')->unsigned();
+            $table->string('department_short_name');
 
+            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
+            $table->foreign('instructor_id')->references('id')->on('instructors')->onDelete('cascade');
             $table->foreign('subject_code')->references('subject_code')->on('subjects')->onDelete('cascade');
             $table->foreign('room_number')->references('room_number')->on('classrooms')->onDelete('cascade');
             $table->foreign('section_name')->references('section_name')->on('course_sections')->onDelete('cascade');

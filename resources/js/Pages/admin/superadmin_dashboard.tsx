@@ -27,7 +27,22 @@ interface HeaderCount{
   count: number;
 }
 
+interface Department {
+  id: number;
+  department_short_name: string;
+}
+
 const SuperAdminDashboard: React.FC = () => {
+
+  const [department, setDepartment] = useState<Department[] | null>(null);
+  const fetchDepartments = async () => {  
+    try {
+      const response = await axios.get('/admin/get-departments');
+      setDepartment(response.data.data);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  }
   const [news, setNews] = useState<News[]>([
     { id: 1, name: 'Computer Science', content: 'Newly added department CENG' },
     { id: 2, name: 'Information Technology', content: 'Newly added department CICT' },
@@ -52,6 +67,7 @@ const SuperAdminDashboard: React.FC = () => {
   }, []);
   useEffect(() => {
     handleRoomCount();
+    fetchDepartments();
   }, [handleRoomCount]);
 
   const headerCount: HeaderCount[] = [
@@ -69,6 +85,8 @@ const SuperAdminDashboard: React.FC = () => {
     },
 
   ]
+
+  
   return (
       <Layout>
       
@@ -143,11 +161,11 @@ const SuperAdminDashboard: React.FC = () => {
 
             <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-1 col-span-1 ">
               <div className="p-5 grid grid-cols-3 md:grid-cols-3  gap-4 h-[200px] overflow-y-auto">
-                {['CAS', 'CENG', 'CBA', 'CCJE', 'CTHM', 'CEDU', 'CAMS', 'CIT', 'DE', 'ETEEAP'].map((dept) => (
-                  <div key={dept} className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-30">
+                {department?.map((dept) => (
+                  <div key={dept.id} className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-30">
                     <div className="bg-gray-200 w-16 h-16 rounded-full mb-2"></div> 
-                    <span>{dept}</span> 
-                  </div> //Department Logo and Department Name
+                    <span>{dept.department_short_name}</span> 
+                  </div> 
                 ))}
               </div>
             <a href = "departments">

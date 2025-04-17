@@ -10,6 +10,7 @@ use App\Models\Course_Sections;
 
 class S_10_ScheduleSeeder extends Seeder
 {
+    /*
     private $populationSize = 100;
     private $generationCount = 100;
     private $mutationRate = 0.01;
@@ -249,5 +250,5 @@ class S_10_ScheduleSeeder extends Seeder
                 ]);
             }
         }
-    }
+    }*/
 }

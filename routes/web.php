@@ -35,6 +35,8 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::get('dep-admin/instructors', [depadminPageController::class, 'instructors'])->name('depadmin.instructor');
     Route::get('dep-admin/feedback', [depadminPageController::class, 'feedback'])->name('depadmin.feedback');
     
+    Route::get('/api/schedules/generate', [ScheduleController::class, 'generateSchedule'])->name('depadmin.generate-schedule');
+    
     Route::get('/api/curriculum', [DataRelay::class, 'getDepartmentCurriculum'])->name('depadmin.curriculum');
     Route::get('/api/section', [DataRelay::class, 'getCourseSections'])->name('depadmin.sections');
     Route::post('/api/course-subject', [DataRelay::class, 'getCourseSubjects'])->name('depadmin.course-subject');

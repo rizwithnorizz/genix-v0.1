@@ -13,8 +13,8 @@ class S_07_ClassroomSeeder extends Seeder
     public function run()
     {
         DB::table('classrooms')->insert([
-            ['room_number' => 'R101', 'room_type' => 'Lecture'],
-            ['room_number' => 'R102', 'room_type' => 'Lecture'],
+            ['room_number' => 'R101', 'room_type' => 'Laboratory'],
+            ['room_number' => 'R102', 'room_type' => 'Laboratory'],
             ['room_number' => 'Lab1', 'room_type' => 'Laboratory'],
             ['room_number' => 'Lab2', 'room_type' => 'Laboratory'],
             ['room_number' => 'R201', 'room_type' => 'Lecture'],

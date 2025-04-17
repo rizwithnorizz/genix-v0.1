@@ -103,18 +103,6 @@ class S_08_CourseSectionSeeder extends Seeder
                 'year_level' => 4,
                 'curriculum_name' => 'BSTM-2020',
             ],
-            [
-                'section_name' => 'BSHRM-1A',
-                'program_short_name' => 'BSHRM',
-                'year_level' => 1,
-                'curriculum_name' => 'HRM-2020',
-            ],
-            [
-                'section_name' => 'BSTM-1A',
-                'program_short_name' => 'BSTM',
-                'year_level' => 1,
-                'curriculum_name' => 'BSTM-2020',
-            ],
         ]);
     }
 }

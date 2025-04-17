@@ -2,12 +2,8 @@ import Layout  from '@/Components/ui/layout';
 import { useEffect, useState } from 'react';
 import { Bell, ChevronLeft, ChevronRight, MoreVertical, type LucideIcon } from "lucide-react"
 import PrimaryButton from '@/Components/PrimaryButton';
+import axios from 'axios';
 
-interface Courses {
-  id: number;
-  name: string;
-  content: string;
-}
 
 interface Instructor {
   id: number;
@@ -15,10 +11,12 @@ interface Instructor {
   initials: string;
 }
 
-interface Curriculums {
+interface Curriculum { 
   id: number;
-  name: string;
-  courses: Courses[];
+  department_short_name: string;
+  curriculum_name: string;
+  program_name: string;
+  program_short_name: string;
 }
 
 interface News {
@@ -34,23 +32,30 @@ interface Schedule {
 }
 
 const DepAdminDashboard:React.FC = () => {
-    const [Courses, setCourses] = useState<Courses[]>([
-      { id: 1, name: 'BSCS', content: 'Bachelor of Science in Computer Science' },
-      { id: 2, name: 'BSIT', content: 'Bachelor of Science in Information Technology' },
-      { id: 3, name: 'BSIS', content: 'Bachelor of Science in Information Science' },
-      { id: 4, name: 'BLIS', content: 'Bachelor of Library and Information Systems' },
-    ]);
+  const [curriculum, setCurriculum] = useState<Curriculum[]>([]);
 
-  const [curriculum, setCurriculum] = useState<Curriculums[]>([
-    { id: 1, name: 'Curriculum 2023-2024', courses: Courses.map(course => ({ ...course })) },
-    { id: 2, name: 'Curriculum 2022-2023', courses: Courses.map(course => ({ ...course }))  },
-    { id: 3, name: 'Curriculum 2021-2022', courses: Courses.map(course => ({ ...course }))  },
-    { id: 4, name: 'Curriculum 2020-2021', courses: Courses.map(course => ({ ...course }))  },
-    { id: 5, name: 'Curriculum 2019-2020', courses: Courses.map(course => ({ ...course }))  },
-    { id: 6, name: 'Curriculum 2018-2019', courses: Courses.map(course => ({ ...course }))  },
-    { id: 7, name: 'Curriculum 2017-2018', courses: Courses.map(course => ({ ...course }))  },
-    { id: 8, name: 'Curriculum 2016-2017', courses: Courses.map(course => ({ ...course }))  },
-  ]);
+  const fetchCurriculum = async () => {
+    try {
+      const response = await axios.get('/api/curriculum');
+      setCurriculum(response.data.data);
+    } catch (error) {
+      console.error('Error fetching curriculum:', error);
+    }
+  }
+  
+  useState(() => {
+    fetchCurriculum();
+  }, );
+  
+  const handleGenerateSchedule = async () => {
+    try {
+      const response = await axios.get('/api/schedules/generate');
+      console.log('Schedule generated:', response.data);
+    }
+    catch (error) {
+      console.error('Error generating schedule:', error);
+    }
+  }
 
   const [news, setNews] = useState<News[]>([
       { id: 1, name: 'Computer Science', content: 'Newly added department CENG' },
@@ -74,9 +79,9 @@ const DepAdminDashboard:React.FC = () => {
         { id: 6, name: 'Bernadet Macaraig', initials: 'BM'},
       ]);
       const [showCurriculumCourses, setShowCurriculumCourses] = useState<boolean>(false);
-      const [selectedCurriculum, setSelectedCurriculum] = useState<Curriculums | null>(null);
+      const [selectedCurriculum, setSelectedCurriculum] = useState<Curriculum | null>(null);
 
-      const handleShowCurriculumCourses = (curriculum: Curriculums) => {
+      const handleShowCurriculumCourses = (curriculum: Curriculum) => {
         console.log('Curriculum:', curriculum);
         setSelectedCurriculum(curriculum);
         setShowCurriculumCourses(true);
@@ -113,26 +118,32 @@ const DepAdminDashboard:React.FC = () => {
               </div>
             ))}
           </div>
-          <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">Generate New Class Schedule</PrimaryButton>
+          <PrimaryButton 
+          onClick={handleGenerateSchedule}
+          className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">
+            Generate New Class Schedule
+          </PrimaryButton>
         </div>
         <div className="bg-white p-4 rounded-2xl shadow-lg">
           <div className="flex justify-between">
             <h2 className="font-semibold text-lg mb-2">Curriculums</h2>
-            <input className="border border-gray-300 rounded-lg p-2" type="text" placeholder="Search curriculum..." />
           </div>
           <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
             {curriculum.map((Curriculum, idx) => (
               <button 
-                onClick={() => handleShowCurriculumCourses(Curriculum)}
                 key={idx} 
                 className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-full flex shadow relative items-center justify-between">
                 <div className="pl-5 flex items-center">
-                  <span>{Curriculum.name}</span>
+                  <span>{Curriculum.curriculum_name}</span>
                 </div>
               </button>
             ))}
           </div>
-          <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">New Curriculum</PrimaryButton>
+          <a href="/dep-admin/courseOfferings">
+            <PrimaryButton 
+            className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">View Curriculums
+            </PrimaryButton>
+          </a>
         </div>
         <div className="mt-4 bg-white p-4 rounded-2xl shadow-lg col-span-2  ">
           <h2 className="font-semibold text-lg mb-4">Faculty</h2>
@@ -174,27 +185,6 @@ const DepAdminDashboard:React.FC = () => {
                 ))}
           </div>
         </div>
-        {showCurriculumCourses && selectedCurriculum && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl overflow-y-auto grid grid-cols-1 gap-4">
-            
-            <h2 className="font-semibold text-lg mb-2">Courses in {selectedCurriculum.name}</h2>
-            <div className="space-y-2 overflow-y-auto">
-              {selectedCurriculum.courses.map((course, idx) => (
-                <button key={idx} className="w-full flex items-center justify-between p-2 bg-gray-800 text-white rounded-full shadow relative">
-                  {/*Button action open subjects offered per year level and semester*/}
-                  <div className="flex items-center">
-                    <span className="ml-2">{course.name}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-            <button onClick={closeCurriculumCourses} className="w-[200px] mt-4 bg-red-500 text-white px-4 py-2 rounded">
-              Close
-            </button>
-            </div>
-          </div>
-        )}
         
       </div>
     </Layout>

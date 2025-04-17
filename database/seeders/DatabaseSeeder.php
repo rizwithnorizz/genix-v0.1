@@ -26,7 +26,6 @@ class DatabaseSeeder extends Seeder
             S_07_ClassroomSeeder::class,
             S_08_CourseSectionSeeder::class,
             S_09_DepartmentRoomSeeder::class,
-            S_10_ScheduleSeeder::class,
             S_11_CourseSubjectSeeder::class,
             S_12_CourseSubjectFeedbackSeeder::class,
             S_13_InstructorSubjectFeedbackSeeder::class,
