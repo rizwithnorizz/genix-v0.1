@@ -18,6 +18,14 @@ class S_11_CourseSubjectSeeder extends Seeder
             ['subject_code' => 'IT101', 'program_short_name' => 'BSIT', 'curriculum_name' => 'IT-2020', 'year_level' => 1, 'semester' => '1st'],
             ['subject_code' => 'EE101', 'program_short_name' => 'BSEE', 'curriculum_name' => 'EE-2020', 'year_level' => 1, 'semester' => '1st'],
             ['subject_code' => 'ME101', 'program_short_name' => 'BSME', 'curriculum_name' => 'ME-2020', 'year_level' => 1, 'semester' => '1st'],
+            ['subject_code' => 'TOUR101', 'program_short_name' => 'BSTM', 'curriculum_name' => 'BSTM-2020', 'year_level' => 1, 'semester' => '1st'],
+            ['subject_code' => 'HRM101', 'program_short_name' => 'BSHRM', 'curriculum_name' => 'HRM-2020', 'year_level' => 1, 'semester' => '1st'],
+            ['subject_code' => 'NURS101', 'program_short_name' => 'BSN', 'curriculum_name' => 'Nursing-2020', 'year_level' => 1, 'semester' => '1st'],
+            ['subject_code' => 'MIDW101', 'program_short_name' => 'BSM', 'curriculum_name' => 'Midwifery-2020', 'year_level' => 1, 'semester' => '1st'],
+            ['subject_code' => 'HRM102', 'program_short_name' => 'BSHRM', 'curriculum_name' => 'HRM-2020', 'year_level' => 1, 'semester' => '2nd'],
+            ['subject_code' => 'TOUR102', 'program_short_name' => 'BSTM', 'curriculum_name' => 'BSTM-2020', 'year_level' => 1, 'semester' => '2nd'],
+            ['subject_code' => 'NURS102', 'program_short_name' => 'BSN', 'curriculum_name' => 'Nursing-2020', 'year_level' => 1, 'semester' => '2nd'],
+            ['subject_code' => 'MIDW102', 'program_short_name' => 'BSM', 'curriculum_name' => 'Midwifery-2020', 'year_level' => 1, 'semester' => '2nd'],
         ]);
     }
 }

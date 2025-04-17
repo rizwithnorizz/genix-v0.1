@@ -54,6 +54,70 @@ class S_05_SubjectTableSeeder extends Seeder
                 'subject_code' => 'ME101',
                 'prof_subject' => true
             ],
+            [
+                'name' => 'Introduction to Tourism',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'TOUR101',
+                'prof_subject' => false
+            ],
+            [
+                'name' => 'Food and Beverage Service',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'HRM101',
+                'prof_subject' => true
+            ],
+            [
+                'name' => 'Fundamentals of Nursing',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'NURS101',
+                'prof_subject' => false
+            ],
+            [
+                'name' => 'Midwifery Theory',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'MIDW101',
+                'prof_subject' => true
+            ],
+            [
+                'name' => 'Advanced Food and Beverage Service',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'HRM102',
+                'prof_subject' => false
+            ],
+            [
+                'name' => 'Tourism Management',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'TOUR102',
+                'prof_subject' => true
+            ],
+            [
+                'name' => 'Nursing Care Management',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'NURS102',
+                'prof_subject' => false
+            ],
+            [
+                'name' => 'Midwifery Practice',
+                'room_req' => 1,
+                'lec' => 2,
+                'lab' => 3,
+                'subject_code' => 'MIDW102',
+                'prof_subject' => true
+            ],
         ]);
     }
 }

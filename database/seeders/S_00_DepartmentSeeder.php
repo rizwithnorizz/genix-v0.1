@@ -14,11 +14,11 @@ class S_00_DepartmentSeeder extends Seeder
     public function run()
     {
         DB::table('departments')->insert([
-            ['department_short_name' => 'CS', 'department_full_name' => 'Computer Science', 'logo_img_path' => ''],
-            ['department_short_name' => 'IT', 'department_full_name' => 'Information Technology', 'logo_img_path' => ''],
-            ['department_short_name' => 'EE', 'department_full_name' => 'Electrical Engineering', 'logo_img_path' => ''],
-            ['department_short_name' => 'ME', 'department_full_name' => 'Mechanical Engineering', 'logo_img_path' => ''],
-            ['department_short_name' => 'CE', 'department_full_name' => 'Civil Engineering', 'logo_img_path' => ''],
+            ['department_short_name' => 'CICT', 'department_full_name' => 'College of Information and Communications Technology'],
+            ['department_short_name' => 'CIT', 'department_full_name' => 'College of Industrial Technology'],
+            ['department_short_name' => 'CENG', 'department_full_name' => 'College of Engineering'],
+            ['department_short_name' => 'CNM', 'department_full_name' => 'College of Nursing and Midwifery'],
+            ['department_short_name' => 'CBAHM', 'department_full_name' => 'College of Business, Accountancy, and Hotel Management' ],
         ]);
     }
 }

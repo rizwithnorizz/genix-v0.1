@@ -5,25 +5,48 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Models\Department_Curriculum;
 use App\Models\Program_Offerings;
 use Exception;
 use Illuminate\Support\Facades\Log;
-
+use App\Models\Departments;
 use DeepSeekClient;
 class DataCreate extends Controller
 {
-    public function createDepartment(Request $request){
-        \Log::error('This is a test');
-        Departments::create([
-            'department_short_name' => $request->input('depShortName'),
-            'department_full_name' => $request->input('depName'),
-            'logo_img_path' => $request->input('logo_img_path'),
-        ]);
-        return response()->json([
-            'status' => true,
-            'message' => 'Department created successfully',
-        ]);
+    public function createDepartment(Request $request)
+    {
+        \Log::info('Creating department with data:', $request->all());
+        
+
+        try {
+            $department = Departments::create([
+                'department_short_name' => $request->input('depShortName'),
+                'department_full_name' => $request->input('depName'),
+            ]);
+
+            if ($request->has('selectedRooms')) {
+                $selectedRooms = $request->input('selectedRooms');
+                foreach ($selectedRooms as $roomNumber) {
+                    DB::table('department_room')->insert([
+                        'department_short_name' => $department->department_short_name,
+                        'room_number' => $roomNumber,
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Department created successfully',
+            ]);
+        } catch (Exception $e) {
+            \Log::error('Error creating department: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Error creating department: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function uploadCurriculum(Request $request)
@@ -399,7 +422,9 @@ PROMPT;
 
     public function createSection(Request $request)
     {
-        \Log::error("i got this far");
+        \Log::error("i got this far1111", [
+            'request' => $request->all()
+        ]);
         // Validate the request
         $request->validate([
             'section_name' => 'required|string',

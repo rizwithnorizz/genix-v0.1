@@ -14,11 +14,16 @@ class S_09_DepartmentRoomSeeder extends Seeder
     public function run(): void
     {
         DB::table('department_room')->insert([
-            ['department_short_name' => 'CS', 'room_number' => 'R101'],
-            ['department_short_name' => 'IT', 'room_number' => 'R102'],
-            ['department_short_name' => 'EE', 'room_number' => 'Lab1'],
-            ['department_short_name' => 'ME', 'room_number' => 'Lab2'],
-            ['department_short_name' => 'CE', 'room_number' => 'R201'],
+            ['department_short_name' => 'CICT', 'room_number' => 'R101'],
+            ['department_short_name' => 'CICT', 'room_number' => 'R102'],
+            ['department_short_name' => 'CENG', 'room_number' => 'Lab1'],
+            ['department_short_name' => 'CENG', 'room_number' => 'Lab2'],
+            ['department_short_name' => 'CENG', 'room_number' => 'R201'],
+            ['department_short_name' => 'CIT', 'room_number' => 'R101'],
+            ['department_short_name' => 'CIT', 'room_number' => 'R102'],
+            ['department_short_name' => 'CNM', 'room_number' => 'Lab1'],
+            ['department_short_name' => 'CNM', 'room_number' => 'Lab2'],
+            ['department_short_name' => 'CBAHM', 'room_number' => 'R201'],
         ]);
     }
 }

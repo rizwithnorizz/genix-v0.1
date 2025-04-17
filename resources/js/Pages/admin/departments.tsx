@@ -8,21 +8,13 @@ interface Department {
   id: number;
   department_full_name: string;
   department_short_name: string;
-  logo: string;
 }
 
-interface ProgramsOffered { 
+interface Room {
   id: number;
-  name: string;
-  shortName: string;
+  room_number: string;
+  room_type: string;
 }
-
-interface Curriculum { 
-  id: number;
-  name: string;
-  programs: ProgramsOffered[];
-}
-
 const DepartmentPage: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
 
@@ -83,20 +75,27 @@ const DepartmentPage: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
     
+    const selectedRoomNumbers = roomList
+    ?.filter((room) => selectedRooms.includes(room.id))
+    .map((room) => room.room_number);
+
+    selectedRoomNumbers?.forEach((roomNumber) => {
+      formData.append('selectedRooms[]', roomNumber);
+    });
     axios.post('/admin/create-department', formData)
       .then(response => {
         console.log('Department created successfully', response);
         form.reset();
       })
       .catch(error => {
-        alert('Department Already exists. Please try again');
+        alert('Department Already exists. Please try again '+ error);
       });
   };
 
   const handleGetDepartments = () => {
     axios.get('/admin/get-departments')
       .then(response => {
-        console.log('Fetched departments:', response.data.data);
+        console.log('Fetched departments:', response.data);
         setDepartments(response.data.data);
         console.log('Departments:', departments);
       })
@@ -107,10 +106,34 @@ const DepartmentPage: React.FC = () => {
 
   useEffect(() => {
     handleGetDepartments();
+    handleGetRooms();
   }
   , []);
 
-
+  const handleGetRooms = () => {
+    axios.get('/api/get-rooms')
+      .then(response => {
+        console.log('Fetched rooms:', response.data.data);
+        setRoomList(response.data.data);
+      })
+      .catch(error => {
+        console.error('Error fetching rooms:', error);
+      });
+  }
+  const [roomList, setRoomList] = useState<Room[] | null>(null); // List of rooms fetched from the API
+  const [selectedRooms, setSelectedRooms] = useState<number[]>([]); // Track selected room IDs
+  const [searchQuery, setSearchQuery] = useState<string>(''); // State to track the search input
+  const handleRoomToggle = (roomId: number) => {
+    setSelectedRooms((prevSelectedRooms) => {
+      if (prevSelectedRooms.includes(roomId)) {
+        // Deselect the room
+        return prevSelectedRooms.filter((id) => id !== roomId);
+      } else {
+        // Select the room
+        return [...prevSelectedRooms, roomId];
+      }
+    });
+  };
   return (
     <Layout>
       <main className="col-span-3 space-y-4">
@@ -137,25 +160,58 @@ const DepartmentPage: React.FC = () => {
             ))}
           </div>
         </div>
-
         <form onSubmit={handleCreateDepartment}
           className="bg-white p-4 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-3 gap-4">
           <input type="hidden" name="_token" value={csrfToken} />
           
           <input type="text" name="depName" placeholder="Department Name..." className="p-2 rounded-lg border" required />
-          <input type="text" name="depAdmin" className="p-2 rounded-lg border" placeholder="Department Admin..." />  
-          <button type="button" className="md:row-start-1 md:col-start-3 bg-blue-500 text-white p-2 rounded-lg">Upload Logo</button>
-
           <input type="text" name="depShortName" placeholder="Department Short Name..." className="p-2 rounded-lg border" required />
-          <input type="text" name="logo_img_path" placeholder="Logo Path..." className="p-2 rounded-lg border" />
-          <select className="p-2 rounded-lg border">
-            <option>Assigned Rooms</option>
-          </select>
-          <button type="button" className="md:col-start-3 h-full bg-blue-500 text-white p-2 rounded-lg w-full">
-            <Upload className="inline-block mr-2" />
-            Add Curriculum
-          </button> 
-          <div className="flex justify-center col-start-2">
+          <input type="text" name="depAdmin" className="p-2 rounded-lg border" placeholder="Department Admin Email..." /> 
+          <div>
+            <h3 className="font-semibold text-lg mb-2">Room Assignment</h3>
+            <input
+              type="text"
+              placeholder="Search rooms..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="p-2 border rounded-lg w-full mb-4"
+            />
+            <div className="flex justify-between w-full pl-2 pr-5">
+              <label>Room Number</label>
+              <label>Room Type</label>
+            </div>
+            <ul className="p-2 rounded-lg border overflow-y-auto h-48 gap-2">
+              {roomList
+                ?.filter((room) =>
+                  room.room_number.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((room, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-center justify-between bg-gray-100 p-2 rounded-lg mb-2"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedRooms.includes(room.id)}
+                      onChange={() => handleRoomToggle(room.id)}
+                      className="mr-2"
+                    />
+                    <div className="flex items-center justify-between w-full">
+                      <label>{room.room_number}</label>
+                      <label>{room.room_type}</label>
+                    </div>
+                  </li>
+                ))}
+              {roomList?.filter((room) =>
+                room.room_number.toLowerCase().includes(searchQuery.toLowerCase())
+              ).length === 0 && (
+                <p className="text-gray-500">No rooms found.</p>
+              )}
+            </ul>
+          </div>
+          
+          
+          <div className="flex justify-center col-start-2 row-start-3">
             <button type="submit" className="bg-green-500 text-white p-2 rounded-full pr-5 pl-5">Create Department</button>
           </div>
         </form>
@@ -186,18 +242,32 @@ const DepartmentPage: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
             <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
               <h2 className="text-xl font-semibold mb-4">Department Details</h2>
+              <h2>Department Name</h2>
               <input 
                 type="text" 
                 value={editDepartmentName}
                 onChange={(e) => setEditDepartmentName(e.target.value)}
                 className="p-2 border rounded-lg w-full mb-4" 
               />
+              <h2>Department Short Name</h2>
               <input 
                 type="text" 
                 placeholder={selectedDepartment.department_short_name} 
                 className="p-2 border rounded-lg w-full mb-4" 
               />
-              <button className="bg-blue-500 text-white p-2 rounded-lg">Upload Logo</button>
+              <h2>Department Admin</h2>
+              <input 
+                type="text" 
+                placeholder="Department Admin Email..." 
+                className="p-2 border rounded-lg w-full mb-4"
+              />
+
+              <h2>Room Assignment</h2>
+              <div className="flex justify-between w-full pl-2 pr-5">
+                <label>Room Number</label>
+                <label>Room Type</label>
+              </div>
+              
               <div className="flex justify-end space-x-2 mt-4">
                 <button onClick={handleUpdateDepartment} className="bg-green-500 text-white p-2 rounded-lg">Update</button>
                 <button onClick={closeEditPopup} className="bg-gray-500 text-white p-2 rounded-lg">Cancel</button>

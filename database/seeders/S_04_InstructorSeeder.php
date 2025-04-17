@@ -17,27 +17,52 @@ class S_04_InstructorSeeder extends Seeder
             [
                 'name' => 'Dr. Smith',
                 'prof_subject_instructor' => true,
-                'department_short_name' => 'CS'
+                'department_short_name' => 'CICT'
             ],
             [
                 'name' => 'Prof. Johnson',
                 'prof_subject_instructor' => false,
-                'department_short_name' => 'CS'
+                'department_short_name' => 'CICT'
             ],
             [
                 'name' => 'Dr. Williams',
                 'prof_subject_instructor' => true,
-                'department_short_name' => 'IT'
+                'department_short_name' => 'CICT'
             ],
             [
                 'name' => 'Prof. Brown',
                 'prof_subject_instructor' => false,
-                'department_short_name' => 'EE'
+                'department_short_name' => 'CENG'
             ],
             [
                 'name' => 'Dr. Davis',
                 'prof_subject_instructor' => true,
-                'department_short_name' => 'ME'
+                'department_short_name' => 'CENG'
+            ],
+            [
+                'name' => 'Prof. Miller',
+                'prof_subject_instructor' => false,
+                'department_short_name' => 'CENG'
+            ],
+            [
+                'name' => 'Dr. Wilson',
+                'prof_subject_instructor' => true,
+                'department_short_name' => 'CNM'
+            ],
+            [
+                'name' => 'Prof. Moore',
+                'prof_subject_instructor' => false,
+                'department_short_name' => 'CNM'
+            ],
+            [
+                'name' => 'Dr. Taylor',
+                'prof_subject_instructor' => true,
+                'department_short_name' => 'CBAHM'
+            ],
+            [
+                'name' => 'Prof. Anderson',
+                'prof_subject_instructor' => false,
+                'department_short_name' => 'CBAHM'
             ],
         ]);
     }

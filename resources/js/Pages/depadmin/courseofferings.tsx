@@ -688,6 +688,7 @@ const CourseOfferingsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 mb-4 justify-end">
                   <select onChange={(e) => setYearLevelCourse(e.target.value)}
                     className="appearance-none bg-gray-200 rounded-lg">
+                    <option>Year Level</option>
                     <option value="First Year">
                         First Year
                     </option>

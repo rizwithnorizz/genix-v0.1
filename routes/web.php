@@ -69,6 +69,7 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
 
     Route::post('admin/create-department', [DataCreate::class, 'createDepartment'])->name('admin.create-department');
     Route::get('admin/get-departments', [DataRelay::class, 'getDepartments'])->name('admin.getDepartment');
+    Route::get('/api/get-rooms', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
     // Add more routes for super admin
 });
 

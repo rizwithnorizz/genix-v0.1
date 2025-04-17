@@ -24,7 +24,7 @@ class S_02_UserTableSeeder extends Seeder
             'email' => 'depadmin@localhost',
             'password' => Hash::make('password'),
             'user_type' => 1, // Department Admin,
-            'department_short_name' => 'CS',
+            'department_short_name' => 'CICT',
         ]);
 
         User::create([
