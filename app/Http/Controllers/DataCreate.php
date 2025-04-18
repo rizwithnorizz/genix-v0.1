@@ -12,8 +12,122 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use App\Models\Departments;
 use DeepSeekClient;
+use Illuminate\Support\Facades\Validator;
 class DataCreate extends Controller
 {
+    public function createInstructor(Request $request){
+        $department = auth()->user()->department_short_name;
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        \Log::error("i got this far");
+        $instructor = DB::table('instructors')
+        ->insert([
+            'name' => $validated['name'],
+            'department_short_name' => $department,
+        ]);
+
+        return response()->json([
+            'message' => 'Instructor created successfully.',
+            'data' => $request['name'],
+        ], 201);
+    }
+
+    public function deleteInstructor($id){
+        $instructor = DB::table('instructors')
+        ->find($id);
+
+        if (!$instructor) {
+            return response()->json([
+                'message' => 'Instructor not found.',
+            ], 404);
+        }
+
+        DB::table('instructors')
+        ->where('id', $id)
+        ->delete();
+
+        DB::table('subject_instructors')
+        ->where('instructor_id', $id)
+        ->delete();
+        return response()->json([
+            'message' => 'Instructor deleted successfully.',
+        ]);
+    }
+    public function assignSubjectToInstructor(Request $request)
+    {
+        // Validate request data
+        $validator = Validator::make($request->all(), [
+            'instructor_id' => 'required|exists:instructors,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Check if the assignment already exists
+        $existingAssignment = DB::table('subject_instructors')
+            ->where('instructor_id', $request->instructor_id)
+            ->where('subject_code', $request->subject_id)
+            ->first();
+
+        if ($existingAssignment) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This subject is already assigned to the instructor'
+            ], 422);
+        }
+
+        // Create the assignment
+        DB::table('subject_instructors')->insert([
+            'instructor_id' => $request->instructor_id,
+            'subject_code' => $request->subject_id
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Subject assigned to instructor successfully'
+        ], 201);
+    }
+    public function removeSubjectFromInstructor(Request $request)
+    {
+        // Validate request data
+        $validator = Validator::make($request->all(), [
+            'instructor_id' => 'required|exists:instructors,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Find and delete the assignment
+        $assignment = DB::table('subject_instructors')
+            ->where('instructor_id', $request->instructor_id)
+            ->where('subject_code', $request->subject_id)
+            ->first();
+
+
+        DB::table('subject_instructors')
+        ->where('instructor_id', $request->instructor_id)
+        ->where('subject_code', $request->subject_id)
+        ->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Subject removed from instructor successfully'
+        ], 200);
+    }
+
     public function createDepartment(Request $request)
     {
         \Log::info('Creating department with data:', $request->all());

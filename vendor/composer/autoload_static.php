@@ -231,9 +231,9 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         ),
         'phpDocumentor\\Reflection\\' => 
         array (
-            0 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
-            1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
-            2 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
+            0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
+            1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
+            2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
         ),
         'ZipStream\\' => 
         array (
@@ -712,7 +712,9 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
         'App\\Libraries\\DeepSeekClient' => __DIR__ . '/../..' . '/app/Libraries/DeepSeekClient.php',
         'App\\Models\\CourseSubject' => __DIR__ . '/../..' . '/app/Models/CourseSubject.php',
+        'App\\Models\\CourseSubjectFeedback' => __DIR__ . '/../..' . '/app/Models/CourseSubjectFeedback.php',
         'App\\Models\\DepartmentRoom' => __DIR__ . '/../..' . '/app/Models/DepartmentRoom.php',
+        'App\\Models\\InstructorFeedback' => __DIR__ . '/../..' . '/app/Models/InstructorFeedback.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\classroom' => __DIR__ . '/../..' . '/app/Models/classroom.php',
         'App\\Models\\course_sections' => __DIR__ . '/../..' . '/app/Models/course_sections.php',
@@ -866,9 +868,9 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'Database\\Factories\\UserFactory' => __DIR__ . '/../..' . '/database/factories/UserFactory.php',
         'Database\\Seeders\\DatabaseSeeder' => __DIR__ . '/../..' . '/database/seeders/DatabaseSeeder.php',
         'Database\\Seeders\\S_00_DepartmentSeeder' => __DIR__ . '/../..' . '/database/seeders/S_00_DepartmentSeeder.php',
-        'Database\\Seeders\\S_01_DepartmentCurriculumSeeder' => __DIR__ . '/../..' . '/database/seeders/S_01_DepartmentCurriculumSeeder.php',
+        'Database\\Seeders\\S_01_ProgramOfferingsTableSeeder' => __DIR__ . '/../..' . '/database/seeders/S_01_ProgramOfferingsTableSeeder.php',
         'Database\\Seeders\\S_02_UserTableSeeder' => __DIR__ . '/../..' . '/database/seeders/S_02_UserTableSeeder.php',
-        'Database\\Seeders\\S_03_ProgramOfferingsTableSeeder' => __DIR__ . '/../..' . '/database/seeders/S_03_ProgramOfferingsTableSeeder.php',
+        'Database\\Seeders\\S_03_DepartmentCurriculumSeeder' => __DIR__ . '/../..' . '/database/seeders/S_03_DepartmentCurriculumSeeder.php',
         'Database\\Seeders\\S_04_InstructorSeeder' => __DIR__ . '/../..' . '/database/seeders/S_04_InstructorSeeder.php',
         'Database\\Seeders\\S_05_SubjectTableSeeder' => __DIR__ . '/../..' . '/database/seeders/S_05_SubjectTableSeeder.php',
         'Database\\Seeders\\S_06_SubjectInstructorSeeder' => __DIR__ . '/../..' . '/database/seeders/S_06_SubjectInstructorSeeder.php',
@@ -877,6 +879,8 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'Database\\Seeders\\S_09_DepartmentRoomSeeder' => __DIR__ . '/../..' . '/database/seeders/S_09_DepartmentRoomSeeder.php',
         'Database\\Seeders\\S_10_ScheduleSeeder' => __DIR__ . '/../..' . '/database/seeders/S_10_ScheduleSeeder.php',
         'Database\\Seeders\\S_11_CourseSubjectSeeder' => __DIR__ . '/../..' . '/database/seeders/S_11_CourseSubjectSeeder.php',
+        'Database\\Seeders\\S_12_CourseSubjectFeedbackSeeder' => __DIR__ . '/../..' . '/database/seeders/S_12_CourseSubjectFeedbackSeeder.php',
+        'Database\\Seeders\\S_13_InstructorSubjectFeedbackSeeder' => __DIR__ . '/../..' . '/database/seeders/S_13_InstructorSubjectFeedbackSeeder.php',
         'DateError' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
         'DateException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
         'DateInvalidOperationException' => __DIR__ . '/..' . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',

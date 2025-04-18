@@ -35,8 +35,20 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::get('dep-admin/instructors', [depadminPageController::class, 'instructors'])->name('depadmin.instructor');
     Route::get('dep-admin/feedback', [depadminPageController::class, 'feedback'])->name('depadmin.feedback');
     
-    Route::get('/api/schedules/generate', [ScheduleController::class, 'generateSchedule'])->name('depadmin.generate-schedule');
-    
+    Route::get('/api/instructors', [DataRelay::class, 'getInstructors'])->name('depadmin.instructors');
+    Route::get('/api/instructors-with-subjects', [DataRelay::class, 'getInstructorsWithSubjects'])->name('depadmin.instructors-with-subjects');
+    Route::get('/api/subjects', [DataRelay::class, 'getAllSubjects'])->name('depadmin.subjects')->name('depadmin.subjects');
+    Route::post('/api/instructor-subjects', [DataCreate::class, 'assignSubjectToInstructor'])->name('depadmin.assign-subject');
+    Route::delete('/api/instructor-subjects', [DataCreate::class, 'removeSubjectFromInstructor'])->name('depadmin.remove-subject'); 
+
+    Route::post('/api/instructor/create', [DataCreate::class, 'createInstructor'])->name('depadmin.create-instructor');
+    Route::delete('/api/instructor/{id}', [DataCreate::class, 'deleteInstructor'])->name('depadmin.delete-instructor');
+
+
+
+    Route::post('/api/schedules/generate', [ScheduleController::class, 'generateSchedule'])->name('depadmin.generate-schedule');
+    Route::get('/api/schedules/list', [DataRelay::class, 'getSchedules'])->name('depadmin.schedules');
+
     Route::get('/api/curriculum', [DataRelay::class, 'getDepartmentCurriculum'])->name('depadmin.curriculum');
     Route::get('/api/section', [DataRelay::class, 'getCourseSections'])->name('depadmin.sections');
     Route::post('/api/course-subject', [DataRelay::class, 'getCourseSubjects'])->name('depadmin.course-subject');

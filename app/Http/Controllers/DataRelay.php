@@ -14,7 +14,7 @@ use App\Models\Instructor;
 use App\Models\Departments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
     public function getDashboardCount () 
@@ -106,7 +106,7 @@ class DataRelay extends Controller
                 return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
             })
             ->get();
-
+        \Log::info('Department Curriculum Data:', ['curriculum' => $departmentCurriculum]);
         return response()->json([
             'name' => "department_curriculum",
             'data' => $departmentCurriculum
@@ -155,17 +155,23 @@ class DataRelay extends Controller
     }
     public function getSchedules()
     {
-        $schedules = Schedules::all();
+        $schedules = DB::table('schedule_repos')
+            ->where('department_short_name', auth()->user()->department_short_name)
+            ->get();
+        \Log::info('-----------------Schedules Data:', ['schedules' => $schedules]);
         return response()->json([
             'name' => "schedules",
             'data' => $schedules
         ]);
     }
 
-    public function getInstructor()
+    public function getInstructors()
     {
-        $instructors = Instructor::all();
-        return response()->json([
+        $department = auth()->user()->department_short_name;
+        $instructors = DB::table('instructors')
+            ->where('department_short_name', $department)   
+            ->get();
+        return response()   ->json([
             'name' => "instructors",
             'data' => $instructors
         ]);
@@ -215,6 +221,48 @@ class DataRelay extends Controller
             'data' => $instructorFeedback
         ]);
     }
+    public function getInstructorsWithSubjects()
+    {
+        $department = auth()->user()->department_short_name;
+        $instructors = Instructor::with(['subjects'])
+        ->where('department_short_name', $department)
+        ->get();
 
+        return response()->json([
+            'data' => $instructors->map(function ($instructor) {
+                $nameParts = explode(' ', $instructor->name);
+                $initials = strtoupper(implode('', array_map(fn($part) => $part[0], $nameParts)));
+
+                return [
+                    'id' => $instructor->id,
+                    'name' => $instructor->name,
+                    'initials' => $initials,
+                    'subjects' => $instructor->subjects->map(function ($subject) {
+                        return [
+                            'id' => $subject->id,
+                            'name' => $subject->name,
+                            'subject_code' => $subject->subject_code,
+                            'prof_sub' => $subject->prof_subject,
+                        ];
+                    }),
+                ];
+            }),
+        ]);
+    }
+    public function getAllSubjects()
+    {
+        $department =  auth()->user()->department_short_name;
+        $subjects = DB::table('subjects')
+            ->join('course_subjects', 'subjects.subject_code', '=', 'course_subjects.subject_code')
+            ->join('program_offerings', 'course_subjects.program_short_name', '=', 'program_offerings.program_short_name')
+            ->where('program_offerings.department_short_name', $department)   
+            ->select('subjects.*')
+            ->get();
+        \Log::error('-----------------All Subjects Data:', ['subjects' => $subjects]);
+        return response()->json([
+            'status' => 'success',
+            'data' => $subjects->unique('subject_code'),
+        ], 200);
+    }
 
 }

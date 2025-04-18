@@ -1,303 +1,500 @@
-import React, { useState } from 'react';
-import Layout from '@/Components/ui/layout';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Layout from "@/Components/ui/layout";
 
 // Types
 interface Instructor {
-  id: number;
-  name: string;
-  initials: string;
-  subjects: Subject[];
+    id: number;
+    name: string;
+    initials: string;
+    subjects: Subject[];
 }
 
 interface Subject {
-  id: number;
-  name: string;
-  type: 'professional' | 'general';
+    id: number;
+    name: string;
+    subject_code: string;
+    prof_subject: boolean;
 }
 
 const InstructorsPage: React.FC = () => {
-  // Instructors data
-  const [instructors, setInstructors] = useState<Instructor[]>([
-    { id: 1, name: 'Rhueliza Tordecilla', initials: 'RT', subjects: [] },
-    { id: 2, name: 'Alvin Mercado', initials: 'AM', subjects: [] },
-    { id: 3, name: 'Elvie Evangelista', initials: 'EE', subjects: [] },
-    { id: 4, name: 'Rene Magpantay', initials: 'RM', subjects: [] },
-    { id: 5, name: 'Charles Leoj Roxas', initials: 'CR', subjects: [] },
-    { id: 6, name: 'Bernadet Macaraig', initials: 'BM', subjects: [] },
-  ]);
+    const [instructors, setInstructors] = useState<Instructor[]>([]);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
+    const [selectedInstructor, setSelectedInstructor] =
+        useState<Instructor | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+    const [newInstructorName, setNewInstructorName] = useState<string>("");
 
-  // Subject sample data
-  const [profSubjects, setProfSubjects] = useState<Subject[]>([
-    { id: 1, name: 'Subject name', type: 'professional' },
-    { id: 2, name: 'Subject name', type: 'professional' },
-    { id: 3, name: 'Subject name', type: 'professional' },
-  ]);
+    const fetchInstructors = async () => {
+        try {
+            setIsLoading(true);
+            const response = await axios.get("/api/instructors-with-subjects");
+            const instructorsData = response.data.data;
 
-  // UI state
-  const [showAddInstructor, setShowAddInstructor] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<'Professional Subjects' | 'General Education'>('Professional Subjects');
-  const [instructorName, setInstructorName] = useState<string>('');
+            const processed = instructorsData.map((instructor: Instructor) => {
+                const nameParts = instructor.name.split(" ");
+                const initials = nameParts
+                    .map((part) => part[0])
+                    .join("")
+                    .toUpperCase();
+                return { ...instructor, initials };
+            });
 
-  const [showEditInstructor, setShowEditInstructor] = useState<boolean>(false);
-  const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
-
-  const handleEditInstructor = (instructor: Instructor) => {
-    setShowEditInstructor(true);
-    setSelectedInstructor(instructor);
-    setInstructorName(instructor.name); 
-  }
-  
-  // Handlers
-  const handleAddInstructor = () => {
-    setShowAddInstructor(true);
-  };
-
-  const handleCloseAddInstructor = () => {
-    setShowAddInstructor(false);
-    setInstructorName('');
-  };
-
-  const handleCloseUpdate = () => {
-    setShowEditInstructor(false);
-    setInstructorName('');
-  }
-
-
-  const handleSaveInstructor = () => {
-    if (instructorName.trim()) {
-        // Generate initials from name
-        const nameParts = instructorName.split(' ');
-        let initials = '';
-        
-        if (nameParts.length >= 2) {
-            initials = nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
-        } else if (nameParts.length === 1) {
-            initials = nameParts[0].substring(0, 2);
+            setInstructors(processed);
+        } catch (error) {
+            console.error("Error fetching instructors:", error);
+        } finally {
+            setIsLoading(false);
         }
-        
-        initials = initials.toUpperCase();
-        
-        const newInstructor: Instructor = {
-            id: instructors.length + 1,
-            name: instructorName,
-            initials: initials,
-            subjects: []
-        };
-        
-        setInstructors([...instructors, newInstructor]);
-        handleCloseAddInstructor();
-    }
-  };
+    };
 
-  const handleUpdateInstructor = () => {
-    if (selectedInstructor && instructorName.trim()) {
-        const nameParts = instructorName.split(' ');
-        let initials = '';
-        
-        if (nameParts.length >= 2) {
-            initials = nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0);
-        } else if (nameParts.length === 1) {
-            initials = nameParts[0].substring(0, 2);
+    const fetchAllSubjects = async () => {
+        try {
+            const response = await axios.get("/api/subjects");
+            setAllSubjects(response.data.data);
+        } catch (error) {
+            console.error("Error fetching subjects:", error);
         }
-        
-        selectedInstructor.initials = initials.toUpperCase();
-        
-            
-        const updatedInstructors = instructors.map(inst =>
-            inst.id === selectedInstructor.id ? { ...inst, name: instructorName } : inst
-        );
-        setInstructors(updatedInstructors); // Update the instructor list
-        handleCloseUpdate();
-    }
-  };
+    };
 
-  const handleAddSubject = () => {
-    // Logic to add a new subject
-    console.log('Add new subject');
-  };
+    useEffect(() => {
+        fetchInstructors();
+        fetchAllSubjects();
+    }, []);
 
-  return (
-    <Layout>
-      <main className="col-span-3 space-y-4">
-        <h1 className="font-bold text-2xl mb-4">Instructors</h1>
+    const filteredInstructors = instructors.filter((i) =>
+        i.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-        <div className="bg-gray-200 p-4 rounded-lg">
-          <div className="flex justify-end mb-4">
-            <div className="relative w-32">
-              <select className="appearance-none bg-white p-2 rounded-lg w-full shadow">
-                <option>Filter</option>
-                <option>By Name</option>
-                <option>By Subject</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
+    const handleInstructorClick = (instructor: Instructor) => {
+        setSelectedInstructor(instructor);
+        setIsModalOpen(true);
+    };
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-            {instructors.map((instructor) => (
-              <button key={instructor.id} 
-              onClick = {() => handleEditInstructor(instructor)}
-              className="bg-gray-700 text-white p-6 rounded-lg shadow flex flex-col items-center justify-center">
-                <div className="text-6xl font-bold mb-2">{instructor.initials}</div>
-                <div className="text-center">{instructor.name}</div>
-              </button>
-            ))}
-          </div>
+    const addSubjectToInstructor = async (
+        instructorId: number,
+        subjectId: number
+    ) => {
+        try {
+            setIsLoading(true);
+            await axios.post("/api/instructor-subjects", {
+                instructor_id: instructorId,
+                subject_id: subjectId,
+            });
 
-          <div className="flex justify-center mt-4">
-            <button 
-              onClick={handleAddInstructor}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-            >
-              Add Instructor
-            </button>
-          </div>
-        </div>
+            const addedSubject = allSubjects.find((s) => s.id === subjectId);
+            if (addedSubject && selectedInstructor) {
+                const updated = {
+                    ...selectedInstructor,
+                    subjects: [...selectedInstructor.subjects, addedSubject],
+                };
+                setSelectedInstructor(updated);
+                setInstructors((prev) =>
+                    prev.map((inst) =>
+                        inst.id === instructorId ? updated : inst
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Add subject error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        {/* Add Instructor Popup */}
-        {showAddInstructor && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Add Instructor</h2>
-              </div>
-              
-              <input 
-                type="text" 
-                placeholder="Name" 
-                className="p-3 bg-gray-200 rounded-lg w-full mb-4"
-                value={instructorName}
-                onChange={(e) => setInstructorName(e.target.value)}
-              />
-              
-              <div className="mb-4">
-                <div className="flex border-b mb-2">
-                  <button 
-                    className={`px-4 py-2 ${activeTab === 'Professional Subjects' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}
-                    onClick={() => setActiveTab('Professional Subjects')}
-                  >
-                    Professional Subjects
-                  </button>
-                  <button 
-                    className={`px-4 py-2 ${activeTab === 'General Education' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}
-                    onClick={() => setActiveTab('General Education')}
-                  >
-                    General Education
-                  </button>
-                </div>
-                
-                {activeTab === 'Professional Subjects' && (
-                  <div className="bg-gray-200 p-3 rounded-lg max-h-48 overflow-y-auto">
-                  {profSubjects.map(profSubject => (
-                    <div key={profSubject.id} className="bg-gray-700 text-white p-3 rounded-full mb-2">
-                      {profSubject.name}
-                    </div>
-                  ))}
-                  <div className="flex justify-end mt-2">
-                    <button 
-                      onClick={handleAddSubject} 
-                      className="bg-green-500 text-white p-1 rounded-full h-8 w-8 flex items-center justify-center text-xl"
+    const removeSubjectFromInstructor = async (
+        instructorId: number,
+        subjectId: number
+    ) => {
+        try {
+            setIsLoading(true);
+            await axios.delete("/api/instructor-subjects", {
+                data: { instructor_id: instructorId, subject_id: subjectId },
+            });
+
+            const updatedSubjects =
+                selectedInstructor?.subjects.filter(
+                    (s) => s.id !== subjectId
+                ) || [];
+            setSelectedInstructor((prev) =>
+                prev ? { ...prev, subjects: updatedSubjects } : null
+            );
+            setInstructors((prev) =>
+                prev.map((inst) =>
+                    inst.id === instructorId
+                        ? { ...inst, subjects: updatedSubjects }
+                        : inst
+                )
+            );
+        } catch (error) {
+            console.error("Remove subject error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const isSubjectAssigned = (subjectId: number) =>
+        selectedInstructor?.subjects.some((s) => s.id === subjectId) ?? false;
+
+    const handleCreateInstructor = async () => {
+        try {
+            if (!newInstructorName.trim()) return;
+
+            setIsLoading(true);
+            const response = await axios.post("/api/instructor/create", {
+                name: newInstructorName.trim(),
+            });
+
+            console.log("Create instructor response:", response.data);
+
+            const newInstructor = response.data.data;
+
+
+            // Generate initials for the new instructor
+            const initials = newInstructor
+                .split(" ")
+                .map((part: string) => part[0])
+                .join("")
+                .toUpperCase();
+
+            // Format the new instructor object
+            const formatted = { ...newInstructor, initials, subjects: [] };
+
+            // Update the instructors list in real-time
+            setInstructors((prev) => [...prev, formatted]);
+
+            // Reset modal and input state
+            setIsCreateModalOpen(false);
+            setNewInstructorName("");
+            fetchInstructors();
+        } catch (error) {
+            console.error("Create instructor error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteInstructor = async (instructorId: number) => {
+        if (!confirm("Are you sure you want to delete this instructor?"))
+            return;
+
+        try {
+            setIsLoading(true);
+            await axios.delete(`/api/instructor/${instructorId}`);
+            setInstructors((prev) => prev.filter((i) => i.id !== instructorId));
+        } catch (error) {
+            console.error("Delete instructor error:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const [tab, setTab] = useState<string>("Professional Subjects");
+    const handleTabChange = (newTab: string) => {
+        setTab(newTab);
+    };
+    return (
+        <Layout>
+            <div className="p-6">
+                <h1 className="text-2xl font-bold mb-6">Instructors</h1>
+
+                <div className="flex items-center justify-between mb-6">
+                    <input
+                        type="text"
+                        placeholder="Search instructors..."
+                        className="w-full max-w-xl px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button
+                        className="bg-gray-800 text-white px-4 py-2 rounded-md ml-4 font-medium"
+                        onClick={() => setIsCreateModalOpen(true)}
                     >
-                      +
+                        NEW INSTRUCTOR
                     </button>
-                  </div>
                 </div>
-                )}
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <button 
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                  onClick={handleSaveInstructor}
-                >
-                  Done
-                </button>
-                <button 
-                  className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                  onClick={handleCloseAddInstructor}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/*Show Edit Instructor */}
-        {showEditInstructor && selectedInstructor && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">Edit Instructor</h2>
-              </div>
-              
-              <input 
-                type="text" 
-                placeholder="Name" 
-                className="p-3 bg-gray-200 rounded-lg w-full mb-4"
-                value={instructorName}
-                onChange={(e) => setInstructorName(e.target.value)}
-              />
-              
-              <div className="mb-4">
-                <div className="flex border-b mb-2">
-                  <button 
-                    className={`px-4 py-2 ${activeTab === 'Professional Subjects' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}
-                    onClick={() => setActiveTab('Professional Subjects')}
-                  >
-                    Professional Subjects
-                  </button>
-                  <button 
-                    className={`px-4 py-2 ${activeTab === 'General Education' ? 'border-b-2 border-blue-500 font-semibold' : ''}`}
-                    onClick={() => setActiveTab('General Education')}
-                  >
-                    General Education
-                  </button>
-                </div>
-                {activeTab === 'Professional Subjects' && (
-                  <div className="bg-gray-200 p-3 rounded-lg max-h-48 overflow-y-auto">
-                  {profSubjects.map(profSubject => (
-                    <div key={profSubject.id} className="bg-gray-700 text-white p-3 rounded-full mb-2">
-                      {profSubject.name}
+                <div className="bg-white rounded-md shadow">
+                    <div className="grid grid-cols-3 gap-px bg-gray-200">
+                        <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
+                            NAME
+                        </div>
+                        <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
+                            SUBJECTS
+                        </div>
+                        <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
+                            ACTIONS
+                        </div>
                     </div>
-                  ))}
-                  <div className="flex justify-end mt-2">
-                    <button 
-                      onClick={handleAddSubject} 
-                      className="bg-green-500 text-white p-1 rounded-full h-8 w-8 flex items-center justify-center text-xl"
-                    >
-                      +
-                    </button>
-                  </div>
+
+                    {filteredInstructors.map((instructor) => (
+                        <div
+                            key={instructor.id}
+                            className="grid grid-cols-3 gap-px bg-gray-200 border-t border-gray-200"
+                        >
+                            <div className="bg-white px-4 py-4 flex items-center">
+                                <div className="w-10 h-10 bg-gray-700 text-white rounded-md flex items-center justify-center font-bold mr-3">
+                                    {instructor.initials}
+                                </div>
+                                <span>{instructor.name}</span>
+                            </div>
+                            <div className="bg-white px-4 py-4">
+                                <div className="flex flex-wrap gap-1">
+                                    {instructor.subjects.map((subject) => (
+                                        <span
+                                            key={subject.id}
+                                            className="bg-blue-100 text-blue-800 px-2 py-1 text-xs rounded-md"
+                                        >
+                                            {subject.subject_code ||
+                                                subject.name}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="bg-white px-4 py-4 flex items-center gap-3">
+                                <button
+                                    className="text-blue-600 hover:underline"
+                                    onClick={() =>
+                                        handleInstructorClick(instructor)
+                                    }
+                                >
+                                    Manage Subjects
+                                </button>
+                                <button
+                                    className="text-red-600 hover:underline"
+                                    onClick={() =>
+                                        handleDeleteInstructor(instructor.id)
+                                    }
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
+
+                {/* Create Instructor Modal */}
+                {isCreateModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                            <h2 className="text-lg font-semibold mb-4">
+                                Create New Instructor
+                            </h2>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4"
+                                placeholder="Enter instructor name"
+                                value={newInstructorName}
+                                onChange={(e) =>
+                                    setNewInstructorName(e.target.value)
+                                }
+                            />
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCreateInstructor}
+                                    disabled={isLoading}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                                >
+                                    {isLoading ? "Saving..." : "Create"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
-                
-              </div>
-              
-              <div className="flex justify-end space-x-2">
-                <button 
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                  onClick={() => handleUpdateInstructor()}
-                >
-                  Done
-                </button>
-                <button 
-                  className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                  onClick={handleCloseUpdate}
-                >
-                  Cancel
-                </button>
-              </div>
+
+                {/* Subject Management Modal */}
+                {isModalOpen && selectedInstructor && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold">
+                                    Manage Subjects for{" "}
+                                    {selectedInstructor.name}
+                                </h2>
+                                <button
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="font-medium mb-2">
+                                    Current Subjects:
+                                </h3>
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {selectedInstructor.subjects.length > 0 ? (
+                                        selectedInstructor.subjects.map(
+                                            (subject) => (
+                                                <div
+                                                    key={subject.id}
+                                                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md flex items-center"
+                                                >
+                                                    <span>
+                                                        {subject.subject_code ||
+                                                            subject.name}
+                                                    </span>
+                                                    <button
+                                                        className="ml-2 text-red-500 hover:text-red-700"
+                                                        onClick={() =>
+                                                            removeSubjectFromInstructor(
+                                                                selectedInstructor.id,
+                                                                subject.id
+                                                            )
+                                                        }
+                                                        disabled={isLoading}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            )
+                                        )
+                                    ) : (
+                                        <p className="text-gray-500">
+                                            No subjects assigned
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 className="font-medium mb-2">
+                                    Available Subjects:
+                                </h3>
+                                <button
+                                    value="Professional Subjects"
+                                    onClick={() =>
+                                        handleTabChange("Professional Subjects")
+                                    }
+                                    className={`${
+                                        tab === "Professional Subjects"
+                                            ? "border-b-2 border-blue-500 font-semibold"
+                                            : ""
+                                    } px-4 py-2`}
+                                >
+                                    Professional Subjects
+                                </button>
+                                <button
+                                    value="General Subjects"
+                                    onClick={() =>
+                                        handleTabChange("General Subjects")
+                                    }
+                                    className={`${
+                                      tab === "General Subjects"
+                                          ? "border-b-2 border-blue-500 font-semibold"
+                                          : ""
+                                  } px-4 py-2`}
+                                > General Subjects
+                                </button>
+                                {tab === "Professional Subjects" ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                                        {allSubjects
+                                        .filter((subject => subject.prof_subject))
+                                        .map((subject) => (
+                                            <button
+                                                key={subject.id}
+                                                className={`px-3 py-2 rounded-md text-left ${
+                                                    isSubjectAssigned(
+                                                        subject.id
+                                                    )
+                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                        : "bg-gray-100 hover:bg-gray-200"
+                                                }`}
+                                                onClick={() => {
+                                                    if (
+                                                        !isSubjectAssigned(
+                                                            subject.id
+                                                        )
+                                                    ) {
+                                                        addSubjectToInstructor(
+                                                            selectedInstructor.id,
+                                                            subject.id
+                                                        );
+                                                    }
+                                                }}
+                                                disabled={
+                                                    isSubjectAssigned(
+                                                        subject.id
+                                                    ) || isLoading
+                                                }
+                                            >
+                                                <div className="font-medium">
+                                                    {subject.subject_code}
+                                                </div>
+                                                <div className="text-xs text-gray-600">
+                                                    {subject.name}
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                                        {allSubjects
+                                        .filter((subject => !subject.prof_subject))
+                                        .map((subject) => (
+                                            <button
+                                                key={subject.id}
+                                                className={`px-3 py-2 rounded-md text-left ${
+                                                    isSubjectAssigned(
+                                                        subject.id
+                                                    )
+                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                        : "bg-gray-100 hover:bg-gray-200"
+                                                }`}
+                                                onClick={() => {
+                                                    if (
+                                                        !isSubjectAssigned(
+                                                            subject.id
+                                                        )
+                                                    ) {
+                                                        addSubjectToInstructor(
+                                                            selectedInstructor.id,
+                                                            subject.id
+                                                        );
+                                                    }
+                                                }}
+                                                disabled={
+                                                    isSubjectAssigned(
+                                                        subject.id
+                                                    ) || isLoading
+                                                }
+                                            >
+                                                <div className="font-medium">
+                                                    {subject.subject_code}
+                                                </div>
+                                                <div className="text-xs text-gray-600">
+                                                    {subject.name}
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="mt-6 flex justify-end">
+                                <button
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md"
+                                    onClick={() => setIsModalOpen(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-          </div>
-        )}
-      </main>
-    </Layout>
-  );
+        </Layout>
+    );
 };
 
 export default InstructorsPage;
