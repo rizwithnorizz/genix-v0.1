@@ -158,7 +158,7 @@ const RoomPage: React.FC = () => {
                                 />
                             </div>
 
-                            <button className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2.5 rounded-lg transition-colors w-full md:w-auto">
+                            <button className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-white px-4 py-2.5 rounded-lg transition-colors w-full md:w-auto">
                                 <Upload size={18} />
                                 Import Rooms
                             </button>

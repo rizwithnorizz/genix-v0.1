@@ -63,7 +63,7 @@ class S_04_InstructorSeeder extends Seeder
                 'name' => 'Prof. Anderson',
                 'prof_subject_instructor' => false,
                 'department_short_name' => 'CBAHM'
-            ],
+        ],
         ]);
     }
 }

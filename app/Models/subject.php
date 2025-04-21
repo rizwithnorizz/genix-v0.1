@@ -15,5 +15,9 @@ class subject extends Model
         'lab',
         'subject_code',
         'prof_subject',
-    ];  
+    ]; 
+    public function instructors()
+    {
+        return $this->belongsToMany(Instructor::class, 'subject_instructors', 'subject_code', 'instructor_id');
+    }
 }

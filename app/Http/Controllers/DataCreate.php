@@ -15,6 +15,22 @@ use DeepSeekClient;
 use Illuminate\Support\Facades\Validator;
 class DataCreate extends Controller
 {
+    public function assignRoomToDepartment(Request $request, $department)
+    {
+        $validated = $request->validate([
+            'rooms' => 'required|array',
+            'rooms.*' => 'string',
+        ]);
+
+        foreach ($validated['rooms'] as $roomNumber) {
+            DB::table('department_room')->insert([
+                'department_short_name' => $department,
+                'room_number' => $roomNumber,
+            ]);
+        }
+
+        return response()->json(['message' => 'Rooms assigned successfully'], 200);
+    }
     public function createInstructor(Request $request){
         $department = auth()->user()->department_short_name;
         $validated = $request->validate([
@@ -413,7 +429,7 @@ RESPONSE FORMAT:
           "room_req": ROOM_TYPE, // 1 for lecture, 2 for laboratory
           "lec" : "LECTURE_HOURS", // 2, 3, or 0. IGNORE CELL 3 AND 4 IN THE FILE CONTENT. ONLY RECOGNIZE CELL 5 FOR LEC. THIS IS HOURS PER WEEK, NOT UNITS
           "lab" : "LABORATORY_HOURS", //2,3 or 0. IGNORE CELL 3 AND 4 IN THE FILE CONTENT. ONLY RECOGNIZE CELL 6 FOR LAB. THIS IS HOURS PER WEEK, NOT UNITS
-          "prof_sub": BOOLEAN // true or false
+          "prof_sub": BOOLEAN // true or false. IF SUBJECT HAS 2 HOURS ON LECTURE AND 3 HOURS ON LAB, PROF_SUB SHOULD BE TRUE. If the subject name sounds relevant to the program, it should be true. If the subject name sounds irrelevant to the program, it should be false. For example: "Algorithms" is relevant to Computer Science, so prof_sub should be true. "History of the Philippines" is irrelevant to Computer Science, so prof_sub should be false.
         }
       ]
     }

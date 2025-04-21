@@ -12,7 +12,7 @@ use App\Http\Controllers\sadminPageController;
 use App\Http\Controllers\DataRelay;
 use App\Http\Controllers\DeepSeekController;
 use App\Http\Controllers\DataCreate;
-
+use App\Http\Controllers\DataUpdate;    
 
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
 
@@ -85,12 +85,22 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/chat/send', [DeepSeekController::class, 'index'])->name('admin.chat.send');
 
     Route::get('admin/getDashboardCount', [DataRelay::class, 'getDashboardCount'])->name('admin.getDashboardCount');
-    
+    Route::get('admin/getFeedback', [DataRelay::class, 'getFeedback'])->name('admin.getFeedback');
 
     Route::post('admin/create-department', [DataCreate::class, 'createDepartment'])->name('admin.create-department');
     Route::get('admin/get-departments', [DataRelay::class, 'getDepartments'])->name('admin.getDepartment');
+    Route::get('admin/departments/{department}/rooms', [DataRelay::class, 'getDepartmentRoom'])->name('admin.getDepartmentDetails');
     Route::get('/api/get-rooms', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
     Route::post('/api/create-room', [DataCreate::class, 'createRoom'])->name('admin.createRoom');
+
+    Route::post('admin/departments/{department}/assign-rooms', [DataCreate::class, 'assignRoomToDepartment'])->name('admin.assignRoom');
+    Route::delete('/admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteRoom'])->name('admin.deleteRoom');
+    Route::delete('admin/deleteFeedback/{department}', [DataUpdate::class, 'deleteDepartmentFeedback'])->name('admin.delete-department');
+    
+    Route::delete('admin/departments/delete/{department}', [DataUpdate::class, 'deleteDepartment'])->name('admin.delete-department');
+    Route::delete('/admin/departments/admins/{email}', [DataUpdate::class, 'deleteDepartmentAdmin'])->name('admin.delete-department-admin');
+    Route::put('admin/departments/update/{department}', [DataUpdate::class, 'updateDepartment'])->name('admin.update-department');
+    Route::get('admin/departments/{department}/admins', [DataRelay::class, 'getDepartmentAdmins'])->name('admin.department-details');
     // Add more routes for super admin
 });
 

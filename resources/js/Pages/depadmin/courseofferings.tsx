@@ -310,9 +310,8 @@ const CourseOfferingsPage: React.FC = () => {
     };
     return (
         <Layout>
+            <h1 className="font-bold text-2xl mb-4">Curriculum</h1>
             <main className="col-span-3 space-y-4">
-                <h1 className="font-bold text-2xl mb-4">Curriculum</h1>
-
                 <div className="bg-white p-4 rounded-2xl shadow-lg">
                     {/* Tabs */}
                     <div className="flex border-b mb-4">

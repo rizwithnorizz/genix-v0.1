@@ -47,9 +47,13 @@ class DataRelay extends Controller
         ]);
     }
     
-    public function getDepartmentRoom()
+    public function getDepartmentRoom($department)
     {
-        $departmentRoom = DepartmentRoom::all();
+        $departmentRoom = DB::table('department_room')
+            ->where('department_room.department_short_name',$department)
+            ->join('classrooms', 'department_room.room_number', '=', 'classrooms.room_number')
+            ->select('department_room.*', 'classrooms.room_type')
+            ->get();
         return response()->json([
             'name' => "department_room",
             'data' => $departmentRoom,
@@ -251,18 +255,72 @@ class DataRelay extends Controller
     }
     public function getAllSubjects()
     {
-        $department =  auth()->user()->department_short_name;
+        $department = auth()->user()->department_short_name;
         $subjects = DB::table('subjects')
             ->join('course_subjects', 'subjects.subject_code', '=', 'course_subjects.subject_code')
             ->join('program_offerings', 'course_subjects.program_short_name', '=', 'program_offerings.program_short_name')
-            ->where('program_offerings.department_short_name', $department)   
+            ->where('program_offerings.department_short_name', $department)
             ->select('subjects.*')
             ->get();
-        \Log::error('-----------------All Subjects Data:', ['subjects' => $subjects]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $subjects->unique('subject_code')->values()->all(),
+            ], 200);
+    }
+
+    public function getFeedback()
+    {
+        $instructorFeedback = DB::table('instructor_feedback')
+            ->where('status', true)
+            ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
+            ->select(
+                'instructor_feedback.feedback as feedback',
+                'instructor_feedback.created_at as feedback_date',
+                'instructors.name as sender',
+                'instructors.department_short_name'
+            )
+            ->get();
+
+        $courseSectionFeedback = DB::table('course_subject_feedback')
+            ->where('status', true)
+            ->join('course_sections', 'course_subject_feedback.section_name', '=', 'course_sections.section_name')
+            ->select(
+                'course_subject_feedback.feedback as feedback',
+                'course_subject_feedback.created_at as feedback_date',
+                'course_sections.section_name as sender',
+                'course_subject_feedback.department_short_name'
+            )
+            ->get();
+
+        $compiledFeedback = collect($instructorFeedback)
+            ->merge($courseSectionFeedback)
+            ->groupBy('department_short_name')
+            ->map(function ($feedbacks, $department) {
+                return [
+                    'department_short_name' => $department,
+                    'feedbackData' => $feedbacks->values()->all(),
+                ];
+            })
+            ->values()
+            ->all();
+
         return response()->json([
             'status' => 'success',
-            'data' => $subjects->unique('subject_code'),
+            'data' => $compiledFeedback,
         ], 200);
     }
 
+    public function getDepartmentAdmins ($department) {
+        $departmentAdmins = DB::table('users')
+            ->where('user_type', 1)
+            ->where('department_short_name', $department)
+            ->select('name', 'email', 'department_short_name')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $departmentAdmins,
+        ], 200);
+    }
 }

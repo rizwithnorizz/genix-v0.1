@@ -85,7 +85,7 @@ const Feedback: React.FC = () => {
     return (
         <Layout>
             <main className="col-span-3 space-y-4">
-                <h1 className="font-bold text-2xl mb-4">Curriculum</h1>
+                <h1 className="font-bold text-2xl mb-4">Feedback Management</h1>
 
                 <div className="bg-white p-4 rounded-2xl shadow-lg">
                     {/* Tabs */}

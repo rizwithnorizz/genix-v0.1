@@ -9,9 +9,13 @@ import {
     X,
     Check,
     Plus,
+    Save,
+    DoorClosed,
+    DoorOpen,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { debounce } from "lodash";
 
 interface Department {
     id: number;
@@ -25,6 +29,12 @@ interface Room {
     room_type: string;
 }
 
+interface DepartmentAdmin {
+    name: string;
+    email: string;
+    department_short_name: string;
+}
+
 const DepartmentPage: React.FC = () => {
     // State management
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -35,22 +45,47 @@ const DepartmentPage: React.FC = () => {
     const [csrfToken, setCsrfToken] = useState<string>("");
 
     // Modal states
-    const [showAdminModal, setShowAdminModal] = useState<boolean>(false);
     const [showEditModal, setShowEditModal] = useState<boolean>(false);
     const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
     const [selectedDepartment, setSelectedDepartment] =
         useState<Department | null>(null);
 
+    const [depAdmins, setDepAdmins] = useState<DepartmentAdmin[]>([]);
+
+    const fetchDepartmentAdmins = async (department: string) => {
+        try {
+            const response = await axios.get(
+                `/admin/departments/${department}/admins`
+            );
+            setDepAdmins(response.data.data);
+        } catch (error) {
+            console.error("Error fetching department admins:", error);
+        }
+    };
+
+    const handleRemoveAdmin = async (email: string, department: string) => {
+        if (window.confirm("Are you sure you want to remove this admin?")) {
+            try {
+                await axios.delete(`/admin/departments/admins/${email}`);
+                fetchDepartmentAdmins(department);
+            } catch (error) {
+                console.error("Error removing admin:", error);
+            }
+        }
+    };
+
     // Form states
     const [form, setFormData] = useState({
-        depName: "",
-        depShortName: "",
-        depAdmin: "",
+        department_full_name: "",
+        department_short_name: "",
+        admin_name: "",
+        admin_email: "",
     });
     const [editFormData, setEditFormData] = useState({
-        depName: "",
-        depShortName: "",
-        depAdmin: "",
+        department_full_name: "",
+        department_short_name: "",
+        admin_name: "",
+        admin_email: "",
     });
 
     // Get CSRF token on component mount
@@ -89,6 +124,7 @@ const DepartmentPage: React.FC = () => {
     const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setEditFormData((prev) => ({ ...prev, [name]: value }));
+        console.log(editFormData);
     };
 
     const handleRoomToggle = (roomId: number) => {
@@ -97,6 +133,7 @@ const DepartmentPage: React.FC = () => {
                 ? prev.filter((id) => id !== roomId)
                 : [...prev, roomId]
         );
+        console.log("selectedRooms", roomId);
     };
 
     const handleCreateDepartment = async (e: React.FormEvent) => {
@@ -107,9 +144,13 @@ const DepartmentPage: React.FC = () => {
                 .map((room) => room.room_number);
 
             const formData = new FormData();
-            formData.append("depName", form.depName);
-            formData.append("depShortName", form.depShortName);
-            formData.append("depAdmin", form.depAdmin);
+            formData.append("department_full_name", form.department_full_name);
+            formData.append(
+                "department_short_name",
+                form.department_short_name
+            );
+            formData.append("admin_name", form.admin_name);
+            formData.append("admin_email", form.admin_email);
             selectedRoomNumbers.forEach((roomNumber) => {
                 formData.append("selectedRooms[]", roomNumber);
             });
@@ -127,12 +168,12 @@ const DepartmentPage: React.FC = () => {
     const handleUpdateDepartment = async () => {
         if (!selectedDepartment) return;
         try {
-            await axios.put(
-                `/admin/departments/${selectedDepartment.id}`,
+            const response = await axios.put(
+                `/admin/departments/update/${selectedDepartment.department_short_name}`,
                 editFormData
             );
             fetchData();
-            setShowEditModal(false);
+            console.log(response.data.generated_password);
         } catch (error) {
             console.error("Error updating department:", error);
         }
@@ -145,7 +186,9 @@ const DepartmentPage: React.FC = () => {
             )
         ) {
             try {
-                await axios.delete(`/admin/departments/${department.id}`);
+                await axios.delete(
+                    `/admin/departments/delete/${department.department_short_name}`
+                );
                 fetchData();
             } catch (error) {
                 console.error("Error deleting department:", error);
@@ -153,21 +196,25 @@ const DepartmentPage: React.FC = () => {
         }
     };
 
+    const removeRoomAssignment = () => {};
     const resetForm = () => {
         setFormData({
-            depName: "",
-            depShortName: "",
-            depAdmin: "",
+            department_full_name: "",
+            department_short_name: "",
+            admin_name: "",
+            admin_email: "",
         });
         setSelectedRooms([]);
     };
 
     const openEditModal = (department: Department) => {
+        fetchDepartmentAdmins(department.department_short_name);
         setSelectedDepartment(department);
         setEditFormData({
-            depName: department.department_full_name,
-            depShortName: department.department_short_name,
-            depAdmin: "",
+            department_full_name: department.department_full_name,
+            department_short_name: department.department_short_name,
+            admin_name: "",
+            admin_email: "",
         });
         setShowEditModal(true);
     };
@@ -179,6 +226,75 @@ const DepartmentPage: React.FC = () => {
                 .includes(searchQuery.toLowerCase()) ||
             room.room_type.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const [adminListQueue, setAdminListQueue] = useState<DepartmentAdmin[]>([]);
+
+    const handleAddAdminList = () => {
+        setAdminListQueue((prev) => [
+            ...prev,
+            {
+                name: editFormData?.admin_name || "",
+                email: editFormData?.admin_email || "",
+                department_short_name:
+                    selectedDepartment?.department_short_name || "",
+            },
+        ]);
+        setDepAdmins((prev) => [
+            ...prev,
+            {
+                name: editFormData?.admin_name || "",
+                email: editFormData?.admin_email || "",
+                department_short_name:
+                    selectedDepartment?.department_short_name || "",
+            },
+        ]);
+        handleUpdateDepartment();
+        console.log(adminListQueue);
+    };
+    const [roomDepartment, setRoomDepartment] = useState<Room[]>([]);
+    const fetchRoomDepartment = async (department: string) => {
+        try {
+            const response = await axios.get(
+                `/admin/departments/${department}/rooms`
+            );
+            setRoomDepartment(response.data.data);
+            console.log(response.data.data);
+        } catch (error) {
+            console.error("Error fetching room department:", error);
+        }
+    };
+    const deleteRoomDepartment = async (room_number: string, department: string) => {
+        try {
+            await axios.delete(
+                `/admin/departments/${department}/rooms/${room_number}`
+            );
+            fetchRoomDepartment(department);
+        } catch (error) {
+            console.error("Error deleting room department:", error);
+        }
+    }
+    const [roomModal, setRoomModal] = useState<boolean>(false);
+    const openRoomModal = (department: Department) => {
+        setSelectedDepartment(department);
+        fetchRoomDepartment(department.department_short_name);
+        setRoomModal(true);
+        console.log("department room", department);
+    };
+
+    const [assignRoomModal, setAssignRoomModal] = useState<boolean>(false);
+    const [toBeAssignedRooms, setToBeAssignedRooms] = useState<Room[]>([]);
+    const handleAssignRoom = () => {
+       const unassignedRooms = roomList.filter(
+            (room) =>
+                !roomDepartment.some(
+                    (assignedRoom) => assignedRoom.id === room.id
+                )
+        );
+        setToBeAssignedRooms(unassignedRooms);
+    }
+
+    const handleAssignRoomSubmit = async () => {
+    }
 
     return (
         <Layout>
@@ -247,6 +363,17 @@ const DepartmentPage: React.FC = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <div className="flex justify-end space-x-2">
                                                     <button
+                                                        className="text-blue-600 hover:text-blue-900 p-1"
+                                                        onClick={() =>
+                                                            openRoomModal(
+                                                                department
+                                                            )
+                                                        }
+                                                        title="Room Assignment"
+                                                    >
+                                                        <DoorOpen size={18} />
+                                                    </button>
+                                                    <button
                                                         onClick={() =>
                                                             openEditModal(
                                                                 department
@@ -313,7 +440,9 @@ const DepartmentPage: React.FC = () => {
                                             <input
                                                 type="text"
                                                 name="depName"
-                                                value={form.depName}
+                                                value={
+                                                    form.department_full_name
+                                                }
                                                 onChange={handleInputChange}
                                                 placeholder="e.g. College of..."
                                                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -327,7 +456,9 @@ const DepartmentPage: React.FC = () => {
                                             <input
                                                 type="text"
                                                 name="depShortName"
-                                                value={form.depShortName}
+                                                value={
+                                                    form.department_short_name
+                                                }
                                                 onChange={handleInputChange}
                                                 placeholder="e.g. CENG"
                                                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -341,7 +472,7 @@ const DepartmentPage: React.FC = () => {
                                             <input
                                                 type="email"
                                                 name="depAdmin"
-                                                value={form.depAdmin}
+                                                value={form.admin_name}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g. admin@example.com"
                                                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -450,6 +581,7 @@ const DepartmentPage: React.FC = () => {
                                             type="button"
                                             onClick={() => {
                                                 setShowCreateModal(false);
+
                                                 resetForm();
                                             }}
                                             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
@@ -468,11 +600,180 @@ const DepartmentPage: React.FC = () => {
                         </div>
                     </div>
                 )}
+                {roomModal && roomDepartment && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+                        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-semibold">
+                                        Room Assignment
+                                    </h2>
+                                    <button
+                                        onClick={() => {
+                                            setRoomModal(false);
+                                            resetForm();
+                                        }}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
+                                <div className="mb-6">
+                                    <button 
+                                    onClick={() => {
+                                        setAssignRoomModal(true);
+                                        handleAssignRoom();
+                                    }}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700">
+                                        Assign Room/s
+                                    </button>
+                                </div>
+                                <div className="overflow-x-auto overflow-y-auto max-h-96">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Room Number
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Room Type
+                                                </th>
+                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {roomDepartment.map((room) => (
+                                                <tr
+                                                    key={room.id}
+                                                    className="hover:bg-gray-50"
+                                                >
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {room.room_number}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {room.room_type}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <button
+                                                            onClick={() =>
+                                                                deleteRoomDepartment(
+                                                                    room.room_number,
+                                                                    selectedDepartment?.department_short_name ||
+                                                                        ""
+                                                                )
+                                                            }
+                                                            className="text-red-600 hover:text-red-900 p-1"
+                                                            title="Remove"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {assignRoomModal && selectedDepartment && roomList && toBeAssignedRooms && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+                        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-semibold">Assign Rooms</h2>
+                                    <button
+                                        onClick={() => setAssignRoomModal(false)}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Select
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Room Number
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Room Type
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {toBeAssignedRooms.map((room) => (
+                                                <tr key={room.id}>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedRooms.includes(
+                                                                room.id
+                                                            )}
+                                                            onChange={() =>
+                                                                handleRoomToggle(room.id)
+                                                            }
+                                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {room.room_number}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {room.room_type}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const selectedRoomNumbers = roomList
+                                                    .filter((room) =>
+                                                        selectedRooms.includes(room.id)
+                                                    )
+                                                    .map((room) => room.room_number);
 
+                                                await axios.post(
+                                                    `/admin/departments/${selectedDepartment?.department_short_name}/assign-rooms`,
+                                                    { rooms: selectedRoomNumbers }
+                                                );
+
+                                                fetchRoomDepartment(
+                                                    selectedDepartment?.department_short_name ||
+                                                        ""
+                                                );
+                                                setAssignRoomModal(false);
+                                                setSelectedRooms([]);
+                                            } catch (error) {
+                                                console.error(
+                                                    "Error assigning rooms:",
+                                                    error
+                                                );
+                                            }
+                                        }}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700"
+                                    >
+                                        Add Selected Rooms
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* Edit Department Modal */}
                 {showEditModal && selectedDepartment && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-                        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 ">
+                        <div className="bg-white rounded-lg shadow-xl w-svw max-w-2xl h-fit">
                             <div className="p-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-xl font-semibold">
@@ -488,59 +789,119 @@ const DepartmentPage: React.FC = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <div className="block text-sm font-medium text-gray-700 mb-1">
                                             Department Name
-                                        </label>
+                                        </div>
                                         <input
                                             type="text"
-                                            name="depName"
-                                            value={editFormData.depName}
+                                            name="department_full_name"
+                                            value={
+                                                editFormData.department_full_name
+                                            }
                                             onChange={handleEditInputChange}
                                             className="w-full p-3"
-                                            required
+                                            disabled={true}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <h2 className="block text-sm font-medium text-gray-700 mb-1">
                                             Short Name
-                                        </label>
+                                        </h2>
                                         <input
                                             type="text"
-                                            name="depShortName"
-                                            value={editFormData.depShortName}
+                                            name="department_short_name"
+                                            value={
+                                                editFormData.department_short_name
+                                            }
                                             onChange={handleEditInputChange}
                                             className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            required
+                                            disabled={true}
                                         />
                                     </div>
-                                    <div className="md:col-span-2">
+
+                                    <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Admin Email
+                                            Admin Name
                                         </label>
                                         <input
-                                            type="email"
-                                            name="depAdmin"
-                                            value={editFormData.depAdmin}
+                                            type="name"
+                                            name="admin_name"
+                                            value={editFormData.admin_name}
                                             onChange={handleEditInputChange}
                                             placeholder="e.g. admin@example.com"
                                             className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
-                                </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Admin Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            name="admin_email"
+                                            value={editFormData.admin_email}
+                                            onChange={handleEditInputChange}
+                                            placeholder="e.g. admin@example.com"
+                                            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
+                                    <PrimaryButton
+                                        onClick={handleAddAdminList}
+                                        className="bg-green-700 hover:bg-green-600 w-2/5 flex items-center justify-center h-10"
+                                    >
+                                        Add Admin
+                                    </PrimaryButton>
 
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        onClick={() => setShowEditModal(false)}
-                                        className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleUpdateDepartment}
-                                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                                    >
-                                        Save Changes
-                                    </button>
+                                    <h2 className="col-span-2 text-lg font-semibold mt-4">
+                                        <span className="font-semibold text-lg mb-3">
+                                            Department Admins
+                                        </span>
+                                    </h2>
+                                    <div className="md:col-span-2 shadow-xl p-4 rounded-xl h-[35vh] overflow-y-auto col-span-1">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead>
+                                                <tr>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Name
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Email
+                                                    </th>
+                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {depAdmins.map((admin) => (
+                                                    <tr key={admin.email}>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {admin.name}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {admin.email}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleRemoveAdmin(
+                                                                        admin.email,
+                                                                        admin.department_short_name
+                                                                    )
+                                                                }
+                                                                className="text-red-600 hover:text-red-900 p-1"
+                                                                title="Remove"
+                                                            >
+                                                                <Trash2
+                                                                    size={18}
+                                                                />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>

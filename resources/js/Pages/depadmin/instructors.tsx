@@ -152,7 +152,6 @@ const InstructorsPage: React.FC = () => {
 
             const newInstructor = response.data.data;
 
-
             // Generate initials for the new instructor
             const initials = newInstructor
                 .split(" ")
@@ -198,9 +197,8 @@ const InstructorsPage: React.FC = () => {
     };
     return (
         <Layout>
+            <h1 className="text-2xl font-bold mb-6">Instructors</h1>
             <div className="p-6">
-                <h1 className="text-2xl font-bold mb-6">Instructors</h1>
-
                 <div className="flex items-center justify-between mb-6">
                     <input
                         type="text"
@@ -390,93 +388,101 @@ const InstructorsPage: React.FC = () => {
                                         handleTabChange("General Subjects")
                                     }
                                     className={`${
-                                      tab === "General Subjects"
-                                          ? "border-b-2 border-blue-500 font-semibold"
-                                          : ""
-                                  } px-4 py-2`}
-                                > General Subjects
+                                        tab === "General Subjects"
+                                            ? "border-b-2 border-blue-500 font-semibold"
+                                            : ""
+                                    } px-4 py-2`}
+                                >
+                                    {" "}
+                                    General Subjects
                                 </button>
                                 {tab === "Professional Subjects" ? (
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                                         {allSubjects
-                                        .filter((subject => subject.prof_subject))
-                                        .map((subject) => (
-                                            <button
-                                                key={subject.id}
-                                                className={`px-3 py-2 rounded-md text-left ${
-                                                    isSubjectAssigned(
-                                                        subject.id
-                                                    )
-                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                        : "bg-gray-100 hover:bg-gray-200"
-                                                }`}
-                                                onClick={() => {
-                                                    if (
-                                                        !isSubjectAssigned(
+                                            .filter(
+                                                (subject) =>
+                                                    subject.prof_subject
+                                            )
+                                            .map((subject) => (
+                                                <button
+                                                    key={subject.id}
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
                                                             subject.id
                                                         )
-                                                    ) {
-                                                        addSubjectToInstructor(
-                                                            selectedInstructor.id,
+                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                    }`}
+                                                    onClick={() => {
+                                                        if (
+                                                            !isSubjectAssigned(
+                                                                subject.id
+                                                            )
+                                                        ) {
+                                                            addSubjectToInstructor(
+                                                                selectedInstructor.id,
+                                                                subject.id
+                                                            );
+                                                        }
+                                                    }}
+                                                    disabled={
+                                                        isSubjectAssigned(
                                                             subject.id
-                                                        );
+                                                        ) || isLoading
                                                     }
-                                                }}
-                                                disabled={
-                                                    isSubjectAssigned(
-                                                        subject.id
-                                                    ) || isLoading
-                                                }
-                                            >
-                                                <div className="font-medium">
-                                                    {subject.subject_code}
-                                                </div>
-                                                <div className="text-xs text-gray-600">
-                                                    {subject.name}
-                                                </div>
-                                            </button>
-                                        ))}
+                                                >
+                                                    <div className="font-medium">
+                                                        {subject.subject_code}
+                                                    </div>
+                                                    <div className="text-xs text-gray-600">
+                                                        {subject.name}
+                                                    </div>
+                                                </button>
+                                            ))}
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                                         {allSubjects
-                                        .filter((subject => !subject.prof_subject))
-                                        .map((subject) => (
-                                            <button
-                                                key={subject.id}
-                                                className={`px-3 py-2 rounded-md text-left ${
-                                                    isSubjectAssigned(
-                                                        subject.id
-                                                    )
-                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                        : "bg-gray-100 hover:bg-gray-200"
-                                                }`}
-                                                onClick={() => {
-                                                    if (
-                                                        !isSubjectAssigned(
+                                            .filter(
+                                                (subject) =>
+                                                    !subject.prof_subject
+                                            )
+                                            .map((subject) => (
+                                                <button
+                                                    key={subject.id}
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
                                                             subject.id
                                                         )
-                                                    ) {
-                                                        addSubjectToInstructor(
-                                                            selectedInstructor.id,
+                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                    }`}
+                                                    onClick={() => {
+                                                        if (
+                                                            !isSubjectAssigned(
+                                                                subject.id
+                                                            )
+                                                        ) {
+                                                            addSubjectToInstructor(
+                                                                selectedInstructor.id,
+                                                                subject.id
+                                                            );
+                                                        }
+                                                    }}
+                                                    disabled={
+                                                        isSubjectAssigned(
                                                             subject.id
-                                                        );
+                                                        ) || isLoading
                                                     }
-                                                }}
-                                                disabled={
-                                                    isSubjectAssigned(
-                                                        subject.id
-                                                    ) || isLoading
-                                                }
-                                            >
-                                                <div className="font-medium">
-                                                    {subject.subject_code}
-                                                </div>
-                                                <div className="text-xs text-gray-600">
-                                                    {subject.name}
-                                                </div>
-                                            </button>
-                                        ))}
+                                                >
+                                                    <div className="font-medium">
+                                                        {subject.subject_code}
+                                                    </div>
+                                                    <div className="text-xs text-gray-600">
+                                                        {subject.name}
+                                                    </div>
+                                                </button>
+                                            ))}
                                     </div>
                                 )}
                             </div>
