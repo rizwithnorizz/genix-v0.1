@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
+
     public function getDashboardCount () 
     {
         $classrooms = Classroom::count();

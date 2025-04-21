@@ -112,4 +112,54 @@ class DataUpdate extends Controller
         ]);
     }
 
+    public function deleteSection($section)
+    {
+        DB::table('course_sections')
+            ->where('id', $section)
+            ->delete();
+        return response()->json([
+            'message' => 'Section deleted successfully'
+        ]);
+    }
+
+    public function updateSection($sectionID, Request $request)
+{
+    $newSectionName = $request->input('section_name');
+
+    // Get the current (old) section name
+    $oldSectionName = DB::table('course_sections')
+        ->where('id', $sectionID)
+        ->value('section_name');
+
+    DB::beginTransaction();
+
+    try {
+        // Step 1: Update the section name in course_sections first
+        DB::table('course_sections')
+            ->where('id', $sectionID)
+            ->update(['section_name' => $newSectionName]);
+
+        // Step 2: Then update schedules that reference the old section name
+        DB::table('schedules')
+            ->where('section_name', $oldSectionName)
+            ->update(['section_name' => $newSectionName]);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Section successfully edited',
+            'success' => true,
+        ]);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error updating section: ' . $e->getMessage());
+
+        return response()->json([
+            'message' => 'Failed to update section.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 }

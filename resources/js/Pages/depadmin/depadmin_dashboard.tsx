@@ -105,6 +105,15 @@ const DepAdminDashboard: React.FC = () => {
         }
     };
 
+    const [viewFile, setViewFile] = useState<boolean>(false);
+
+    const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+        null
+    );
+    const handleScheduleClick = (schedule: Schedule) => {
+        setSelectedSchedule(schedule);
+        setViewFile((prev) => !prev);
+    };
     const [news, setNews] = useState<News[]>([
         {
             id: 1,
@@ -150,20 +159,6 @@ const DepAdminDashboard: React.FC = () => {
             console.error("Error fetching instructors:", error);
         }
     };
-    const [showCurriculumCourses, setShowCurriculumCourses] =
-        useState<boolean>(false);
-    const [selectedCurriculum, setSelectedCurriculum] =
-        useState<Curriculum | null>(null);
-
-    const handleShowCurriculumCourses = (curriculum: Curriculum) => {
-        console.log("Curriculum:", curriculum);
-        setSelectedCurriculum(curriculum);
-        setShowCurriculumCourses(true);
-    };
-    const closeCurriculumCourses = () => {
-        setShowCurriculumCourses(false);
-        setSelectedCurriculum(null);
-    };
     const [selectedSection, setSelectedSection] = useState<string | null>(null);
     useState(() => {
         fetchCurriculum();
@@ -201,7 +196,12 @@ const DepAdminDashboard: React.FC = () => {
                                         <span>{schedule.repo_name}</span>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button className="bg-green-500 hover:bg-green-400 text-white rounded-3xl p-2">
+                                        <button
+                                            onClick={() =>
+                                                handleScheduleClick(schedule)
+                                            }
+                                            className="bg-green-500 hover:bg-green-400 text-white rounded-3xl p-2"
+                                        >
                                             View File
                                         </button>
                                         <button className="bg-red-800 hover:bg-red-700 text-white rounded-3xl p-2">
@@ -224,20 +224,22 @@ const DepAdminDashboard: React.FC = () => {
                                 Curriculums
                             </h2>
                         </div>
-                        <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
-                            {curriculum.map((Curriculum, idx) => (
-                                <button
-                                    key={idx}
-                                    className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-full flex shadow relative items-center justify-between"
-                                >
-                                    <div className="pl-5 flex items-center">
-                                        <span>
-                                            {Curriculum.curriculum_name}
-                                        </span>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
+                        <a href="/dep-admin/courseOfferings">
+                            <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
+                                {curriculum.map((Curriculum, idx) => (
+                                    <button
+                                        key={idx}
+                                        className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-full flex shadow relative items-center justify-between"
+                                    >
+                                        <div className="pl-5 flex items-center">
+                                            <span>
+                                                {Curriculum.curriculum_name}
+                                            </span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </a>
                         <a href="/dep-admin/courseOfferings">
                             <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">
                                 View Curriculums
@@ -290,6 +292,117 @@ const DepAdminDashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
+                {viewFile && selectedSchedule && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4">
+                Schedule for {selectedSchedule.repo_name}
+            </h2>
+
+            {/* Section Filter */}
+            <div className="mb-4">
+                <label
+                    htmlFor="sectionFilter"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Filter by Section
+                </label>
+                <select
+                    id="sectionFilter"
+                    value={selectedSection || ""}
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                    <option value="">All Sections</option>
+                    {Array.from(
+                        new Set(
+                            JSON.parse(
+                                selectedSchedule.schedule as unknown as string
+                            ).map(
+                                (item: GeneratedSchedule) =>
+                                    item.section_name
+                            )
+                        )
+                    ).map((sectionName, idx) => (
+                        <option key={idx} value={sectionName as string}>
+                            {sectionName as string}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Schedule Table */}
+            <div className="overflow-y-auto max-h-[50vh]">
+                <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr className="bg-gray-100">
+                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                Subject Code
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                Room Number
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                Day Slot
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                Time Slot
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                Instructor Name
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {JSON.parse(
+                            selectedSchedule.schedule as unknown as string
+                        )
+                            .filter(
+                                (item: GeneratedSchedule) =>
+                                    !selectedSection ||
+                                    item.section_name === selectedSection
+                            )
+                            .map((item: GeneratedSchedule, idx: number) => (
+                                <tr key={idx} className="hover:bg-gray-50">
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {item.subject_code}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {item.room_number}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {item.day_slot}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {item.time_slot}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {
+                                            instructors?.find(
+                                                (instructor) =>
+                                                    instructor.id ===
+                                                    item.instructor_id
+                                            )?.name
+                                        }
+                                    </td>
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Close Button */}
+            <div className="flex justify-end mt-4">
+                <button
+                    onClick={() => setViewFile(false)}
+                    className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+)}
                 {generateTab &&
                     (viewGeneratedSchedule ? (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
@@ -297,7 +410,7 @@ const DepAdminDashboard: React.FC = () => {
                                 <h2 className="text-xl font-semibold mb-4">
                                     Generated Schedule
                                 </h2>
-                
+
                                 {/* Section Selection */}
                                 <div className="mb-4">
                                     <label
@@ -309,7 +422,9 @@ const DepAdminDashboard: React.FC = () => {
                                     <select
                                         id="sectionSelect"
                                         value={selectedSection || ""}
-                                        onChange={(e) => setSelectedSection(e.target.value)}
+                                        onChange={(e) =>
+                                            setSelectedSection(e.target.value)
+                                        }
                                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     >
                                         <option value="" disabled>
@@ -318,17 +433,21 @@ const DepAdminDashboard: React.FC = () => {
                                         {Array.from(
                                             new Set(
                                                 viewGeneratedSchedule.map(
-                                                    (schedule) => schedule.section_name
+                                                    (schedule) =>
+                                                        schedule.section_name
                                                 )
                                             )
                                         ).map((sectionName) => (
-                                            <option key={sectionName} value={sectionName}>
+                                            <option
+                                                key={sectionName}
+                                                value={sectionName}
+                                            >
                                                 {sectionName}
                                             </option>
                                         ))}
                                     </select>
                                 </div>
-                
+
                                 {/* Schedule Table */}
                                 {selectedSection && (
                                     <div className=" overflow-y-auto max-h-[50vh]">
@@ -368,23 +487,35 @@ const DepAdminDashboard: React.FC = () => {
                                                             className="hover:bg-gray-50"
                                                         >
                                                             <td className="border border-gray-300 px-4 py-2">
-                                                                {schedule.subject_code}
+                                                                {
+                                                                    schedule.subject_code
+                                                                }
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
-                                                                {schedule.room_number}
+                                                                {
+                                                                    schedule.room_number
+                                                                }
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
-                                                                {schedule.day_slot}
+                                                                {
+                                                                    schedule.day_slot
+                                                                }
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
-                                                                {schedule.time_slot}
+                                                                {
+                                                                    schedule.time_slot
+                                                                }
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
-                                                                {instructors?.find(
-                                                                    (instructor) =>
-                                                                        instructor.id ===
-                                                                        schedule.instructor_id
-                                                                )?.name}
+                                                                {
+                                                                    instructors?.find(
+                                                                        (
+                                                                            instructor
+                                                                        ) =>
+                                                                            instructor.id ===
+                                                                            schedule.instructor_id
+                                                                    )?.name
+                                                                }
                                                             </td>
                                                         </tr>
                                                     ))}
@@ -392,7 +523,7 @@ const DepAdminDashboard: React.FC = () => {
                                         </table>
                                     </div>
                                 )}
-                
+
                                 {/* Close Button */}
                                 <div className="flex justify-end mt-4">
                                     <button

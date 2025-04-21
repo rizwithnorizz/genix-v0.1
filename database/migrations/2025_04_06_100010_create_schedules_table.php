@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('section_name');
             $table->bigInteger('instructor_id')->unsigned();
             $table->string('department_short_name');
+            $table->string('semester');
 
             $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
             $table->foreign('instructor_id')->references('id')->on('instructors')->onDelete('cascade');

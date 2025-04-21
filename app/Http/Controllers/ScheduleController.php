@@ -65,7 +65,6 @@ class ScheduleController extends Controller
     public function generateSchedule(Request $request)
     {
         try {
-            \Log::error("hello???");
             $userDepartment = auth()->user()->department_short_name;
             $semester = $request->input('semester');
             $repo_name = $request->input('school_year');
@@ -127,6 +126,7 @@ class ScheduleController extends Controller
                 'schedule' => json_encode($bestSchedule),
                 'repo_name' => $repo_name . date('Y-m-d'),
                 'department_short_name' => $userDepartment,
+                'semester' => $semester,
             ]);
             DB::table('schedules')->where('department_short_name', $userDepartment)->delete();
             
@@ -140,6 +140,7 @@ class ScheduleController extends Controller
                         'day_slot' => $item['day_slot'], 
                         'time_slot' => $item['time_slot'],
                         'department_short_name' => $userDepartment,
+                        'semester' => $semester,
                     ]);
                     \Log::info('Inserted Schedule: ' . json_encode($item));
                 } catch (\Exception $e) {

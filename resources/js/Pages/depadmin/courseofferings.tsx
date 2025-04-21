@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/Components/ui/layout";
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
-import { Upload } from "lucide-react";
+import { Upload, Edit, Trash, Trash2, X } from "lucide-react";
 
 interface Curriculum {
     id: number;
@@ -50,12 +50,6 @@ interface uploadedCurriculum {
     subjects: Subject[];
 }
 const CourseOfferingsPage: React.FC = () => {
-    {
-        /* navigation */
-    }
-    const toggleSectionMenu = (sectionId: number) => {
-        setOpenSectionMenu(openSectionMenu === sectionId ? null : sectionId);
-    };
     const [openSectionMenu, setOpenSectionMenu] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"Course Offerings" | "Sections">(
         "Course Offerings"
@@ -69,13 +63,7 @@ const CourseOfferingsPage: React.FC = () => {
             fetchSections();
         }
     };
-    {
-        /* navigation */
-    }
 
-    {
-        /*curriculum pop up*/
-    }
     const [showCurriculumCourses, setShowCurriculumCourses] =
         useState<boolean>(false);
     const [selectedCurriculum, setSelectedCurriculum] =
@@ -91,13 +79,7 @@ const CourseOfferingsPage: React.FC = () => {
         setShowCurriculumCourses(false);
         setCourseSubjects([]);
     };
-    {
-        /*curriculum pop up*/
-    }
 
-    {
-        /*curriculum api*/
-    }
     const [curriculum, setCurriculum] = useState<Curriculum[]>([]);
     const fetchCurriculum = async () => {
         try {
@@ -108,13 +90,7 @@ const CourseOfferingsPage: React.FC = () => {
             console.error("Error fetching curriculum:", error);
         }
     };
-    {
-        /*curriculum api*/
-    }
 
-    {
-        /*sections api*/
-    }
     const [sections, setSections] = useState<Section[]>([]);
     const fetchSections = async () => {
         try {
@@ -125,13 +101,7 @@ const CourseOfferingsPage: React.FC = () => {
             console.error("Error fetching sections:", error);
         }
     };
-    {
-        /*sections api*/
-    }
 
-    {
-        /*course subjects api*/
-    }
     const [courseSubjects, setCourseSubjects] = useState<CourseSubject[]>([]);
     const fetchCourseSubjects = async (request: Curriculum) => {
         try {
@@ -176,13 +146,6 @@ const CourseOfferingsPage: React.FC = () => {
     useEffect(() => {
         fetchCurriculum();
         fetchSections();
-        if (curriculumUploaded) {
-            console.log("curriculum uploaded: ", curriculumUploaded);
-            setCurrProgramName(curriculumUploaded?.program_name);
-            setCurrName(curriculumUploaded?.curriculum_name);
-        } else {
-            console.log("to be fetched");
-        }
     }, []);
 
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -227,8 +190,6 @@ const CourseOfferingsPage: React.FC = () => {
 
             const uploadedCurriculum = response.data.data.curriculum;
             setCurriculumUploaded(uploadedCurriculum);
-            setCurrProgramName(uploadedCurriculum.program_name);
-            setCurrName(uploadedCurriculum.curriculum_name);
         } catch (error) {
             console.error("Error uploading curriculum:", error);
             setUploadError("Failed to upload curriculum. Please try again.");
@@ -236,29 +197,16 @@ const CourseOfferingsPage: React.FC = () => {
             setIsUploading(false);
         }
     };
-    const [editCurriculumProgramName, setCurrProgramName] = useState<
-        string | null
-    >("");
-    const [editCurriculumName, setCurrName] = useState<string | null>("");
-    const handleEditCurriculumProgramName = (e: string) => {
-        if (curriculumUploaded) {
-            setCurrProgramName(e);
-            setCurriculumUploaded({
-                ...curriculumUploaded,
-                program_name: editCurriculumProgramName || "",
-            });
-        }
+    const handleEditCurriculum = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setCurriculumUploaded(
+            (prevCurriculum) =>
+                ({
+                    ...prevCurriculum,
+                    [name]: value || "", // Ensure the value is never undefined
+                } as uploadedCurriculum)
+        );
     };
-    const handleEditCurrName = (e: string) => {
-        if (curriculumUploaded) {
-            setCurrName(e);
-            setCurriculumUploaded({
-                ...curriculumUploaded,
-                curriculum_name: editCurriculumName || "",
-            });
-        }
-    };
-
     {
         /*add section pop up*/
     }
@@ -279,6 +227,7 @@ const CourseOfferingsPage: React.FC = () => {
                 curriculum_name: selectedCurriculum?.curriculum_name,
                 year_level: yearLevelMap[yearLevelCourse],
             });
+            fetchSections();
         } catch (error) {
             console.log("Error in creating section: ", error);
         }
@@ -300,14 +249,26 @@ const CourseOfferingsPage: React.FC = () => {
     const [yearLevelCourse, setYearLevelCourse] =
         useState<string>("Year Level");
 
-    const [switchSuccess, setSwitchSuccess] = useState<boolean>(false);
-    const handleSwitchSuccess = () => {
-        setShowAddCurriculum(false);
-        setSwitchSuccess(true);
+    const handleDeleteSection = async (sectionID: number) => {
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this section? This action cannot be undone."
+        );
+
+        if (!confirmDelete) {
+            return; // Exit if the user cancels the action
+        }
+
+        try {
+            const response = await axios.delete(
+                `/api/section/delete/${sectionID}`
+            );
+            console.log("Section deleted: ", response);
+            fetchSections(); // Refresh the sections list
+        } catch (error) {
+            console.error("Error deleting section:", error);
+        }
     };
-    const handleCloseSwitchSuccess = () => {
-        setSwitchSuccess(false);
-    };
+
     return (
         <Layout>
             <h1 className="font-bold text-2xl mb-4">Curriculum</h1>
@@ -341,11 +302,6 @@ const CourseOfferingsPage: React.FC = () => {
                     {activeTab === "Course Offerings" && (
                         <div className="bg-white p-4 rounded-2xl shadow-lg">
                             <div className="flex justify-between mb-4">
-                                <input
-                                    className="border border-gray-300 rounded-lg p-2 w-1/3"
-                                    type="text"
-                                    placeholder="Search curriculum..."
-                                />
                                 <PrimaryButton
                                     onClick={handleToggleCurriculumPopup}
                                     className="bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg"
@@ -623,14 +579,6 @@ const CourseOfferingsPage: React.FC = () => {
                                             ? "Uploading..."
                                             : "Upload Curriculum"}
                                     </PrimaryButton>
-                                    {uploadSuccess && (
-                                        <button
-                                            className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-red-600 ml-4"
-                                            onClick={handleSwitchSuccess}
-                                        >
-                                            View Curriculum
-                                        </button>
-                                    )}
                                 </div>
 
                                 <div></div>
@@ -646,28 +594,37 @@ const CourseOfferingsPage: React.FC = () => {
                     {/*adding curriculum pop up*/}
                     {/*adding curriculum pop up*/}
                     {showAddCurriculum &&
-                        (curriculumUploaded &&
-                        editCurriculumName &&
-                        editCurriculumProgramName ? (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                                <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl shadow-full">
+                        (curriculumUploaded ? (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30 ">
+                                <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 shadow-full max-h-[850px] h-[90vh] overflow-y-auto">
+                                    <h2>Curriculum Name</h2>
                                     <input
                                         className="text-2xl font-semibold mb-4 border border-gray-300 rounded-lg p-2 w-full"
-                                        value={editCurriculumProgramName}
-                                        onChange={(e) =>
-                                            handleEditCurriculumProgramName(
-                                                e.target.value
-                                            )
+                                        value={
+                                            curriculumUploaded.curriculum_name
                                         }
+                                        name="curriculum_name"
+                                        type="text"
+                                        onChange={handleEditCurriculum}
                                     />
+                                    <h2>Program Name</h2>
                                     <input
                                         className="text-2xl font-semibold mb-4 border border-gray-300 rounded-lg p-2 w-full"
-                                        value={editCurriculumName}
-                                        onChange={(e) =>
-                                            handleEditCurrName(e.target.value)
-                                        }
+                                        value={curriculumUploaded.program_name}
+                                        name="program_name"
+                                        type="text"
+                                        onChange={handleEditCurriculum}
                                     />
-
+                                    <h2>Program Short Name</h2>
+                                    <input
+                                        className="text-2xl font-semibold mb-4 border border-gray-300 rounded-lg p-2 w-full"
+                                        value={
+                                            curriculumUploaded.program_short_name
+                                        }
+                                        name="program_short_name"
+                                        type="text"
+                                        onChange={handleEditCurriculum}
+                                    />
                                     <h1 className="text-xl font-semibold mt-10">
                                         Subjects
                                     </h1>
@@ -912,70 +869,73 @@ const CourseOfferingsPage: React.FC = () => {
                     {/* Sections Tab */}
                     {activeTab === "Sections" && (
                         <div className="bg-white p-4 rounded-2xl shadow-lg">
-                            <div className="flex justify-start gap-5 mb-4">
-                                <input
-                                    className="border border-gray-300 rounded-lg p-2 w-1/4"
-                                    type="text"
-                                    placeholder="Search section..."
-                                />
-                                <select
-                                    className="border border-gray-300 rounded-lg p-2 w-1/4"
-                                    value={selectedYearLevel}
-                                    onChange={(e) =>
-                                        setSelectedYearLevel(e.target.value)
-                                    }
-                                >
-                                    <option value="">All Year Levels</option>
-                                    <option value="First Year">
-                                        First Year
-                                    </option>
-                                    <option value="Second Year">
-                                        Second Year
-                                    </option>
-                                    <option value="Third Year">
-                                        Third Year
-                                    </option>
-                                    <option value="Fourth Year">
-                                        Fourth Year
-                                    </option>
-                                </select>
-                                <select
-                                    className="border border-gray-300 rounded-lg p-2 w-1/4"
-                                    onChange={(e) =>
-                                        setSelectedCurriculum(
-                                            curriculum.find(
-                                                (curr) =>
-                                                    curr.program_short_name ===
-                                                    e.target.value
-                                            ) || null
-                                        )
-                                    }
-                                >
-                                    <option value="">All Programs</option>
-                                    {curriculum
-                                        .filter(
-                                            (curr, index, self) =>
-                                                self.findIndex(
-                                                    (item) =>
-                                                        item.program_short_name ===
+                            <div className="flex grid grid-cols-2 mb-4">
+                                <div>
+                                    <PrimaryButton
+                                        onClick={handleToggleAddSection}
+                                        className="ml-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                                    >
+                                        Add Section
+                                    </PrimaryButton>
+                                </div>
+                                <div className="flex w-full justify-end gap-10">
+                                    <select
+                                        className="border border-gray-300 rounded-lg p-2 w-1/3"
+                                        value={selectedYearLevel}
+                                        onChange={(e) =>
+                                            setSelectedYearLevel(e.target.value)
+                                        }
+                                    >
+                                        <option value="">
+                                            All Year Levels
+                                        </option>
+                                        <option value="First Year">
+                                            First Year
+                                        </option>
+                                        <option value="Second Year">
+                                            Second Year
+                                        </option>
+                                        <option value="Third Year">
+                                            Third Year
+                                        </option>
+                                        <option value="Fourth Year">
+                                            Fourth Year
+                                        </option>
+                                    </select>
+                                    <select
+                                        className="border border-gray-300 rounded-lg p-2 w-1/3"
+                                        onChange={(e) =>
+                                            setSelectedCurriculum(
+                                                curriculum.find(
+                                                    (curr) =>
+                                                        curr.program_short_name ===
+                                                        e.target.value
+                                                ) || null
+                                            )
+                                        }
+                                    >
+                                        <option value="">All Programs</option>
+                                        {curriculum
+                                            .filter(
+                                                (curr, index, self) =>
+                                                    self.findIndex(
+                                                        (item) =>
+                                                            item.program_short_name ===
+                                                            curr.program_short_name
+                                                    ) === index
+                                            )
+                                            .map((curr) => (
+                                                <option
+                                                    key={curr.id}
+                                                    value={
                                                         curr.program_short_name
-                                                ) === index
-                                        )
-                                        .map((curr) => (
-                                            <option
-                                                key={curr.id}
-                                                value={curr.program_short_name}
-                                            >
-                                                {curr.program_short_name}
-                                            </option>
-                                        ))}
-                                </select>
-                                <button
-                                    onClick={handleToggleAddSection}
-                                    className="ml-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                                >
-                                    Add Section
-                                </button>
+                                                    }
+                                                >
+                                                    {curr.program_short_name}
+                                                </option>
+                                            ))}
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="overflow-x-auto">
@@ -1014,6 +974,16 @@ const CourseOfferingsPage: React.FC = () => {
                                                     selectedCurriculum === null
                                                 ) {
                                                     return true;
+                                                } else if (
+                                                    selectedCurriculum !==
+                                                        null &&
+                                                    selectedYearLevel ==
+                                                        "Year Level"
+                                                ) {
+                                                    return (
+                                                        section.program_short_name ===
+                                                        selectedCurriculum?.program_short_name
+                                                    );
                                                 }
                                                 return (
                                                     (!selectedCurriculum ||
@@ -1044,39 +1014,15 @@ const CourseOfferingsPage: React.FC = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                         <button
+                                                            className="text-red-500 hover:text-red-700 ml-4"
                                                             onClick={() =>
-                                                                toggleSectionMenu(
+                                                                handleDeleteSection(
                                                                     section.id
                                                                 )
                                                             }
-                                                            className="text-gray-500 hover:text-gray-700"
                                                         >
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5"
-                                                                viewBox="0 0 20 20"
-                                                                fill="currentColor"
-                                                            >
-                                                                <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                                                            </svg>
+                                                            <Trash2 size={18} />
                                                         </button>
-                                                        {openSectionMenu ===
-                                                            section.id && (
-                                                            <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                                <div className="py-1">
-                                                                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                                        View
-                                                                        Details
-                                                                    </button>
-                                                                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                                                        Edit
-                                                                    </button>
-                                                                    <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                                                        Delete
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        )}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -1214,7 +1160,7 @@ const CourseOfferingsPage: React.FC = () => {
                                     ))}
                             </div>
 
-                            <div className="flex justify-end space-x-2">
+                            <div className="space-x-2">
                                 <button
                                     className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
                                     onClick={handleAddSection}

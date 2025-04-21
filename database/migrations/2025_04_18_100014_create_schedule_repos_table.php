@@ -16,7 +16,7 @@ return new class extends Migration
             $table->json('schedule');
             $table->string('repo_name');
             $table->string('department_short_name');
-
+            $table->string('semester');
             $table->foreign('department_short_name')
                 ->references('department_short_name')
                 ->on('departments')

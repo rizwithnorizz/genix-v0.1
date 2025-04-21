@@ -62,7 +62,11 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
 
     Route::post('/api/feedback/student/approve', [DataCreate::class, 'approveStudentFeedback'])->name('depadmin.approve.student');
     Route::post('/api/feedback/instructor/approve', [DataCreate::class, 'approveInstructorFeedback'])->name('depadmin.approve.instructor');
-    //Route::get('dep-admin/course-sections', [CourseSectionController::class, 'index'])->name('dep.course-sections');
+
+    Route::delete('/api/section/delete/{section}', [DataUpdate::class, 'deleteSection'])->name('depadmin.delete-section');
+    Route::put('/api/section/update/{sectionID}', [DataUpdate::class, 'updateSection'])->name('depadmin.update-section');
+
+    //Route::get('dep-admin/course-sections', [/CourseSectionController::class, 'index'])->name('dep.course-sections');
     //Route::get('dep-admin/subjects', [SubjectController::class, 'index'])->name('dep.subjects');
     // Add more routes for department admin
 });
@@ -96,6 +100,7 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::post('admin/departments/{department}/assign-rooms', [DataCreate::class, 'assignRoomToDepartment'])->name('admin.assignRoom');
     Route::delete('/admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteRoom'])->name('admin.deleteRoom');
     Route::delete('admin/deleteFeedback/{department}', [DataUpdate::class, 'deleteDepartmentFeedback'])->name('admin.delete-department');
+    
     
     Route::delete('admin/departments/delete/{department}', [DataUpdate::class, 'deleteDepartment'])->name('admin.delete-department');
     Route::delete('/admin/departments/admins/{email}', [DataUpdate::class, 'deleteDepartmentAdmin'])->name('admin.delete-department-admin');
