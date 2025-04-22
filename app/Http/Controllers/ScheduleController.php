@@ -876,7 +876,6 @@ class ScheduleController extends Controller
                 return $slotEnd <= $occupiedStart || $slotStart >= $occupiedEnd;
             });
         }
-
         return array_values($availableTimeSlots);
     }
 
