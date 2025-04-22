@@ -438,6 +438,9 @@ RESPONSE FORMAT:
 Format the response ONLY as valid JSON without any explanations or markdown code blocks.
 PROMPT;
 
+            \Log::error('DeepSeek prompt', [
+                'prompt' => $prompt
+            ]);
             // Set a reasonable token limit
             $deepseek->setMaxTokens(8000);
             
@@ -521,10 +524,17 @@ PROMPT;
                         'room_req' => $subjectData['room_req'],
                         'lec' => $subjectData['lec'],
                         'lab' => $subjectData['lab'],
-                        'prof_sub' => $subjectData['prof_sub'],
+                        'prof_subject' => $subjectData['prof_sub'],
                     ]
                 );
-    
+                \Log::error("Uploaded subject", [
+                    'subject_code' => $subjectData['subject_code'],
+                    'name' => $subjectData['name'],
+                    'room_req' => $subjectData['room_req'],
+                    'lec' => $subjectData['lec'],
+                    'lab' => $subjectData['lab'],
+                    'prof_subject' => $subjectData['prof_sub'],
+                ]);
                 \App\Models\CourseSubject::firstOrCreate(
                     [
                         'program_short_name' => $curriculum->program_short_name,

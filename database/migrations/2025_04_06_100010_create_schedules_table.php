@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->string('subject_code');
-            $table->integer('time_slot');
+            $table->integer('time_start');
+            $table->integer('time_end');
             $table->integer('day_slot');
             $table->string('room_number');
             $table->string('section_name');

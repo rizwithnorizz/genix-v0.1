@@ -268,6 +268,26 @@ const CourseOfferingsPage: React.FC = () => {
             console.error("Error deleting section:", error);
         }
     };
+    const handleEditUploadedCurriculum = (subject: Subject) => {
+        setCurriculumUploaded((prevCurriculum) => {
+            if (!prevCurriculum) return null; // Handle case where prevCurriculum is null
+
+            const updatedSubjects = prevCurriculum.subjects.map((sub) => {
+                if (sub.subject_code === subject.subject_code) {
+                    
+                console.log("Modified subject", sub);
+                    return { ...sub, prof_sub: !sub.prof_sub };
+                }
+                return sub;
+            });
+
+            return {
+                ...prevCurriculum,
+                subjects: updatedSubjects,
+            } as uploadedCurriculum;
+        }
+        );
+    };
 
     return (
         <Layout>
@@ -752,8 +772,19 @@ const CourseOfferingsPage: React.FC = () => {
                                                         key={
                                                             subject.subject_code
                                                         }
-                                                        className="bg-gray-700 text-white p-3 rounded-full mb-2 grid grid-cols-4"
+                                                        className="bg-gray-700 text-white p-3 rounded-full mb-2 grid grid-cols-5"
                                                     >
+                                                        <div className="grid grid-cols-2 pl-5 flex items-center justify-center">
+                                                        <h2>Prof. Sub?</h2>
+                                                        <input type="checkbox"
+                                                            name = "prof_sub"   
+                                                            className="h-6 w-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                            checked={
+                                                                    subject.prof_sub
+                                                            }
+                                                            onChange={() => handleEditUploadedCurriculum(subject)}
+                                                        />
+                                                        </div>
                                                         <label className="text-xl font-bold flex items-center justify-center">
                                                             {
                                                                 subject.subject_code

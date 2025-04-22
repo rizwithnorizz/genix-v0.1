@@ -43,7 +43,8 @@ interface GeneratedSchedule {
     subject_code: string;
     room_number: string;
     section_name: string;
-    time_slot: number;
+    time_start: number;
+    time_end: number;
 }
 const DepAdminDashboard: React.FC = () => {
     const [curriculum, setCurriculum] = useState<Curriculum[]>([]);
@@ -346,7 +347,10 @@ const DepAdminDashboard: React.FC = () => {
                                 Day Slot
                             </th>
                             <th className="border border-gray-300 px-4 py-2 text-left">
-                                Time Slot
+                                Start Time
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                End Time
                             </th>
                             <th className="border border-gray-300 px-4 py-2 text-left">
                                 Instructor Name
@@ -374,7 +378,10 @@ const DepAdminDashboard: React.FC = () => {
                                         {item.day_slot}
                                     </td>
                                     <td className="border border-gray-300 px-4 py-2">
-                                        {item.time_slot}
+                                        {item.time_start}
+                                    </td>
+                                    <td className="border border-gray-300 px-4 py-2">
+                                        {item.time_end}
                                     </td>
                                     <td className="border border-gray-300 px-4 py-2">
                                         {
@@ -467,7 +474,10 @@ const DepAdminDashboard: React.FC = () => {
                                                         Day Slot
                                                     </th>
                                                     <th className="border border-gray-300 px-4 py-2 text-left">
-                                                        Time Slot
+                                                        Start Time
+                                                    </th>
+                                                    <th className="border border-gray-300 px-4 py-2 text-left">
+                                                        End Time
                                                     </th>
                                                     <th className="border border-gray-300 px-4 py-2 text-left">
                                                         Instructor ID
@@ -503,7 +513,12 @@ const DepAdminDashboard: React.FC = () => {
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
                                                                 {
-                                                                    schedule.time_slot
+                                                                    schedule.time_start
+                                                                }
+                                                            </td>
+                                                            <td className="border border-gray-300 px-4 py-2">
+                                                                {
+                                                                    schedule.time_end
                                                                 }
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
