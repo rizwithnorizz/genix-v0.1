@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { debounce } from "lodash";
 
 interface Department {
     id: number;
@@ -118,6 +117,7 @@ const DepartmentPage: React.FC = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        console.log("Editting fordata", name, value);
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -149,6 +149,7 @@ const DepartmentPage: React.FC = () => {
                 "department_short_name",
                 form.department_short_name
             );
+            console.log("department short name", form.department_short_name);
             formData.append("admin_name", form.admin_name);
             formData.append("admin_email", form.admin_email);
             selectedRoomNumbers.forEach((roomNumber) => {
@@ -439,7 +440,7 @@ const DepartmentPage: React.FC = () => {
                                             </label>
                                             <input
                                                 type="text"
-                                                name="depName"
+                                                name="department_full_name"
                                                 value={
                                                     form.department_full_name
                                                 }
@@ -455,7 +456,7 @@ const DepartmentPage: React.FC = () => {
                                             </label>
                                             <input
                                                 type="text"
-                                                name="depShortName"
+                                                name="department_short_name"
                                                 value={
                                                     form.department_short_name
                                                 }
@@ -467,11 +468,26 @@ const DepartmentPage: React.FC = () => {
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Admin Name
+                                            </label>
+                                            <input
+                                                type="name"
+                                                name="admin_name"
+                                                value={form.admin_name}
+                                                onChange={handleInputChange}
+                                                placeholder="e.g. Juan Dela Cruz"
+                                                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                required
+                                                />
+                                            
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Admin Email
                                             </label>
                                             <input
                                                 type="email"
-                                                name="depAdmin"
+                                                name="admin_name"
                                                 value={form.admin_name}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g. admin@example.com"

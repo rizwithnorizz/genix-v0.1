@@ -5,6 +5,7 @@ import {
     ChevronLeft,
     ChevronRight,
     MoreVertical,
+    Trash2,
     View,
     type LucideIcon,
 } from "lucide-react";

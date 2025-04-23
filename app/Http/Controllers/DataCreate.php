@@ -151,8 +151,8 @@ class DataCreate extends Controller
 
         try {
             $department = Departments::create([
-                'department_short_name' => $request->input('depShortName'),
-                'department_full_name' => $request->input('depName'),
+                'department_short_name' => $request->input('department_short_name'),
+                'department_full_name' => $request->input('department_full_name'),
             ]);
 
             if ($request->has('selectedRooms')) {
