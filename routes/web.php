@@ -113,8 +113,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/getusersidebar', [ProfileController::class, 'getUser']);
 });
 
-Route::get('/run-genetic-algorithm', [GeneticAlgorithmController::class, 'run']);
-
-
 
 require __DIR__.'/auth.php';

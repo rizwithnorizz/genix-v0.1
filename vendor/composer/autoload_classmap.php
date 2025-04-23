@@ -36,6 +36,7 @@ return array(
     'App\\Models\\CourseSubjectFeedback' => $baseDir . '/app/Models/CourseSubjectFeedback.php',
     'App\\Models\\DepartmentRoom' => $baseDir . '/app/Models/DepartmentRoom.php',
     'App\\Models\\InstructorFeedback' => $baseDir . '/app/Models/InstructorFeedback.php',
+    'App\\Models\\ScheduleRepo' => $baseDir . '/app/Models/ScheduleRepo.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\classroom' => $baseDir . '/app/Models/classroom.php',
     'App\\Models\\course_sections' => $baseDir . '/app/Models/course_sections.php',

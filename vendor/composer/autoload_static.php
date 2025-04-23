@@ -715,6 +715,7 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
         'App\\Models\\CourseSubjectFeedback' => __DIR__ . '/../..' . '/app/Models/CourseSubjectFeedback.php',
         'App\\Models\\DepartmentRoom' => __DIR__ . '/../..' . '/app/Models/DepartmentRoom.php',
         'App\\Models\\InstructorFeedback' => __DIR__ . '/../..' . '/app/Models/InstructorFeedback.php',
+        'App\\Models\\ScheduleRepo' => __DIR__ . '/../..' . '/app/Models/ScheduleRepo.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\classroom' => __DIR__ . '/../..' . '/app/Models/classroom.php',
         'App\\Models\\course_sections' => __DIR__ . '/../..' . '/app/Models/course_sections.php',
