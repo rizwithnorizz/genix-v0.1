@@ -576,7 +576,7 @@ PROMPT;
         \Log::error("i got this far 2");
         try {
             // Create the section record
-            $section = new \App\Models\course_sections();
+            $section = new \App\Models\Course_Sections();
             $section->section_name = $request->input('section_name');
             $section->program_short_name = $request->input('program_short_name');
             $section->curriculum_name = $request->input('curriculum_name');

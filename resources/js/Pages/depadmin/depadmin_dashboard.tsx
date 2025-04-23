@@ -5,6 +5,7 @@ import {
     ChevronLeft,
     ChevronRight,
     MoreVertical,
+    View,
     type LucideIcon,
 } from "lucide-react";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -203,10 +204,10 @@ const DepAdminDashboard: React.FC = () => {
                                             }
                                             className="bg-green-500 hover:bg-green-400 text-white rounded-3xl p-2"
                                         >
-                                            View File
+                                            <View/>
                                         </button>
                                         <button className="bg-red-800 hover:bg-red-700 text-white rounded-3xl p-2">
-                                            Delete File
+                                            <Trash2/>
                                         </button>
                                     </div>
                                 </div>
