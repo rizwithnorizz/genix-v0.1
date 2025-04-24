@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Classroom; 
 use App\Models\DepartmentRoom;
 use App\Models\CourseSubject;
-use App\Models\subject_instructor;
-use App\Models\program_offerings;
+use App\Models\Subject_Instructor;
+use App\Models\Program_Offerings;
 use App\Models\Subject;
 use App\Models\Course_Sections;
 use App\Models\Department_Curriculum;
@@ -101,7 +101,7 @@ class DataRelay extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $courseSubject = CourseSubject::all();
+        $courseSubject = DB::table('course_subjects')->get();
         return response()->json([
             'name' => "course_subject",
             'data' => $courseSubject,
@@ -127,7 +127,8 @@ class DataRelay extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $userDepartmentShortName = auth()->user()->department_short_name;
-        $courseSections = Course_Sections::join('program_offerings', 'course_sections.program_short_name', '=', 'program_offerings.program_short_name')
+        $courseSections = DB::table('course_sections')
+            ->join('program_offerings', 'course_sections.program_short_name', '=', 'program_offerings.program_short_name')
             ->select('course_sections.*')
             ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
                 return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
@@ -146,7 +147,8 @@ class DataRelay extends Controller
         }
         // Retrieve the authenticated user's department_short_name
         $userDepartmentShortName = auth()->user()->department_short_name;
-        $departmentCurriculum = Department_Curriculum::join('program_offerings', 'department_curriculums.program_short_name', '=', 'program_offerings.program_short_name')
+        $departmentCurriculum = DB::table('department_curriculums')
+            ->join('program_offerings', 'department_curriculums.program_short_name', '=', 'program_offerings.program_short_name')
             ->select('department_curriculums.*', 'program_offerings.*')
             ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
                 return $query->where('department_curriculums.department_short_name', $userDepartmentShortName);
