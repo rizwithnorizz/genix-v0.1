@@ -131,6 +131,7 @@ const SidebarProvider = React.forwardRef<
 
     return (
       <SidebarContext.Provider value={contextValue}>
+
         <TooltipProvider delayDuration={0}>
           <div
             style={
@@ -206,8 +207,13 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
+
+            <div className="flex h-full w-full flex-col">{children}
+
+            </div>
           </SheetContent>
+          <SidebarTrigger className="sticky fixed bottom-10 bg:white left-4 z-10 flex items-center gap-2" />
+
         </Sheet>
       )
     }
@@ -221,6 +227,7 @@ const Sidebar = React.forwardRef<
         data-variant={variant}
         data-side={side}
       >
+
         {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
@@ -248,7 +255,7 @@ const Sidebar = React.forwardRef<
         >
           <div
             data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+            className="flex h-full w-full flex-col bg-white group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
           >
             {children}
           </div>
@@ -278,7 +285,10 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PanelLeft />
+      <div className="h-[60px] w-[60px] bg-white shadow-full flex items-center justify-center" >
+
+        <PanelLeft />
+      </div>
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
@@ -354,16 +364,32 @@ const SidebarHeader = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
+  const { state } = useSidebar(); // Access the sidebar state (expanded or collapsed)
+
   return (
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col items-center gap-2 p-2", className)}
       {...props}
-    />
-  )
-})
-SidebarHeader.displayName = "SidebarHeader"
+    >
+      <div className="flex items-center justify-center">
+        <img
+          src="/kyoto.png"
+          className={cn(
+            "transition-all duration-200 ease-linear", // Smooth transition
+            state === "expanded" ? "w-24 h-24 p-2" : "w-10 h-10 p-1" // Adjust size based on state
+          )}
+          alt="Logo"
+        />
+      </div>
+      {state === "expanded" && (
+        <h1 className="text-lg font-semibold text-center">Genix</h1> // Show title only when expanded
+      )}
+    </div>
+  );
+});
+SidebarHeader.displayName = "SidebarHeader";
 
 const SidebarFooter = React.forwardRef<
   HTMLDivElement,
@@ -433,18 +459,20 @@ const SidebarGroupLabel = React.forwardRef<
   React.ComponentProps<"div"> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
   const Comp = asChild ? Slot : "div"
-
+  const { state } = useSidebar();
   return (
-    <Comp
-      ref={ref}
-      data-sidebar="group-label"
-      className={cn(
-        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-        "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
-        className
-      )}
-      {...props}
-    />
+    <div>
+      <Comp
+        ref={ref}
+        data-sidebar="group-label"
+        className={cn(
+          "flex h-8 shrink-10 items-center rounded-md px-2 text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+          "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
+          className
+        )}
+        {...props}
+      />
+    </div>
   )
 })
 SidebarGroupLabel.displayName = "SidebarGroupLabel"
@@ -614,7 +642,7 @@ const SidebarMenuAction = React.forwardRef<
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+        "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
         className
       )}
       {...props}

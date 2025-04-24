@@ -4,18 +4,23 @@ import {
   AudioWaveform,
   BookOpen,
   Bot,
+  BoxesIcon,
   Command,
+  DoorOpenIcon,
   Frame,
   GalleryVerticalEnd,
   GroupIcon,
   HelpCircleIcon,
   LucideIcon,
   Map,
+  MessageCircleQuestionIcon,
   PenIcon,
   PieChart,
   Settings2,
   SquareTerminal,
+  Table2Icon,
   User2,
+  UserPenIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/Components/nav-main";
@@ -26,10 +31,13 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from "@/Components/ui/sidebar";
 import { ScrollArea } from "./ui/scroll-area";
+import ApplicationLogo from './ApplicationLogo';
 
 type NavItem = {
   title: string;
@@ -68,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [data, setData] = useState<Data>(initialData);
   const [logged, setLogged] = useState<boolean>(false);
 
-  
+
   useEffect(() => {
     axios.get('/getusersidebar') // Update the endpoint to fetch user data
       .then(response => {
@@ -88,36 +96,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "Department",
                 url: "departments",
-                icon: Bot,
+                icon: BoxesIcon,
                 isCollapsible: false,
               },
               {
                 title: "Rooms",
                 url: "rooms",
-                icon: Settings2,  
+                icon: DoorOpenIcon,
                 isCollapsible: false,
               },
               {
                 title: "Feedback",
                 url: "feedback",
-                icon: BookOpen,
+                icon: PenIcon,
               },
               {
                 title: "Schedules",
                 url: "schedules",
-                icon: Settings2,
+                icon: Table2Icon,
                 isCollapsible: false,
               },
               {
                 title: "Help",
                 url: "help",
-                icon: Settings2,
+                icon: MessageCircleQuestionIcon,
                 isCollapsible: false,
               },
               {
                 title: "About",
                 url: "about",
-                icon: Settings2,
+                icon: UserPenIcon,
                 isCollapsible: false,
               },
             ];
@@ -176,8 +184,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       })
       .catch(error => {
         console.error('Error fetching user data:', error);
-        
-        if (logged == false){
+
+        if (logged == false) {
           let navMainItems: NavItem[] = [
             {
               title: "Student Schedule",
@@ -213,9 +221,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, []);
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="icon" {...props} className="h-[95vh] rounded-xl py-2 my-5 ml-2">
+      <SidebarHeader className="flex items-center justify-center ">
       </SidebarHeader>
+    
       <SidebarContent>
         <ScrollArea>
           <NavMain items={data.navMain} />

@@ -20,7 +20,6 @@ class DataUpdate extends Controller
     }
 
     public function deleteDepartmentFeedback($department){
-        \Log::error("Deleting department: $department");
         DB::table('instructor_feedback')
             ->where('department_short_name', $department)
             ->delete();
@@ -35,8 +34,6 @@ class DataUpdate extends Controller
 
     public function updateDepartment($department_short_name, Request $request)
     {
-        $randomPassword = Str::random(10);
-        \Log::error("Updating department: $department_short_name");
 
         DB::table('users')
             ->updateOrInsert([
@@ -47,12 +44,11 @@ class DataUpdate extends Controller
                 'department_short_name' => $request->input('department_short_name'),
                 'name' => $request->input('admin_name'),
                 'email' => $request->input('admin_email'),
-                'password' => bcrypt($randomPassword),
-            ]);
-        \Log::error("Department updated: $department_short_name");
+                'password' => $request->input('password'),
+                'actualPassword' => $request->input('password'),
+            ]); 
         return response()->json([
             'message' => 'Department updated successfully',
-            'generated_password' => $randomPassword,
         ]); 
     }
 
@@ -61,7 +57,6 @@ class DataUpdate extends Controller
         DB::table('users')
             ->where('email', $email)
             ->delete();
-        \Log::error("Deleting department admin: $email");
         return response()->json([
             'message' => 'Department admin deleted successfully'
         ]);
@@ -69,7 +64,6 @@ class DataUpdate extends Controller
 
     public function deleteDepartment($department)
     {
-        \Log::error("Deleting department: $department");
         DB::table('users')
             ->where('department_short_name', $department)
             ->delete();
@@ -138,7 +132,6 @@ class DataUpdate extends Controller
 {
     $newSectionName = $request->input('section_name');
 
-    // Get the current (old) section name
     $oldSectionName = DB::table('course_sections')
         ->where('id', $sectionID)
         ->value('section_name');
@@ -146,12 +139,10 @@ class DataUpdate extends Controller
     DB::beginTransaction();
 
     try {
-        // Step 1: Update the section name in course_sections first
         DB::table('course_sections')
             ->where('id', $sectionID)
             ->update(['section_name' => $newSectionName]);
 
-        // Step 2: Then update schedules that reference the old section name
         DB::table('schedules')
             ->where('section_name', $oldSectionName)
             ->update(['section_name' => $newSectionName]);

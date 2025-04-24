@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Departments;
 use DeepSeekClient;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 class DataCreate extends Controller
 {
     public function assignRoomToDepartment(Request $request, $department)
@@ -95,7 +96,6 @@ class DataCreate extends Controller
             ], 422);
         }
 
-        // Check if the assignment already exists
         $existingAssignment = DB::table('subject_instructors')
             ->where('instructor_id', $request->instructor_id)
             ->where('subject_code', $request->subject_id)
@@ -108,7 +108,6 @@ class DataCreate extends Controller
             ], 422);
         }
 
-        // Create the assignment
         DB::table('subject_instructors')->insert([
             'instructor_id' => $request->instructor_id,
             'subject_code' => $request->subject_id
@@ -155,16 +154,28 @@ class DataCreate extends Controller
 
     public function createDepartment(Request $request)
     {
-        \Log::info('Creating department with data:', $request->all());
+        \Log::error("Hello??");
         $validated = $request->validate([
             'department_short_name' => 'required|string|max:10|unique:departments,department_short_name',
             'department_full_name' => 'required|string|max:255',
         ]);
 
         try {
-            $department = Departments::create([
+            $department = Departments::firstOrCreate([
                 'department_short_name' => $request->input('department_short_name'),
                 'department_full_name' => $request->input('department_full_name'),
+            ], [
+                'department_short_name' => $request->input('department_short_name'),
+                'department_full_name' => $request->input('department_full_name'),
+            ]);
+            $user = DB::table('users')
+            ->insert([
+                'name' => $request->input('department_full_name'),
+                'email' => $request->input('department_short_name') . '@gmail.com',
+                'password' => $request->input('password'),
+                'actualPassword' => $request->input('password'),
+                'department_short_name' => $request->input('department_short_name'),
+                'user_type' => 1,
             ]);
 
             if ($request->has('selectedRooms')) {
@@ -193,40 +204,30 @@ class DataCreate extends Controller
 
     public function uploadCurriculum(Request $request)
     {
-        // Validate the request
         $request->validate([
             'curriculum_file' => 'required|file|max:10240', // 10MB max
         ]);
 
         try {
-            // Get the uploaded file
             $file = $request->file('curriculum_file');
             
-            // Generate a unique filename
             $filename = time() . '_' . $file->getClientOriginalName();
             
-            // Store the file temporarily
             $path = $file->storeAs('temp', $filename);
             
-            // Get the full path to the stored file
             $fullPath = Storage::path($path);
             
-            // Get file metadata
             $fileExtension = $file->getClientOriginalExtension();
             $fileSize = $file->getSize();
             $fileName = $file->getClientOriginalName();
             
-            // Process the file with DeepSeek AI parser
             $parsedData = $this->parseFileWithDeepSeek($fullPath, $fileExtension, $fileName, $fileSize);
             \Log::error('Parsed data', [
                 'parsedData' => $parsedData
             ]);
-            // If parsing was successful, create the curriculum
             if ($parsedData) {
-                // Create new curriculum records from the parsed data
                 $savedCurriculums = $parsedData;
 
-                // Clean up the temporary file
                 Storage::delete($path);
                 
                 return response()->json([
@@ -250,35 +251,26 @@ class DataCreate extends Controller
             ], 500);
         }
     }
-    
-    /**
-     * Send the file to the DeepSeek AI parser and get structured data back
-     */
+
     private function parseFileWithDeepSeek($filePath, $fileExtension, $fileName, $fileSize)
     {
         try {
-            // Initialize the DeepSeek client
             $deepseek = new \App\Libraries\DeepSeekClient();
             
-            // For large files, instead of sending the whole content, extract key information
-            // This approach works better for structured documents like course curricula
             $fileInfo = [];
             
-            // Extract text based on file type
             switch (strtolower($fileExtension)) {
                 case 'pdf':
                     if (class_exists('Smalot\PdfParser\Parser')) {
                         $parser = new \Smalot\PdfParser\Parser();
                         $pdf = $parser->parseFile($filePath);
                         $text = $pdf->getText();
-                        // Extract first 15000 chars and last 5000 chars for context
                         $fileInfo['content'] = substr($text, 0, 15000);
                         if (strlen($text) > 20000) {
                             $fileInfo['content'] .= "\n[...content truncated...]\n";
                             $fileInfo['content'] .= substr($text, -5000);
                         }
                     } else {
-                        // Fallback if PDF parser not available
                         $fileInfo['content'] = "PDF file contents (PDF parser not available)";
                     }
                     break;
@@ -290,12 +282,9 @@ class DataCreate extends Controller
                     
                             foreach ($phpWord->getSections() as $section) {
                                 foreach ($section->getElements() as $element) {
-                                    // Handle text directly
                                     if ($element instanceof \PhpOffice\PhpWord\Element\Text) {
                                         $text .= $element->getText() . "\n";
                                     }
-                    
-                                    // Handle TextRun (e.g. bolded/inline pieces)
                                     elseif ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
                                         foreach ($element->getElements() as $inline) {
                                             if (method_exists($inline, 'getText')) {
@@ -304,8 +293,6 @@ class DataCreate extends Controller
                                         }
                                         $text .= "\n";
                                     }
-                    
-                                    // Handle tables
                                     elseif ($element instanceof \PhpOffice\PhpWord\Element\Table) {
                                         $text .= "\n[Table Start]\n";
                                         foreach ($element->getRows() as $rowIndex => $row) {
@@ -400,9 +387,6 @@ class DataCreate extends Controller
                     }
                     break;
             }
-            \Log::error('File content', [
-                'content' => $fileInfo['content']
-            ]);
             $fileInfo['name'] = $fileName;
             $fileInfo['extension'] = $fileExtension;
             $fileInfo['size'] = $fileSize;
@@ -453,22 +437,13 @@ PROMPT;
             \Log::error('DeepSeek prompt', [
                 'prompt' => $prompt
             ]);
-            // Set a reasonable token limit
             $deepseek->setMaxTokens(8000);
-            
-            // Query the DeepSeek API
             $response = $deepseek->query($prompt)->run();
             
-            // Clean and parse the response
-            // Remove any markdown code block indicators if present
             $cleanedResponse = preg_replace('/^```json|```$/m', '', trim($response));
             
-            // Decode the JSON response
             $decodedResponse = json_decode($cleanedResponse, true);
-            \Log::error('DeepSeek response', [
-                'response' => $decodedResponse
-            ]);
-            // Validate the response structure
+
             if (json_last_error() !== JSON_ERROR_NONE || !isset($decodedResponse['curriculum'])) {
                 Log::error('DeepSeek response parsing error', [
                     'error' => json_last_error_msg(),
@@ -497,12 +472,6 @@ PROMPT;
             'department_short_name' => auth()->user()->department_short_name,
         ]);
     
-        // Log to confirm the department_short_name is set
-        \Log::info('Department short name set in request:', [
-            'department_short_name' => $request->input('department_short_name'),
-        ]);
-        \Log::error('Made it this far');
-        // Validate the request
         $request->validate([
             'department_short_name' => 'required|string',
             'curriculum_name' => 'required|string',
@@ -513,7 +482,7 @@ PROMPT;
 
         try {
             
-            $programOffering = Program_Offerings::firstOrCreate(
+            Program_Offerings::firstOrCreate(
                 [
                     'program_short_name' => $request->input('program_short_name'),
                 ],
@@ -523,18 +492,15 @@ PROMPT;
                 ]
             );
 
-            
-            // Create the curriculum record
-            $curriculum = new Department_Curriculum();
-            $curriculum->department_short_name = $request->input('department_short_name');
-            $curriculum->curriculum_name = $request->input('curriculum_name');
-            $curriculum->program_short_name = $request->input('program_short_name');
-            $curriculum->save();
+            DB::table('department_curriculum')
+            ->insert([
+                'department_short_name' => $request->input('department_short_name'),
+                'curriculum_name' => $request->input('curriculum_name'),
+                'program_short_name' => $request->input('program_short_name'),
+            ]);
 
-            // Create the subjects records
             foreach ($request->input('subjects') as $subjectData) {
-                \App\Models\Subject::firstOrCreate(
-                    [
+                Subjects::firstOrCreate([
                         'subject_code' => $subjectData['subject_code'],
                     ],
                     [
@@ -545,15 +511,7 @@ PROMPT;
                         'prof_subject' => $subjectData['prof_sub'],
                     ]
                 );
-                \Log::error("Uploaded subject", [
-                    'subject_code' => $subjectData['subject_code'],
-                    'name' => $subjectData['name'],
-                    'room_req' => $subjectData['room_req'],
-                    'lec' => $subjectData['lec'],
-                    'lab' => $subjectData['lab'],
-                    'prof_subject' => $subjectData['prof_sub'],
-                ]);
-                \App\Models\CourseSubject::firstOrCreate(
+                CourseSubject::firstOrCreate(
                     [
                         'program_short_name' => $curriculum->program_short_name,
                         'curriculum_name' => $curriculum->curriculum_name,
@@ -590,13 +548,13 @@ PROMPT;
         
         \Log::error("i got this far 2");
         try {
-            // Create the section record
-            $section = new \App\Models\Course_Sections();
-            $section->section_name = $request->input('section_name');
-            $section->program_short_name = $request->input('program_short_name');
-            $section->curriculum_name = $request->input('curriculum_name');
-            $section->year_level = $request->input('year_level');
-            $section->save();
+            DB::table('course_sections')
+            ->insert([
+                'section_name' => $request->input('section_name'),
+                'program_short_name' => $request->input('program_short_name'),
+                'curriculum_name' => $request->input('curriculum_name'),
+                'year_level' => $request->input('year_level'),
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Section created successfully'
@@ -617,7 +575,6 @@ PROMPT;
         DB::table('course_subject_feedback')
         ->where('id', $request->input('feedback_id'))
         ->update(['status' => true]);
-        \Log::error("successfully approved student " .  $request->input('feedback_id'));
         return response()->json([
             'success' => true,
             'message' => 'Feedback approved successfully'
@@ -631,7 +588,6 @@ PROMPT;
         DB::table('instructor_feedback')
         ->where('id', $request->input('feedback_id'))
         ->update(['status' => true]);
-        \Log::error("successfully approved student");
         return response()->json([
             'success' => true,
             'message' => 'Feedback approved successfully'
@@ -648,7 +604,6 @@ PROMPT;
             'room_number' => $request->input('room_number'),
             'room_type' => $request->input('room_type'),
         ]);
-        \Log::error("successfully created room " .  $request->input('room_number'));
         return response()->json([
             'success' => true,
             'message' => 'Room created successfully'

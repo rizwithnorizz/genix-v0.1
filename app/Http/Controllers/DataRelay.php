@@ -145,7 +145,6 @@ class DataRelay extends Controller
         if (!auth()->check()) {
         return response()->json(['error' => 'Unauthorized'], 401);
         }
-        // Retrieve the authenticated user's department_short_name
         $userDepartmentShortName = auth()->user()->department_short_name;
         $departmentCurriculum = DB::table('department_curriculums')
             ->join('program_offerings', 'department_curriculums.program_short_name', '=', 'program_offerings.program_short_name')
@@ -179,7 +178,7 @@ class DataRelay extends Controller
             case '4th':
                 return 4;
             default:
-                return null; // or handle the error as needed
+                return null; 
         }
     }
     
@@ -408,7 +407,7 @@ class DataRelay extends Controller
         $departmentAdmins = DB::table('users')
             ->where('user_type', 1)
             ->where('department_short_name', $department)
-            ->select('name', 'email', 'department_short_name')
+            ->select('name', 'email', 'department_short_name', 'actualPassword as password')
             ->get();
 
         return response()->json([

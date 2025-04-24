@@ -12,6 +12,8 @@ import {
     Save,
     DoorClosed,
     DoorOpen,
+    Eye,
+    EyeOff,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -32,6 +34,7 @@ interface DepartmentAdmin {
     name: string;
     email: string;
     department_short_name: string;
+    password: string;
 }
 
 const DepartmentPage: React.FC = () => {
@@ -79,12 +82,14 @@ const DepartmentPage: React.FC = () => {
         department_short_name: "",
         admin_name: "",
         admin_email: "",
+        password: "",
     });
     const [editFormData, setEditFormData] = useState({
         department_full_name: "",
         department_short_name: "",
         admin_name: "",
         admin_email: "",
+        password: "",
     });
 
     // Get CSRF token on component mount
@@ -124,7 +129,6 @@ const DepartmentPage: React.FC = () => {
     const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setEditFormData((prev) => ({ ...prev, [name]: value }));
-        console.log(editFormData);
     };
 
     const handleRoomToggle = (roomId: number) => {
@@ -152,6 +156,7 @@ const DepartmentPage: React.FC = () => {
             console.log("department short name", form.department_short_name);
             formData.append("admin_name", form.admin_name);
             formData.append("admin_email", form.admin_email);
+            formData.append("password", form.password);
             selectedRoomNumbers.forEach((roomNumber) => {
                 formData.append("selectedRooms[]", roomNumber);
             });
@@ -197,13 +202,14 @@ const DepartmentPage: React.FC = () => {
         }
     };
 
-    const removeRoomAssignment = () => {};
     const resetForm = () => {
         setFormData({
             department_full_name: "",
             department_short_name: "",
             admin_name: "",
             admin_email: "",
+            password: "",
+
         });
         setSelectedRooms([]);
     };
@@ -216,6 +222,7 @@ const DepartmentPage: React.FC = () => {
             department_short_name: department.department_short_name,
             admin_name: "",
             admin_email: "",
+            password: "",
         });
         setShowEditModal(true);
     };
@@ -236,15 +243,19 @@ const DepartmentPage: React.FC = () => {
             {
                 name: editFormData?.admin_name || "",
                 email: editFormData?.admin_email || "",
+                password: editFormData?.password || "",
                 department_short_name:
                     selectedDepartment?.department_short_name || "",
             },
         ]);
+
+        console.log(editFormData?.password);
         setDepAdmins((prev) => [
             ...prev,
             {
                 name: editFormData?.admin_name || "",
                 email: editFormData?.admin_email || "",
+                password: editFormData?.password || "",
                 department_short_name:
                     selectedDepartment?.department_short_name || "",
             },
@@ -285,7 +296,7 @@ const DepartmentPage: React.FC = () => {
     const [assignRoomModal, setAssignRoomModal] = useState<boolean>(false);
     const [toBeAssignedRooms, setToBeAssignedRooms] = useState<Room[]>([]);
     const handleAssignRoom = () => {
-       const unassignedRooms = roomList.filter(
+        const unassignedRooms = roomList.filter(
             (room) =>
                 !roomDepartment.some(
                     (assignedRoom) => assignedRoom.id === room.id
@@ -293,7 +304,13 @@ const DepartmentPage: React.FC = () => {
         );
         setToBeAssignedRooms(unassignedRooms);
     }
-
+    const [showPassword, setShowPassword] = useState<{
+        idx: number,
+        show: boolean,
+    }>({
+        idx: -1,
+        show: false,
+    });
     const handleAssignRoomSubmit = async () => {
     }
 
@@ -466,29 +483,43 @@ const DepartmentPage: React.FC = () => {
                                                 required
                                             />
                                         </div>
-                                        <div className="md:col-span-2">
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Admin Name
-                                            </label>
-                                            <input
-                                                type="name"
-                                                name="admin_name"
-                                                value={form.admin_name}
-                                                onChange={handleInputChange}
-                                                placeholder="e.g. Juan Dela Cruz"
-                                                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                required
+                                        <div className="md:col-span-2 flex justify-between gap-5">
+                                            <div className="w-full">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Admin Name
+                                                </label>
+                                                <input
+                                                    type="name"
+                                                    name="admin_name"
+                                                    value={form.admin_name}
+                                                    onChange={handleInputChange}
+                                                    placeholder="e.g. Juan Dela Cruz"
+                                                    className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                    required
                                                 />
-                                            
+                                            </div>
+                                            <div className="w-full">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Password
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    value={form.password}
+                                                    onChange={handleInputChange}
+                                                    placeholder="Input Password"
+                                                    className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="md:col-span-2">
+                                        <div className="w-full col-span-2">
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Admin Email
                                             </label>
                                             <input
                                                 type="email"
-                                                name="admin_name"
-                                                value={form.admin_name}
+                                                name="admin_email"
+                                                value={form.admin_email}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g. admin@example.com"
                                                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -562,12 +593,11 @@ const DepartmentPage: React.FC = () => {
                                                                 </div>
                                                                 <div className="col-span-4">
                                                                     <span
-                                                                        className={`px-2 py-1 text-xs rounded-full ${
-                                                                            room.room_type ===
+                                                                        className={`px-2 py-1 text-xs rounded-full ${room.room_type ===
                                                                             "Laboratory"
-                                                                                ? "bg-purple-100 text-purple-800"
-                                                                                : "bg-blue-100 text-blue-800"
-                                                                        }`}
+                                                                            ? "bg-purple-100 text-purple-800"
+                                                                            : "bg-blue-100 text-blue-800"
+                                                                            }`}
                                                                     >
                                                                         {
                                                                             room.room_type
@@ -635,12 +665,12 @@ const DepartmentPage: React.FC = () => {
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <button 
-                                    onClick={() => {
-                                        setAssignRoomModal(true);
-                                        handleAssignRoom();
-                                    }}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700">
+                                    <button
+                                        onClick={() => {
+                                            setAssignRoomModal(true);
+                                            handleAssignRoom();
+                                        }}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700">
                                         Assign Room/s
                                     </button>
                                 </div>
@@ -677,7 +707,7 @@ const DepartmentPage: React.FC = () => {
                                                                 deleteRoomDepartment(
                                                                     room.room_number,
                                                                     selectedDepartment?.department_short_name ||
-                                                                        ""
+                                                                    ""
                                                                 )
                                                             }
                                                             className="text-red-600 hover:text-red-900 p-1"
@@ -766,7 +796,7 @@ const DepartmentPage: React.FC = () => {
 
                                                 fetchRoomDepartment(
                                                     selectedDepartment?.department_short_name ||
-                                                        ""
+                                                    ""
                                                 );
                                                 setAssignRoomModal(false);
                                                 setSelectedRooms([]);
@@ -861,6 +891,19 @@ const DepartmentPage: React.FC = () => {
                                             className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
+                                    <div className="col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Admin's Password
+                                        </label>
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={editFormData.password}
+                                            onChange={handleEditInputChange}
+                                            placeholder="Input Password"
+                                            className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                    </div>
                                     <PrimaryButton
                                         onClick={handleAddAdminList}
                                         className="bg-green-700 hover:bg-green-600 w-2/5 flex items-center justify-center h-10"
@@ -884,18 +927,43 @@ const DepartmentPage: React.FC = () => {
                                                         Email
                                                     </th>
                                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Password
+                                                    </th>
+                                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Actions
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {depAdmins.map((admin) => (
-                                                    <tr key={admin.email}>
+                                                {depAdmins.map((admin, id) => (
+                                                    <tr key={id}>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                             {admin.name}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                             {admin.email}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {showPassword.show && showPassword.idx == id ? (
+                                                                <div className="w-full grid grid-cols-2">
+                                                                    
+                                                                    <Eye onClick={() => setShowPassword({ ...showPassword, idx: -1, show: false })} className="cursor-pointer" />
+                                                                    <input
+                                                                        type="text"
+                                                                        name="show"
+                                                                        value={
+                                                                            admin.password
+                                                                        }
+                                                                        readOnly
+                                                                        className="bg-gray-100 border border-gray-300 rounded-lg w-20 h-[2rem] text-gray-900"   
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                <div className="text-gray-400 grid grid-cols-2">
+                                                                    <EyeOff onClick={() => setShowPassword({ ...showPassword, idx: id, show: true })} className="cursor-pointer" />
+                                                                    ********
+                                                                </div>
+                                                            )}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                             <button
