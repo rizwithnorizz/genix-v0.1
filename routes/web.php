@@ -44,7 +44,8 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::post('/api/instructor/create', [DataCreate::class, 'createInstructor'])->name('depadmin.create-instructor');
     Route::delete('/api/instructor/{id}', [DataCreate::class, 'deleteInstructor'])->name('depadmin.delete-instructor');
 
-
+    Route::put('/api/schedules/{scheduleID}/{value}', [DataUpdate::class, 'approveSchedule'])->name('depadmin.approve-schedule');
+    Route::delete('/api/schedules/{scheduleID}/delete', [DataUpdate::class, 'deleteSchedule'])->name('depadmin.delete-schedule');
 
     Route::post('/api/schedules/generate', [ScheduleController::class, 'generateSchedule'])->name('depadmin.generate-schedule');
     Route::get('/api/schedules/list', [DataRelay::class, 'getSchedules'])->name('depadmin.schedules');
@@ -57,8 +58,10 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::post('/api/curriculum/create', [DataCreate::class, 'createCurriculum'])->name('depadmin.create-curriculum');
     Route::post('/api/section/create', [DataCreate::class, 'createSection'])->name('depadmin.create-section');
 
+    Route::get('/api/feedback/accumulate', [DataRelay::class, 'getFeedbackAccumulate'])->name('depadmin.feedback.accumulate');
     Route::get('/api/feedback/student', [DataRelay::class, 'getStudentFeedback'])->name('depadmin.feedback.student');
     Route::get('/api/feedback/instructor', [DataRelay::class, 'getInstructorFeedback'])->name('depadmin.feedback.instructor');
+    Route::get('/api/schedules/generate-from-feedback' , [ScheduleController::class, 'generateScheduleFromFeedback'])->name('depadmin.generate-schedule-from-feedback');
 
     Route::post('/api/feedback/student/approve', [DataCreate::class, 'approveStudentFeedback'])->name('depadmin.approve.student');
     Route::post('/api/feedback/instructor/approve', [DataCreate::class, 'approveInstructorFeedback'])->name('depadmin.approve.instructor');

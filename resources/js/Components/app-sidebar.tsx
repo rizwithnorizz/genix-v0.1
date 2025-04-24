@@ -7,11 +7,15 @@ import {
   Command,
   Frame,
   GalleryVerticalEnd,
+  GroupIcon,
+  HelpCircleIcon,
   LucideIcon,
   Map,
+  PenIcon,
   PieChart,
   Settings2,
   SquareTerminal,
+  User2,
 } from "lucide-react";
 
 import { NavMain } from "@/Components/nav-main";
@@ -131,33 +135,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "Curriculum",
                 url: "courseOfferings",
-                icon: SquareTerminal,
+                icon: BookOpen,
                 isActive: true,
                 isCollapsible: false,
               },
               {
                 title: "Instructors",
                 url: "instructors",
-                icon: SquareTerminal,
+                icon: User2,
                 isActive: true,
                 isCollapsible: false,
               },
               {
                 title: "Feedback",
                 url: "feedback",
-                icon: BookOpen,
+                icon: PenIcon,
                 isCollapsible: false,
               },
               {
                 title: "Help",
                 url: "help",
-                icon: Settings2,
+                icon: HelpCircleIcon,
                 isCollapsible: false,
               },
               {
                 title: "About",
                 url: "about",
-                icon: Settings2,
+                icon: GroupIcon,
                 isCollapsible: false
               }
             ];

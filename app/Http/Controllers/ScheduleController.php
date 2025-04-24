@@ -60,6 +60,117 @@ class ScheduleController extends Controller
         5 => 'Friday',
         6 => 'Saturday',
     ];
+    public function generateScheduleFromFeedback()
+    {
+        $deepseek = new \App\Libraries\DeepSeekClient();
+        
+        try {
+            $userDepartment = auth()->user()->department_short_name;
+            \Log::error("Loading...");
+            // Fetch approved feedback from instructor_feedback and course_section_feedback
+            $feedback = DB::table('instructor_feedback')
+                ->where('department_short_name', $userDepartment)
+                ->where('status', true)
+                ->select('id', 'feedback', 'subject_code')
+                ->union(
+                    DB::table('course_subject_feedback')
+                        ->where('department_short_name', $userDepartment)
+                        ->where('status', true)
+                        ->select('id', 'feedback', 'subject_code')
+                )
+                ->get();
+
+            // Fetch current schedules
+            $currentSchedules = DB::table('schedules')
+                ->where('department_short_name', $userDepartment)
+                ->get();
+
+            // Calculate available timeslots
+            \Log::error("Loading");
+            $availableTimeSlots = [];
+            foreach (self::DAYS as $daySlot => $dayName) { // Loop through days
+                foreach (self::TIME_SLOTS as $timeSlot => $timeRange) {
+                    $slotStart = explode('-', $timeRange)[0];
+                    $slotEnd = explode('-', $timeRange)[1];
+
+                    $isAvailable = true; // Assume the slot is available
+
+                    foreach ($currentSchedules as $schedule) {
+                        if (
+                            $schedule->day_slot == $daySlot &&
+                            $slotStart < $schedule->time_end &&
+                            $slotEnd > $schedule->time_start
+                        ) {
+                            $isAvailable = false; // Mark as unavailable if there's a conflict
+                            break;
+                        }
+                    }
+
+                    if ($isAvailable) {
+                        $availableTimeSlots[] = [
+                            'day_slot' => $daySlot,
+                            'time_start' => $slotStart,
+                            'time_end' => $slotEnd,
+                        ];
+                    }
+                }
+            }
+
+            // Compile data
+            $feedbackJson = json_encode($feedback);
+            $currentSchedulesJson = json_encode($currentSchedules);
+            $availableTimeSlotsJson = json_encode($availableTimeSlots);
+            \Log::error("Sending to deepseek");
+
+            $prompt = <<<PROMPT
+            Generate an optimized class schedule in valid JSON format (no markdown, no explanations). Follow the exact structure shown below.
+
+            INPUT DATA:
+            1. Feedback: {$feedbackJson}
+            2. Current Schedules: {$currentSchedulesJson}
+            3. Available Time Slots: {$availableTimeSlotsJson}
+
+            CONSTRAINTS:
+            - Prioritize student feedback when assigning subjects.
+            - Avoid double-booking rooms (same room/day/time).
+            - Evenly distribute schedules across days and time slots per section.
+            - All time slots must fall within availability.
+
+            OUTPUT FORMAT:
+            {
+                "schedule": [
+                    {
+                        "subject_code": "CS101",
+                        "subject_name": "Data Structures",
+                        "time_start": "08:00",
+                        "time_end": "09:30",
+                        "day_slot": "Monday",
+                        "room_number": "R101",
+                        "section_name": "BSCS-1A",
+                        "instructor": "Dr. Smith",
+                        "department": "CS"
+                    }
+                ]
+            }
+            PROMPT;
+            \Log::error("Prompt: " . $prompt);
+            $response = $deepseek->query($prompt)->run();
+            \Log::error("Response: " . $response);
+            $cleanedResponse = preg_replace('/^```json|```$/m', '', trim($response));
+            \Log::info("Decoded Response: " . print_r($cleanedResponse, true));
+            return response()->json([
+                'success' => true,
+                'message' => 'Schedule generated successfully from feedback.',
+                'data' => $cleanedResponse,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate schedule from feedback.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function index()
     {
@@ -141,7 +252,7 @@ class ScheduleController extends Controller
             \Log::error('Best Schedule: ' . json_encode($bestSchedule));
             DB::table('schedule_repos')->insert([
                 'schedule' => json_encode($bestSchedule),
-                'repo_name' => $repo_name . date('Y-m-d'),
+                'repo_name' => $repo_name . " " . "(created at " . date('Y-m-d') . " )",
                 'department_short_name' => $userDepartment,
                 'semester' => $semester,
             ]);
@@ -407,6 +518,7 @@ class ScheduleController extends Controller
                     \Log::info('Child added to newPopulation. Current size: ' . count($newPopulation));
                 } else {
                     \Log::warning('Failed to generate a valid child.');
+                    throw new Exception('Failed to generate a valid child.');
                 }
             }
             \Log::info('New Population Size: ' . count($newPopulation));    
@@ -898,11 +1010,6 @@ class ScheduleController extends Controller
         }
     }
     
-    private function sendToDeepSeek()
-    {
-        $deepSeekController = new DeepSeekController();
-        return $deepSeekController->index();
-    }
     
     public function getSchedule()
     {

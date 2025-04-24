@@ -17,6 +17,7 @@ class DataCreate extends Controller
 {
     public function assignRoomToDepartment(Request $request, $department)
     {
+        
         $validated = $request->validate([
             'rooms' => 'required|array',
             'rooms.*' => 'string',
@@ -50,6 +51,9 @@ class DataCreate extends Controller
     }
 
     public function deleteInstructor($id){
+        $validated = request()->validate([
+            'id' => 'required|integer|exists:instructors,id',
+        ]);
         $instructor = DB::table('instructors')
         ->find($id);
 
@@ -66,12 +70,17 @@ class DataCreate extends Controller
         DB::table('subject_instructors')
         ->where('instructor_id', $id)
         ->delete();
+
+        DB::table('schedules')
+        ->where('instructor_id', $id)
+        ->delete();
         return response()->json([
             'message' => 'Instructor deleted successfully.',
         ]);
     }
     public function assignSubjectToInstructor(Request $request)
     {
+
         // Validate request data
         $validator = Validator::make($request->all(), [
             'instructor_id' => 'required|exists:instructors,id',
@@ -147,7 +156,10 @@ class DataCreate extends Controller
     public function createDepartment(Request $request)
     {
         \Log::info('Creating department with data:', $request->all());
-        
+        $validated = $request->validate([
+            'department_short_name' => 'required|string|max:10|unique:departments,department_short_name',
+            'department_full_name' => 'required|string|max:255',
+        ]);
 
         try {
             $department = Departments::create([
@@ -475,6 +487,12 @@ PROMPT;
 
     public function createCurriculum(Request $request)
     {
+        $validated = $request->validate([
+            'curriculum_name' => 'required|string|max:255',
+            'program_name' => 'required|string|max:255',
+            'program_short_name' => 'required|string|max:10',
+            'subjects' => 'required|array',
+        ]);
         $request->merge([
             'department_short_name' => auth()->user()->department_short_name,
         ]);
@@ -562,9 +580,6 @@ PROMPT;
 
     public function createSection(Request $request)
     {
-        \Log::error("i got this far1111", [
-            'request' => $request->all()
-        ]);
         // Validate the request
         $request->validate([
             'section_name' => 'required|string',
@@ -572,7 +587,7 @@ PROMPT;
             'curriculum_name' => 'required|string',
             'year_level' => 'required|integer',
         ]);
-
+        
         \Log::error("i got this far 2");
         try {
             // Create the section record
@@ -596,6 +611,9 @@ PROMPT;
         }
     }
     public function approveStudentFeedback(Request $request){
+        $validated = $request->validate([
+            'feedback_id' => 'required|integer|exists:course_subject_feedback,id',
+        ]);
         DB::table('course_subject_feedback')
         ->where('id', $request->input('feedback_id'))
         ->update(['status' => true]);
@@ -607,6 +625,9 @@ PROMPT;
     }
 
     public function approveInstructorFeedback(Request $request){
+        $validated = $request->validate([
+            'feedback_id' => 'required|integer|exists:instructor_feedback,id',
+        ]);
         DB::table('instructor_feedback')
         ->where('id', $request->input('feedback_id'))
         ->update(['status' => true]);
@@ -618,6 +639,10 @@ PROMPT;
     }
 
     public function createRoom(Request $request){
+        $validated = $request->validate([
+            'room_number' => 'required|string|max:10',
+            'room_type' => 'required|integer|in:1,2', // 1 for lecture, 2 for laboratory
+        ]);
         DB::table('classrooms')
         ->insert([
             'room_number' => $request->input('room_number'),

@@ -2,9 +2,11 @@ import Layout from "@/Components/ui/layout";
 import { useEffect, useState } from "react";
 import {
     Bell,
+    CheckCheck,
     ChevronLeft,
     ChevronRight,
     MoreVertical,
+    SendHorizonal,
     Trash2,
     View,
     type LucideIcon,
@@ -37,6 +39,7 @@ interface Schedule {
     schedule: JSON;
     repo_name: string;
     department_short_name: string;
+    status: boolean;
 }
 
 interface GeneratedSchedule {
@@ -87,7 +90,7 @@ const DepAdminDashboard: React.FC = () => {
         try {
             const response = await axios.post("/api/schedules/generate", {
                 semester: semester,
-                school_year: schoolYear,
+                school_year: semester + " Semester: S.Y " + schoolYear,
             });
             fetchGeneratedSchedule();
             console.log("Schedule generated:", response.data);
@@ -162,11 +165,28 @@ const DepAdminDashboard: React.FC = () => {
             console.error("Error fetching instructors:", error);
         }
     };
+    const [retrievedFeedback, setRetrievedFeedback] = useState<
+        {
+            id: number;
+            feedback: string;
+        }[]
+    >([]);
+
+    const fetchFeedback = async () => {
+        try {
+            const response = await axios.get("/api/feedback/accumulate");
+            setRetrievedFeedback(response.data.data);
+            console.log(response.data.data);
+        } catch (error) {
+            console.error("Error fetching feedback:", error);
+        }
+    };
     const [selectedSection, setSelectedSection] = useState<string | null>(null);
     useState(() => {
         fetchCurriculum();
         fetchGeneratedSchedule();
         fetchInstructors();
+        fetchFeedback();
     });
 
     return (
@@ -190,29 +210,91 @@ const DepAdminDashboard: React.FC = () => {
                             </select>
                         </div>
                         <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
-                            {generatedSchedule?.map((schedule, idx) => (
-                                <div
-                                    key={idx}
-                                    className="bg-gray-800 text-white p-2 rounded-full flex shadow relative items-center justify-between"
-                                >
-                                    <div className="pl-5 flex items-center">
-                                        <span>{schedule.repo_name}</span>
+                            {generatedSchedule?.length != 0 ? (
+                                generatedSchedule?.map((schedule, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="bg-gray-800 text-white p-2 rounded-3xl flex shadow relative items-center justify-between"
+                                    >
+                                        <div className="ps-5 flex items-center justify-center">
+                                            <span>{schedule.repo_name}</span>
+                                        </div>
+                                        <div className="flex gap-2 pr-4">
+                                            <button
+                                                className="bg-red-500 text-white hover:bg-red-700 rounded-xl p-2"
+                                                onClick={async () => {
+                                                    try {
+                                                        await axios.delete(
+                                                            `/api/schedules/${schedule.id}/delete`
+                                                        );
+                                                        fetchGeneratedSchedule();
+                                                    } catch (error) {
+                                                        console.error(
+                                                            "Error deleting schedule:",
+                                                            error
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                <Trash2 size={24} />
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleScheduleClick(
+                                                        schedule
+                                                    )
+                                                }
+                                                className="bg-green-400 text-white hover:bg-blue-300 rounded-xl p-2"
+                                            >
+                                                <View size={24} />
+                                            </button>
+                                            <button
+                                                className="bg-blue-400 text-white hover:bg-green-300 rounded-xl p-2"
+                                                onClick={async () => {
+                                                    if (!schedule.status) {
+                                                        try {
+                                                            await axios.put(
+                                                                `/api/schedules/${
+                                                                    schedule.id
+                                                                }/${1}`
+                                                            );
+                                                        } catch (error) {
+                                                            console.error(
+                                                                "Error sending schedule:",
+                                                                error
+                                                            );
+                                                        }
+                                                    } else {
+                                                        try {
+                                                            await axios.put(
+                                                                `/api/schedules/${
+                                                                    schedule.id
+                                                                }/${0}`
+                                                            );
+                                                        } catch (error) {
+                                                            console.error(
+                                                                "Error sending schedule:",
+                                                                error
+                                                            );
+                                                        }
+                                                    }
+                                                    fetchGeneratedSchedule();
+                                                }}
+                                            >
+                                                {schedule.status ? (
+                                                    <CheckCheck size={24} />
+                                                ) : (
+                                                    <SendHorizonal size={24} />
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() =>
-                                                handleScheduleClick(schedule)
-                                            }
-                                            className="bg-green-500 hover:bg-green-400 text-white rounded-3xl p-2"
-                                        >
-                                            <View/>
-                                        </button>
-                                        <button className="bg-red-800 hover:bg-red-700 text-white rounded-3xl p-2">
-                                            <Trash2/>
-                                        </button>
-                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center text-gray-500">
+                                    No schedules available.
                                 </div>
-                            ))}
+                            )}
                         </div>
                         <PrimaryButton
                             onClick={handleGenerateScheduleClick}
@@ -232,7 +314,7 @@ const DepAdminDashboard: React.FC = () => {
                                 {curriculum.map((Curriculum, idx) => (
                                     <button
                                         key={idx}
-                                        className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-full flex shadow relative items-center justify-between"
+                                        className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-3xl flex shadow relative items-center justify-between"
                                     >
                                         <div className="pl-5 flex items-center">
                                             <span>
@@ -284,7 +366,7 @@ const DepAdminDashboard: React.FC = () => {
                             {news.map((news, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-gray-800 text-white p-4 rounded-full flex justify-between items-center shadow relative"
+                                    className="bg-gray-800 text-white p-4 rounded-3xl flex justify-between items-center shadow relative"
                                 >
                                     <div className="flex items-center gap-5">
                                         <Bell />
@@ -296,122 +378,144 @@ const DepAdminDashboard: React.FC = () => {
                     </div>
                 </div>
                 {viewFile && selectedSchedule && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">
-                Schedule for {selectedSchedule.repo_name}
-            </h2>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <h2 className="text-xl font-semibold mb-4">
+                                Schedule for {selectedSchedule.repo_name}
+                            </h2>
 
-            {/* Section Filter */}
-            <div className="mb-4">
-                <label
-                    htmlFor="sectionFilter"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Filter by Section
-                </label>
-                <select
-                    id="sectionFilter"
-                    value={selectedSection || ""}
-                    onChange={(e) => setSelectedSection(e.target.value)}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                    <option value="">All Sections</option>
-                    {Array.from(
-                        new Set(
-                            JSON.parse(
-                                selectedSchedule.schedule as unknown as string
-                            ).map(
-                                (item: GeneratedSchedule) =>
-                                    item.section_name
-                            )
-                        )
-                    ).map((sectionName, idx) => (
-                        <option key={idx} value={sectionName as string}>
-                            {sectionName as string}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                            {/* Section Filter */}
+                            <div className="mb-4">
+                                <label
+                                    htmlFor="sectionFilter"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
+                                    Filter by Section
+                                </label>
+                                <select
+                                    id="sectionFilter"
+                                    value={selectedSection || ""}
+                                    onChange={(e) =>
+                                        setSelectedSection(e.target.value)
+                                    }
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                >
+                                    <option value="">All Sections</option>
+                                    {Array.from(
+                                        new Set(
+                                            JSON.parse(
+                                                selectedSchedule.schedule as unknown as string
+                                            ).map(
+                                                (item: GeneratedSchedule) =>
+                                                    item.section_name
+                                            )
+                                        )
+                                    ).map((sectionName, idx) => (
+                                        <option
+                                            key={idx}
+                                            value={sectionName as string}
+                                        >
+                                            {sectionName as string}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-            {/* Schedule Table */}
-            <div className="overflow-y-auto max-h-[50vh]">
-                <table className="w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-4 py-2 text-left">
-                                Subject Code
-                            </th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">
-                                Room Number
-                            </th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">
-                                Day Slot
-                            </th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">
-                                Start Time
-                            </th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">
-                                End Time
-                            </th>
-                            <th className="border border-gray-300 px-4 py-2 text-left">
-                                Instructor Name
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {JSON.parse(
-                            selectedSchedule.schedule as unknown as string
-                        )
-                            .filter(
-                                (item: GeneratedSchedule) =>
-                                    !selectedSection ||
-                                    item.section_name === selectedSection
-                            )
-                            .map((item: GeneratedSchedule, idx: number) => (
-                                <tr key={idx} className="hover:bg-gray-50">
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {item.subject_code}
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {item.room_number}
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {item.day_slot}
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {item.time_start}
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {item.time_end}
-                                    </td>
-                                    <td className="border border-gray-300 px-4 py-2">
-                                        {
-                                            instructors?.find(
-                                                (instructor) =>
-                                                    instructor.id ===
-                                                    item.instructor_id
-                                            )?.name
-                                        }
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </table>
-            </div>
+                            {/* Schedule Table */}
+                            <div className="overflow-y-auto max-h-[50vh]">
+                                <table className="w-full border-collapse border border-gray-300">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                Section
+                                            </th>
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                Subject Code
+                                            </th>
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                Room Number
+                                            </th>
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                Day Slot
+                                            </th>
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                Start Time
+                                            </th>
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                End Time
+                                            </th>
+                                            <th className="border border-gray-300 px-4 py-2 text-left">
+                                                Instructor Name
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {JSON.parse(
+                                            selectedSchedule.schedule as unknown as string
+                                        )
+                                            .filter(
+                                                (item: GeneratedSchedule) =>
+                                                    !selectedSection ||
+                                                    item.section_name ===
+                                                        selectedSection
+                                            )
+                                            .map(
+                                                (
+                                                    item: GeneratedSchedule,
+                                                    idx: number
+                                                ) => (
+                                                    <tr
+                                                        key={idx}
+                                                        className="hover:bg-gray-50"
+                                                    >
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {item.section_name}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {item.subject_code}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {item.room_number}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {item.day_slot}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {item.time_start}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {item.time_end}
+                                                        </td>
+                                                        <td className="border border-gray-300 px-4 py-2">
+                                                            {
+                                                                instructors?.find(
+                                                                    (
+                                                                        instructor
+                                                                    ) =>
+                                                                        instructor.id ===
+                                                                        item.instructor_id
+                                                                )?.name
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )}
+                                    </tbody>
+                                </table>
+                            </div>
 
-            {/* Close Button */}
-            <div className="flex justify-end mt-4">
-                <button
-                    onClick={() => setViewFile(false)}
-                    className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg"
-                >
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+                            {/* Close Button */}
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    onClick={() => setViewFile(false)}
+                                    className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {generateTab &&
                     (viewGeneratedSchedule ? (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
@@ -543,12 +647,12 @@ const DepAdminDashboard: React.FC = () => {
 
                                 {/* Close Button */}
                                 <div className="flex justify-end mt-4">
-                                    <button
+                                    <PrimaryButton
                                         onClick={handleGenerateScheduleClick}
                                         className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg"
                                     >
                                         Close
-                                    </button>
+                                    </PrimaryButton>
                                 </div>
                             </div>
                         </div>
@@ -592,10 +696,10 @@ const DepAdminDashboard: React.FC = () => {
                                             2nd Semester
                                         </option>
                                     </select>
-                                    <div className="flex justify-between mt-5">
+                                    <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <PrimaryButton
                                             onClick={handleGenerateSchedule}
-                                            className="bg-blue-500 hover:bg-blue-400 text-white py-2 px-4 rounded-lg"
+                                            className="bg-blue-500 hover:bg-blue-400 text-white flex justify-center rounded-lg"
                                         >
                                             Generate Schedule
                                         </PrimaryButton>
@@ -603,10 +707,36 @@ const DepAdminDashboard: React.FC = () => {
                                             onClick={
                                                 handleGenerateScheduleClick
                                             }
-                                            className="ml-2 bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg"
+                                            className="bg-red-500 hover:bg-red-400 text-white flex justify-center p-4 rounded-lg"
                                         >
                                             Cancel
                                         </button>
+                                    </div>
+                                    <div className="mt-5 flex items-center justify-center">
+                                        {retrievedFeedback.length > 0 && (
+                                            <PrimaryButton className="w-1/2 bg-green-600 hover:bg-green-500 text-white flex justify-center rounded-lg"
+                                                onClick={async () => {
+                                                    try {
+                                                       const response = await axios.get(
+                                                            "/api/schedules/generate-from-feedback"
+                                                        );
+                                                        fetchGeneratedSchedule();
+                                                        console.log(response.data.data);
+                                                        setViewFile(false);
+                                                    }
+                                                    catch (error) {
+                                                        console.error(
+                                                            "Error generating schedule from feedback:",
+                                                            error
+                                                        );
+                                                        console.log("Error field");
+                                                    }
+                                                }}
+                                            >
+                                                Generate Class Schedule from
+                                                Feedback
+                                            </PrimaryButton>
+                                        )}
                                     </div>
                                 </div>
                             </div>

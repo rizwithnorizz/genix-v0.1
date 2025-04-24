@@ -7,6 +7,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 class DataUpdate extends Controller
 {
+    public function approveSchedule($scheduleID, $value){
+        DB::table('schedule_repos')
+            ->where('id', $scheduleID)
+            ->update(['status' => $value]);
+    }
+
+    public function deleteSchedule($scheduleID){
+        DB::table('schedule_repos')
+            ->where('id', $scheduleID)
+            ->delete();
+    }
+
     public function deleteDepartmentFeedback($department){
         \Log::error("Deleting department: $department");
         DB::table('instructor_feedback')

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('repo_name');
             $table->string('department_short_name');
             $table->string('semester');
+            $table->boolean('status')->default(false);
             $table->foreign('department_short_name')
                 ->references('department_short_name')
                 ->on('departments')

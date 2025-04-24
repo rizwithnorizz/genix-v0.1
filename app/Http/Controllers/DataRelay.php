@@ -18,8 +18,34 @@ use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
 
+    public function getFeedbackAccumulate()
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $department = auth()->user()->department_short_name;    
+        $feedback = DB::table('instructor_feedback')
+            ->where('department_short_name', $department)
+            ->where('status', true)
+            ->select('id', 'feedback')
+            ->union(
+                DB::table('course_subject_feedback')
+                    ->where('department_short_name', $department)
+                    ->where('status', true)
+                    ->select('id', 'feedback')
+            )
+            ->get();
+        return response()->json([
+            'name' => "feedback_accumulate",
+            'data' => $feedback,
+        ]);
+    }
+
     public function getDashboardCount () 
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $classrooms = Classroom::count();
         $departments = Departments::count();
 
@@ -30,6 +56,9 @@ class DataRelay extends Controller
     }
     public function getRoom()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $classrooms = classroom::all();
         return response()->json([
             'name' => "classrooms",
@@ -40,6 +69,9 @@ class DataRelay extends Controller
 
     public function getDepartments()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $departments = Departments::all();
         return response()->json([
             'name' => "departments",
@@ -50,6 +82,9 @@ class DataRelay extends Controller
     
     public function getDepartmentRoom($department)
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $departmentRoom = DB::table('department_room')
             ->where('department_room.department_short_name',$department)
             ->join('classrooms', 'department_room.room_number', '=', 'classrooms.room_number')
@@ -63,6 +98,9 @@ class DataRelay extends Controller
 
     public function getCourseSubject()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $courseSubject = CourseSubject::all();
         return response()->json([
             'name' => "course_subject",
@@ -72,6 +110,9 @@ class DataRelay extends Controller
 
     public function getSubjectInstructor()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $subjectInstructor = subject_instructor::all();
         return response()->json([
             'name' => "subject_instructor",
@@ -82,6 +123,9 @@ class DataRelay extends Controller
 
     public function getCourseSections()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $userDepartmentShortName = auth()->user()->department_short_name;
         $courseSections = Course_Sections::join('program_offerings', 'course_sections.program_short_name', '=', 'program_offerings.program_short_name')
             ->select('course_sections.*')
@@ -120,6 +164,9 @@ class DataRelay extends Controller
 
     public function yearLevel(String $yearLevel)
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         switch($yearLevel) {
             case '1st':
                 return 1;
@@ -136,6 +183,16 @@ class DataRelay extends Controller
     
     public function getCourseSubjects(Request $request)
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $validator = Validator::make($request->all(), [
+            'program_short_name' => 'required|string',
+            'curriculum_name' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
         $userDepartmentShortName = auth()->user()->department_short_name;
         $programShortName = $request->input('program_short_name'); 
         $curriculumName = $request->input('curriculum_name');
@@ -160,6 +217,9 @@ class DataRelay extends Controller
     }
     public function getSchedules()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $schedules = DB::table('schedule_repos')
             ->where('department_short_name', auth()->user()->department_short_name)
             ->get();
@@ -172,6 +232,9 @@ class DataRelay extends Controller
 
     public function getInstructors()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $department = auth()->user()->department_short_name;
         $instructors = DB::table('instructors')
             ->where('department_short_name', $department)   
@@ -185,6 +248,9 @@ class DataRelay extends Controller
 
     public function getSubject()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $subjects = Subject::all();
         return response()->json([
             'name' => "subjects",
@@ -194,6 +260,9 @@ class DataRelay extends Controller
 
     public function getStudentFeedback()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $userDepartmentShortName = auth()->user()->department_short_name;
         $studentFeedback = DB::table('course_subject_feedback')
         ->join('course_sections', 'course_subject_feedback.section_name', '=', 'course_sections.section_name')
@@ -211,6 +280,9 @@ class DataRelay extends Controller
 
     public function getInstructorFeedback()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $userDepartmentShortName = auth()->user()->department_short_name;
         $instructorFeedback = DB::table('instructor_feedback')
             ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
@@ -228,6 +300,9 @@ class DataRelay extends Controller
     }
     public function getInstructorsWithSubjects()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $department = auth()->user()->department_short_name;
         $instructors = Instructor::with(['subjects'])
         ->where('department_short_name', $department)
@@ -256,6 +331,9 @@ class DataRelay extends Controller
     }
     public function getAllSubjects()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $department = auth()->user()->department_short_name;
         $subjects = DB::table('subjects')
             ->join('course_subjects', 'subjects.subject_code', '=', 'course_subjects.subject_code')
@@ -272,6 +350,9 @@ class DataRelay extends Controller
 
     public function getFeedback()
     {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         $instructorFeedback = DB::table('instructor_feedback')
             ->where('status', true)
             ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
@@ -313,6 +394,15 @@ class DataRelay extends Controller
     }
 
     public function getDepartmentAdmins ($department) {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $validator = Validator::make(['department' => $department], [
+            'department' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
         $departmentAdmins = DB::table('users')
             ->where('user_type', 1)
             ->where('department_short_name', $department)
