@@ -43,12 +43,22 @@ const RoomPage: React.FC = () => {
         );
         setFilteredRooms(filtered);
     }, [searchTerm, roomList]);
-
+    const [editRoom, setEditRoom] = useState<Room | null>(null);
+    const [showEditRoomModal, setShowEditRoomModal] = useState<boolean>(false);
     const handleEdit = (room: Room) => {
         console.log("Edit:", room);
+        setShowEditRoomModal(true);
+        setEditRoom(room);
         setShowMenuIndex(null);
     };
-
+    const handleEditRoomDetails = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (editRoom) {
+            setEditRoom({
+                ...editRoom,
+                [e.target.name]: e.target.value,
+            });
+        }
+    };
     const handleDelete = async (room: Room) => {
         try {
             await axios.delete(`/api/rooms/${room.id}`);
@@ -63,18 +73,21 @@ const RoomPage: React.FC = () => {
         setShowMenuIndex((prev) => (prev === index ? null : index));
     };
 
+    const [alertMessage, setAlertMessage] = useState<string>("");
     const handleCreateRoom = async () => {
         if (!roomName.trim()) return;
 
         try {
-            await axios.post("/api/create-room", {
+            const response = await axios.post("/api/create-room", {
                 room_number: roomName,
                 room_type: roomType,
             });
             setRoomName("");
             handleGetRooms();
+            window.alert("Room created successfully!");
         } catch (error) {
             console.error("Error creating room:", error);
+            window.alert("Room already exists. Please try again.");
         }
     };
 
@@ -216,54 +229,84 @@ const RoomPage: React.FC = () => {
                                                     {room.room_type}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                                            <td className="px-6 py-4 whitespace-nowrap font-medium relative flex justify-end">
                                                 <button
                                                     onClick={() =>
-                                                        toggleMenu(idx)
+                                                        handleEdit(
+                                                            room
+                                                        )
                                                     }
-                                                    className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                 >
-                                                    <MoreVertical size={20} />
+                                                    <Edit
+                                                        size={16}
+                                                        className="mr-2"
+                                                    />
+                                                    Edit
                                                 </button>
-                                                {showMenuIndex === idx && (
-                                                    <div className="origin-top-right absolute right-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                                                        <div className="py-1">
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleEdit(
-                                                                        room
-                                                                    )
-                                                                }
-                                                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                                            >
-                                                                <Edit
-                                                                    size={16}
-                                                                    className="mr-2"
-                                                                />
-                                                                Edit
-                                                            </button>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        room
-                                                                    )
-                                                                }
-                                                                className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
-                                                            >
-                                                                <Trash2
-                                                                    size={16}
-                                                                    className="mr-2"
-                                                                />
-                                                                Delete
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
                                             </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+                    {showEditRoomModal && editRoom && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+                            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+                                <h2 className="text-xl front-bold">Edit Room</h2>
+                                <div className="mt-4">
+                                    <h2>Room Number</h2>
+                                    <input
+                                        value={editRoom.room_number}
+                                        name="room_number"
+                                        onChange={handleEditRoomDetails}
+                                        type="text"
+                                        placeholder="Room Number"
+                                        className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                                    />
+                                    <h2>Room Type</h2>
+                                    <input
+                                        value={editRoom.room_type}
+                                        name="room_type"
+                                        onChange={handleEditRoomDetails}
+                                        type="text"
+                                        placeholder="Room Type"
+                                        className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                                    />
+                                    <button
+                                        className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors mr-2"
+                                        onClick={async () => {
+                                            try {
+                                                await axios.put(
+                                                    `/api/rooms/${editRoom.id}/update`,
+                                                    {
+                                                        room_number: editRoom.room_number,
+                                                        room_type: editRoom.room_type,
+                                                    }
+                                                );
+                                                handleGetRooms();
+                                                setShowEditRoomModal(false);
+                                                setEditRoom(null);
+                                            } catch (error) {
+                                                console.error(
+                                                    "Error updating room:",
+                                                    error
+                                                );
+                                            }
+                                        }}>
+                                        Update
+                                    </button>
+                                    <button
+                                        className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition-colors"
+                                        onClick={() => {
+                                            setShowEditRoomModal(false);
+                                            setEditRoom(null);
+                                        }}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

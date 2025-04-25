@@ -597,8 +597,14 @@ PROMPT;
     public function createRoom(Request $request){
         $validated = $request->validate([
             'room_number' => 'required|string|max:10',
-            'room_type' => 'required|integer|in:1,2', // 1 for lecture, 2 for laboratory
+            'room_type' => 'required|string|max:20', // 1 for lecture, 2 for laboratory
         ]);
+        if (DB::table('classrooms')->where('room_number', $request->input('room_number'))->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Room already exists'
+            ], 409);
+        }   
         DB::table('classrooms')
         ->insert([
             'room_number' => $request->input('room_number'),

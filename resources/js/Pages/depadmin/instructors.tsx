@@ -214,65 +214,71 @@ const InstructorsPage: React.FC = () => {
                         NEW INSTRUCTOR
                     </button>
                 </div>
-
-                <div className="bg-white rounded-md shadow">
-                    <div className="grid grid-cols-3 gap-px bg-gray-200">
-                        <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
-                            NAME
-                        </div>
-                        <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
-                            SUBJECTS
-                        </div>
-                        <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
-                            ACTIONS
-                        </div>
+                {filteredInstructors.length === 0 ? (
+                    <div className="text-center text-gray-500 mt-20">
+                        No instructors added yet.
                     </div>
-
-                    {filteredInstructors.map((instructor) => (
-                        <div
-                            key={instructor.id}
-                            className="grid grid-cols-3 gap-px bg-gray-200 border-t border-gray-200"
-                        >
-                            <div className="bg-white px-4 py-4 flex items-center">
-                                <div className="w-10 h-10 bg-gray-700 text-white rounded-md flex items-center justify-center font-bold mr-3">
-                                    {instructor.initials}
-                                </div>
-                                <span>{instructor.name}</span>
+                ) : (
+                    <div className="bg-white rounded-md shadow">
+                        <div className="grid grid-cols-3 gap-px bg-gray-200">
+                            <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
+                                NAME
                             </div>
-                            <div className="bg-white px-4 py-4">
-                                <div className="flex flex-wrap gap-1">
-                                    {instructor.subjects.map((subject) => (
-                                        <span
-                                            key={subject.id}
-                                            className="bg-blue-100 text-blue-800 px-2 py-1 text-xs rounded-md"
-                                        >
-                                            {subject.subject_code ||
-                                                subject.name}
-                                        </span>
-                                    ))}
-                                </div>
+                            <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
+                                SUBJECTS
                             </div>
-                            <div className="bg-white px-4 py-4 flex items-center gap-3">
-                                <button
-                                    className="text-blue-600 hover:underline"
-                                    onClick={() =>
-                                        handleInstructorClick(instructor)
-                                    }
-                                >
-                                    Manage Subjects
-                                </button>
-                                <button
-                                    className="text-red-600 hover:underline"
-                                    onClick={() =>
-                                        handleDeleteInstructor(instructor.id)
-                                    }
-                                >
-                                    Delete
-                                </button>
+                            <div className="bg-gray-100 px-4 py-3 font-medium text-gray-500">
+                                ACTIONS
                             </div>
                         </div>
-                    ))}
-                </div>
+
+                        {filteredInstructors.map((instructor) => (
+                            <div
+                                key={instructor.id}
+                                className="grid grid-cols-3 gap-px bg-gray-200 border-t border-gray-200"
+                            >
+                                <div className="bg-white px-4 py-4 flex items-center">
+                                    <div className="w-10 h-10 bg-gray-700 text-white rounded-md flex items-center justify-center font-bold mr-3">
+                                        {instructor.initials}
+                                    </div>
+                                    <span>{instructor.name}</span>
+                                </div>
+                                <div className="bg-white px-4 py-4">
+                                    <div className="flex flex-wrap gap-1">
+                                        {instructor.subjects.map((subject) => (
+                                            <span
+                                                key={subject.id}
+                                                className="bg-blue-100 text-blue-800 px-2 py-1 text-xs rounded-md"
+                                            >
+                                                {subject.subject_code ||
+                                                    subject.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="bg-white px-4 py-4 flex items-center gap-3">
+                                    <button
+                                        className="text-blue-600 hover:underline"
+                                        onClick={() =>
+                                            handleInstructorClick(instructor)
+                                        }
+                                    >
+                                        Manage Subjects
+                                    </button>
+                                    <button
+                                        className="text-red-600 hover:underline"
+                                        onClick={() =>
+                                            handleDeleteInstructor(instructor.id)
+                                        }
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
 
                 {/* Create Instructor Modal */}
                 {isCreateModalOpen && (
@@ -374,11 +380,10 @@ const InstructorsPage: React.FC = () => {
                                     onClick={() =>
                                         handleTabChange("Professional Subjects")
                                     }
-                                    className={`${
-                                        tab === "Professional Subjects"
+                                    className={`${tab === "Professional Subjects"
                                             ? "border-b-2 border-blue-500 font-semibold"
                                             : ""
-                                    } px-4 py-2`}
+                                        } px-4 py-2`}
                                 >
                                     Professional Subjects
                                 </button>
@@ -387,11 +392,10 @@ const InstructorsPage: React.FC = () => {
                                     onClick={() =>
                                         handleTabChange("General Subjects")
                                     }
-                                    className={`${
-                                        tab === "General Subjects"
+                                    className={`${tab === "General Subjects"
                                             ? "border-b-2 border-blue-500 font-semibold"
                                             : ""
-                                    } px-4 py-2`}
+                                        } px-4 py-2`}
                                 >
                                     {" "}
                                     General Subjects
@@ -406,13 +410,12 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${
-                                                        isSubjectAssigned(
-                                                            subject.id
-                                                        )
+                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
+                                                        subject.id
+                                                    )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                    }`}
+                                                        }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -450,13 +453,12 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${
-                                                        isSubjectAssigned(
-                                                            subject.id
-                                                        )
+                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
+                                                        subject.id
+                                                    )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                    }`}
+                                                        }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(

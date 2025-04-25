@@ -311,18 +311,24 @@ const DepAdminDashboard: React.FC = () => {
                         </div>
                         <a href="/dep-admin/courseOfferings">
                             <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
-                                {curriculum.map((Curriculum, idx) => (
-                                    <button
-                                        key={idx}
-                                        className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-3xl flex shadow relative items-center justify-between"
-                                    >
-                                        <div className="pl-5 flex items-center">
-                                            <span>
-                                                {Curriculum.curriculum_name}
-                                            </span>
-                                        </div>
-                                    </button>
-                                ))}
+                                {curriculum.length === 0 ? (
+                                    <div className="text-center text-gray-500">
+                                        No curriculums available.
+                                    </div>
+                                ) : (
+                                    curriculum.map((Curriculum, idx) => (
+                                        <button
+                                            key={idx}
+                                            className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-3xl flex shadow relative items-center justify-between"
+                                        >
+                                            <div className="pl-5 flex items-center">
+                                                <span>
+                                                    {Curriculum.curriculum_name}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    ))
+                                )}
                             </div>
                         </a>
                         <a href="/dep-admin/courseOfferings">
@@ -335,19 +341,25 @@ const DepAdminDashboard: React.FC = () => {
                         <h2 className="font-semibold text-lg mb-4">Faculty</h2>
                         <div className="relative">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                                {instructors?.map((instructor) => (
-                                    <PrimaryButton
-                                        key={instructor.id}
-                                        className="bg-gray-800 hover:bg-gray-700 text-white p-6 rounded-lg shadow flex flex-col items-center justify-center"
-                                    >
-                                        <div className="text-6xl font-bold mb-2">
-                                            {instructor.initials}
-                                        </div>
-                                        <div className="text-center">
-                                            {instructor.name}
-                                        </div>
-                                    </PrimaryButton>
-                                ))}
+                                {instructors?.length === 0 ? (
+                                    <div className="text-center text-gray-500">
+                                        No instructors available.
+                                    </div>
+                                ) : (
+                                    instructors?.map((instructor) => (
+                                        <PrimaryButton
+                                            key={instructor.id}
+                                            className="bg-gray-800 hover:bg-gray-700 text-white p-6 rounded-lg shadow flex flex-col items-center justify-center"
+                                        >
+                                            <div className="text-6xl font-bold mb-2">
+                                                {instructor.initials}
+                                            </div>
+                                            <div className="text-center">
+                                                {instructor.name}
+                                            </div>
+                                        </PrimaryButton>
+                                    ))
+                                )}
                             </div>
                         </div>
 

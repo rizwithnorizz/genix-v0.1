@@ -201,10 +201,10 @@ const CourseOfferingsPage: React.FC = () => {
         const { name, value } = e.target;
         setCurriculumUploaded(
             (prevCurriculum) =>
-                ({
-                    ...prevCurriculum,
-                    [name]: value || "", // Ensure the value is never undefined
-                } as uploadedCurriculum)
+            ({
+                ...prevCurriculum,
+                [name]: value || "", // Ensure the value is never undefined
+            } as uploadedCurriculum)
         );
     };
     {
@@ -274,8 +274,8 @@ const CourseOfferingsPage: React.FC = () => {
 
             const updatedSubjects = prevCurriculum.subjects.map((sub) => {
                 if (sub.subject_code === subject.subject_code) {
-                    
-                console.log("Modified subject", sub);
+
+                    console.log("Modified subject", sub);
                     return { ...sub, prof_sub: !sub.prof_sub };
                 }
                 return sub;
@@ -297,21 +297,19 @@ const CourseOfferingsPage: React.FC = () => {
                     {/* Tabs */}
                     <div className="flex border-b mb-4">
                         <button
-                            className={`px-4 py-2 ${
-                                activeTab === "Course Offerings"
-                                    ? "border-b-2 border-blue-500 font-semibold"
-                                    : ""
-                            }`}
+                            className={`px-4 py-2 ${activeTab === "Course Offerings"
+                                ? "border-b-2 border-blue-500 font-semibold"
+                                : ""
+                                }`}
                             onClick={() => handleSwitchTabs("Course Offerings")}
                         >
                             Course Offerings
                         </button>
                         <button
-                            className={`px-4 py-2 ${
-                                activeTab === "Sections"
-                                    ? "border-b-2 border-blue-500 font-semibold"
-                                    : ""
-                            }`}
+                            className={`px-4 py-2 ${activeTab === "Sections"
+                                ? "border-b-2 border-blue-500 font-semibold"
+                                : ""
+                                }`}
                             onClick={() => handleSwitchTabs("Sections")}
                         >
                             Sections
@@ -331,54 +329,63 @@ const CourseOfferingsPage: React.FC = () => {
                             </div>
 
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Curriculum
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Program
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Department
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {curriculum.map((curr, idx) => (
-                                            <tr
-                                                key={idx}
-                                                className="hover:bg-gray-50"
-                                            >
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {curr.curriculum_name}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {curr.program_name}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {curr.department_short_name}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleShowCurriculumCourses(
-                                                                curr
-                                                            )
-                                                        }
-                                                        className="text-blue-600 hover:text-blue-900"
-                                                    >
-                                                        View Curriculum
-                                                    </button>
-                                                </td>
+                                {curriculum.length === 0 ? (
+                                    <div className="flex justify-center items-center h-64">
+                                        <p className="text-gray-500">
+                                            No curriculum added yet.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Curriculum
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Program
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Department
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {curriculum.map((curr, idx) => (
+                                                <tr
+                                                    key={idx}
+                                                    className="hover:bg-gray-50"
+                                                >
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        {curr.curriculum_name}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {curr.program_name}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {curr.department_short_name}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        <button
+                                                            onClick={() =>
+                                                                handleShowCurriculumCourses(
+                                                                    curr
+                                                                )
+                                                            }
+                                                            className="text-blue-600 hover:text-blue-900"
+                                                        >
+                                                            View Curriculum
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+
                             </div>
                         </div>
                     )}
@@ -405,12 +412,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "First Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${
-                                                selectedYearLevel ===
+                                            className={`px-4 py-2 ${selectedYearLevel ===
                                                 "First Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                            }`}
+                                                ? "border-b-2 border-blue-500 font-semibold"
+                                                : ""
+                                                }`}
                                         >
                                             First Year
                                         </button>
@@ -421,12 +427,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "Second Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${
-                                                selectedYearLevel ===
+                                            className={`px-4 py-2 ${selectedYearLevel ===
                                                 "Second Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                            }`}
+                                                ? "border-b-2 border-blue-500 font-semibold"
+                                                : ""
+                                                }`}
                                         >
                                             Second Year
                                         </button>
@@ -437,12 +442,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "Third Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${
-                                                selectedYearLevel ===
+                                            className={`px-4 py-2 ${selectedYearLevel ===
                                                 "Third Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                            }`}
+                                                ? "border-b-2 border-blue-500 font-semibold"
+                                                : ""
+                                                }`}
                                         >
                                             Third Year
                                         </button>
@@ -453,12 +457,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "Fourth Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${
-                                                selectedYearLevel ===
+                                            className={`px-4 py-2 ${selectedYearLevel ===
                                                 "Fourth Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                            }`}
+                                                ? "border-b-2 border-blue-500 font-semibold"
+                                                : ""
+                                                }`}
                                         >
                                             Fourth Year
                                         </button>
@@ -501,13 +504,13 @@ const CourseOfferingsPage: React.FC = () => {
 
                                             return (
                                                 subject.year_level ===
-                                                    yearLevelMap[
-                                                        selectedYearLevel
-                                                    ] &&
+                                                yearLevelMap[
+                                                selectedYearLevel
+                                                ] &&
                                                 subject.semester ===
-                                                    semesterMap[
-                                                        selectedSemester
-                                                    ]
+                                                semesterMap[
+                                                selectedSemester
+                                                ]
                                             );
                                         })
                                         .map((subject) => (
@@ -552,11 +555,10 @@ const CourseOfferingsPage: React.FC = () => {
 
                                 <div className="flex flex-col items-center justify-center mb-4">
                                     <label
-                                        className={`bg-blue-500 hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center text-white font-semibold mb-4 cursor-pointer transition-all ${
-                                            uploadedFile
-                                                ? "bg-green-500 hover:bg-green-400"
-                                                : ""
-                                        }`}
+                                        className={`bg-blue-500 hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center text-white font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
+                                            ? "bg-green-500 hover:bg-green-400"
+                                            : ""
+                                            }`}
                                     >
                                         <input
                                             type="file"
@@ -658,12 +660,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "First Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${
-                                                    selectedYearLevel ===
+                                                className={`px-4 py-2 ${selectedYearLevel ===
                                                     "First Year"
-                                                        ? "border-b-2 border-blue-500 font-semibold"
-                                                        : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                                    }`}
                                             >
                                                 First Year
                                             </button>
@@ -674,12 +675,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "Second Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${
-                                                    selectedYearLevel ===
+                                                className={`px-4 py-2 ${selectedYearLevel ===
                                                     "Second Year"
-                                                        ? "border-b-2 border-blue-500 font-semibold"
-                                                        : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                                    }`}
                                             >
                                                 Second Year
                                             </button>
@@ -690,12 +690,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "Third Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${
-                                                    selectedYearLevel ===
+                                                className={`px-4 py-2 ${selectedYearLevel ===
                                                     "Third Year"
-                                                        ? "border-b-2 border-blue-500 font-semibold"
-                                                        : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                                    }`}
                                             >
                                                 Third Year
                                             </button>
@@ -706,12 +705,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "Fourth Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${
-                                                    selectedYearLevel ===
+                                                className={`px-4 py-2 ${selectedYearLevel ===
                                                     "Fourth Year"
-                                                        ? "border-b-2 border-blue-500 font-semibold"
-                                                        : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                                    }`}
                                             >
                                                 Fourth Year
                                             </button>
@@ -758,13 +756,13 @@ const CourseOfferingsPage: React.FC = () => {
 
                                                     return (
                                                         subject.year_level ===
-                                                            yearLevelMap[
-                                                                selectedYearLevel
-                                                            ] &&
+                                                        yearLevelMap[
+                                                        selectedYearLevel
+                                                        ] &&
                                                         subject.semester ===
-                                                            semesterMap[
-                                                                selectedSemester
-                                                            ]
+                                                        semesterMap[
+                                                        selectedSemester
+                                                        ]
                                                     );
                                                 })
                                                 .map((subject) => (
@@ -775,15 +773,15 @@ const CourseOfferingsPage: React.FC = () => {
                                                         className="bg-gray-700 text-white p-3 rounded-full mb-2 grid grid-cols-5"
                                                     >
                                                         <div className="grid grid-cols-2 pl-5 flex items-center justify-center">
-                                                        <h2>Prof. Sub?</h2>
-                                                        <input type="checkbox"
-                                                            name = "prof_sub"   
-                                                            className="h-6 w-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                                            checked={
+                                                            <h2>Prof. Sub?</h2>
+                                                            <input type="checkbox"
+                                                                name="prof_sub"
+                                                                className="h-6 w-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                                                checked={
                                                                     subject.prof_sub
-                                                            }
-                                                            onChange={() => handleEditUploadedCurriculum(subject)}
-                                                        />
+                                                                }
+                                                                onChange={() => handleEditUploadedCurriculum(subject)}
+                                                            />
                                                         </div>
                                                         <label className="text-xl font-bold flex items-center justify-center">
                                                             {
@@ -836,11 +834,10 @@ const CourseOfferingsPage: React.FC = () => {
 
                                     <div className="flex flex-col items-center justify-center mb-4">
                                         <label
-                                            className={`bg-blue-500 hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center text-white font-semibold mb-4 cursor-pointer transition-all ${
-                                                uploadedFile
-                                                    ? "bg-green-500 hover:bg-green-400"
-                                                    : ""
-                                            }`}
+                                            className={`bg-blue-500 hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center text-white font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
+                                                ? "bg-green-500 hover:bg-green-400"
+                                                : ""
+                                                }`}
                                         >
                                             <input
                                                 type="file"
@@ -901,6 +898,7 @@ const CourseOfferingsPage: React.FC = () => {
                     {activeTab === "Sections" && (
                         <div className="bg-white p-4 rounded-2xl shadow-lg">
                             <div className="flex grid grid-cols-2 mb-4">
+
                                 <div>
                                     <PrimaryButton
                                         onClick={handleToggleAddSection}
@@ -909,157 +907,168 @@ const CourseOfferingsPage: React.FC = () => {
                                         Add Section
                                     </PrimaryButton>
                                 </div>
-                                <div className="flex w-full justify-end gap-10">
-                                    <select
-                                        className="border border-gray-300 rounded-lg p-2 w-1/3"
-                                        value={selectedYearLevel}
-                                        onChange={(e) =>
-                                            setSelectedYearLevel(e.target.value)
-                                        }
-                                    >
-                                        <option value="">
-                                            All Year Levels
-                                        </option>
-                                        <option value="First Year">
-                                            First Year
-                                        </option>
-                                        <option value="Second Year">
-                                            Second Year
-                                        </option>
-                                        <option value="Third Year">
-                                            Third Year
-                                        </option>
-                                        <option value="Fourth Year">
-                                            Fourth Year
-                                        </option>
-                                    </select>
-                                    <select
-                                        className="border border-gray-300 rounded-lg p-2 w-1/3"
-                                        onChange={(e) =>
-                                            setSelectedCurriculum(
-                                                curriculum.find(
-                                                    (curr) =>
-                                                        curr.program_short_name ===
-                                                        e.target.value
-                                                ) || null
-                                            )
-                                        }
-                                    >
-                                        <option value="">All Programs</option>
-                                        {curriculum
-                                            .filter(
-                                                (curr, index, self) =>
-                                                    self.findIndex(
-                                                        (item) =>
-                                                            item.program_short_name ===
-                                                            curr.program_short_name
-                                                    ) === index
-                                            )
-                                            .map((curr) => (
-                                                <option
-                                                    key={curr.id}
-                                                    value={
-                                                        curr.program_short_name
-                                                    }
-                                                >
-                                                    {curr.program_short_name}
-                                                </option>
-                                            ))}
-                                    </select>
+                                {sections.length === 0 ? (
+                                    <div className="text-center text-gray-500 row-start-2 flex items-center justify-center w-full col-span-2 my-20"> 
+                                    No Sections created yet.
                                 </div>
-                            </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Section
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Program
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Year Level
-                                            </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {sections
-                                            .filter((section) => {
-                                                const yearLevelMap: {
-                                                    [key: string]: number;
-                                                } = {
-                                                    "First Year": 1,
-                                                    "Second Year": 2,
-                                                    "Third Year": 3,
-                                                    "Fourth Year": 4,
-                                                };
-
-                                                if (
-                                                    selectedYearLevel ==
-                                                        "Year Level" &&
-                                                    selectedCurriculum === null
-                                                ) {
-                                                    return true;
-                                                } else if (
-                                                    selectedCurriculum !==
-                                                        null &&
-                                                    selectedYearLevel ==
-                                                        "Year Level"
-                                                ) {
-                                                    return (
-                                                        section.program_short_name ===
-                                                        selectedCurriculum?.program_short_name
-                                                    );
+                                ) : (
+                                    <div>
+                                        <div className="flex w-full justify-end gap-10">
+                                            <select
+                                                className="border border-gray-300 rounded-lg p-2 w-1/3"
+                                                value={selectedYearLevel}
+                                                onChange={(e) =>
+                                                    setSelectedYearLevel(e.target.value)
                                                 }
-                                                return (
-                                                    (!selectedCurriculum ||
-                                                        section.program_short_name ===
-                                                            selectedCurriculum?.program_short_name) &&
-                                                    (!selectedYearLevel ||
-                                                        section.year_level ===
-                                                            yearLevelMap[
-                                                                selectedYearLevel
-                                                            ])
-                                                );
-                                            })
-                                            .map((section) => (
-                                                <tr
-                                                    key={section.id}
-                                                    className="hover:bg-gray-50"
-                                                >
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {section.section_name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {
-                                                            section.program_short_name
-                                                        }
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {section.year_level}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        <button
-                                                            className="text-red-500 hover:text-red-700 ml-4"
-                                                            onClick={() =>
-                                                                handleDeleteSection(
-                                                                    section.id
-                                                                )
+                                            >
+                                                <option value="">
+                                                    All Year Levels
+                                                </option>
+                                                <option value="First Year">
+                                                    First Year
+                                                </option>
+                                                <option value="Second Year">
+                                                    Second Year
+                                                </option>
+                                                <option value="Third Year">
+                                                    Third Year
+                                                </option>
+                                                <option value="Fourth Year">
+                                                    Fourth Year
+                                                </option>
+                                            </select>
+                                            <select
+                                                className="border border-gray-300 rounded-lg p-2 w-1/3"
+                                                onChange={(e) =>
+                                                    setSelectedCurriculum(
+                                                        curriculum.find(
+                                                            (curr) =>
+                                                                curr.program_short_name ===
+                                                                e.target.value
+                                                        ) || null
+                                                    )
+                                                }
+                                            >
+                                                <option value="">All Programs</option>
+                                                {curriculum
+                                                    .filter(
+                                                        (curr, index, self) =>
+                                                            self.findIndex(
+                                                                (item) =>
+                                                                    item.program_short_name ===
+                                                                    curr.program_short_name
+                                                            ) === index
+                                                    )
+                                                    .map((curr) => (
+                                                        <option
+                                                            key={curr.id}
+                                                            value={
+                                                                curr.program_short_name
                                                             }
                                                         >
-                                                            <Trash2 size={18} />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </table>
+                                                            {curr.program_short_name}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="min-w-full divide-y divide-gray-200">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Section
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Program
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Year Level
+                                                        </th>
+                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Actions
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                    {sections
+                                                        .filter((section) => {
+                                                            const yearLevelMap: {
+                                                                [key: string]: number;
+                                                            } = {
+                                                                "First Year": 1,
+                                                                "Second Year": 2,
+                                                                "Third Year": 3,
+                                                                "Fourth Year": 4,
+                                                            };
+
+                                                            if (
+                                                                selectedYearLevel ==
+                                                                "Year Level" &&
+                                                                selectedCurriculum === null
+                                                            ) {
+                                                                return true;
+                                                            } else if (
+                                                                selectedCurriculum !==
+                                                                null &&
+                                                                selectedYearLevel ==
+                                                                "Year Level"
+                                                            ) {
+                                                                return (
+                                                                    section.program_short_name ===
+                                                                    selectedCurriculum?.program_short_name
+                                                                );
+                                                            }
+                                                            return (
+                                                                (!selectedCurriculum ||
+                                                                    section.program_short_name ===
+                                                                    selectedCurriculum?.program_short_name) &&
+                                                                (!selectedYearLevel ||
+                                                                    section.year_level ===
+                                                                    yearLevelMap[
+                                                                    selectedYearLevel
+                                                                    ])
+                                                            );
+                                                        })
+                                                        .map((section) => (
+                                                            <tr
+                                                                key={section.id}
+                                                                className="hover:bg-gray-50"
+                                                            >
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                                    {section.section_name}
+                                                                </td>
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {
+                                                                        section.program_short_name
+                                                                    }
+                                                                </td>
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {section.year_level}
+                                                                </td>
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    <button
+                                                                        className="text-red-500 hover:text-red-700 ml-4"
+                                                                        onClick={() =>
+                                                                            handleDeleteSection(
+                                                                                section.id
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <Trash2 size={18} />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                )}
+
                             </div>
+
+
                         </div>
                     )}
                 </div>
@@ -1165,9 +1174,9 @@ const CourseOfferingsPage: React.FC = () => {
 
                                         return (
                                             subject.year_level ===
-                                                yearLevelMap[yearLevelCourse] &&
+                                            yearLevelMap[yearLevelCourse] &&
                                             subject.semester ===
-                                                semesterMap[selectedSemester]
+                                            semesterMap[selectedSemester]
                                         );
                                     })
                                     .map((subject, idx) => (

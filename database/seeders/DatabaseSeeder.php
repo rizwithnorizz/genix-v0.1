@@ -17,18 +17,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             S_00_DepartmentSeeder::class,
-            S_01_ProgramOfferingsTableSeeder::class,
             S_02_UserTableSeeder::class,
-            S_03_DepartmentCurriculumSeeder::class,
-            S_04_InstructorSeeder::class,
-            S_05_SubjectTableSeeder::class,
-            S_06_SubjectInstructorSeeder::class,
-            S_07_ClassroomSeeder::class,
-            S_08_CourseSectionSeeder::class,
-            S_09_DepartmentRoomSeeder::class,
-            S_11_CourseSubjectSeeder::class,
-            S_12_CourseSubjectFeedbackSeeder::class,
-            S_13_InstructorSubjectFeedbackSeeder::class,
         ]);
     }
 }

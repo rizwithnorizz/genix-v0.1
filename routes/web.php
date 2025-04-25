@@ -99,7 +99,7 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/departments/{department}/rooms', [DataRelay::class, 'getDepartmentRoom'])->name('admin.getDepartmentDetails');
     Route::get('/api/get-rooms', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
     Route::post('/api/create-room', [DataCreate::class, 'createRoom'])->name('admin.createRoom');
-
+    Route::put('/api/rooms/{roomID}/update', [DataUpdate::class, 'updateRoom'])->name('admin.updateRoom');
     Route::post('admin/departments/{department}/assign-rooms', [DataCreate::class, 'assignRoomToDepartment'])->name('admin.assignRoom');
     Route::delete('/admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteRoom'])->name('admin.deleteRoom');
     Route::delete('admin/deleteFeedback/{department}', [DataUpdate::class, 'deleteDepartmentFeedback'])->name('admin.delete-department');

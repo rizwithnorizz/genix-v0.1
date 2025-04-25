@@ -51,7 +51,18 @@ class DataUpdate extends Controller
             'message' => 'Department updated successfully',
         ]); 
     }
+    public function updateRoom($roomID, Request $request){
 
+        DB::table('classrooms')
+            ->where('id', $roomID)
+            ->update([
+                'room_number' => $request->input('room_number'),
+                'room_type' => $request->input('room_type'),
+            ]);
+        return response()->json([
+            'message' => 'Room updated successfully',
+        ]);
+    }
     public function deleteDepartmentAdmin($email)
     {
         DB::table('users')
