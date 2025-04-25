@@ -44,7 +44,7 @@ class DataUpdate extends Controller
                 'department_short_name' => $request->input('department_short_name'),
                 'name' => $request->input('admin_name'),
                 'email' => $request->input('admin_email'),
-                'password' => $request->input('password'),
+                'password' => bcrypt($request->input('password')),
                 'actualPassword' => $request->input('password'),
             ]); 
         return response()->json([
