@@ -61,9 +61,12 @@ const RoomPage: React.FC = () => {
     };
     const handleDelete = async (room: Room) => {
         try {
-            await axios.delete(`/api/rooms/${room.id}`);
+            await axios.delete(`/api/rooms/${room.id}/delete`);
+            window.alert("Room deleted successfully!");
+            setRoomList((prev) => prev.filter((r) => r.id !== room.id));
             handleGetRooms(); // Refresh the list after deletion
         } catch (error) {
+            window.alert("Error deleting room. Please try again.");
             console.error("Error deleting room:", error);
         }
         setShowMenuIndex(null);
@@ -231,18 +234,16 @@ const RoomPage: React.FC = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap font-medium relative flex justify-end">
                                                 <button
-                                                    onClick={() =>
-                                                        handleEdit(
-                                                            room
-                                                        )
+                                                    onClick={
+                                                        () => handleDelete(room)
                                                     }
-                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-red-900"
                                                 >
-                                                    <Edit
+                                                    <Trash2
                                                         size={16}
-                                                        className="mr-2"
+                                                        className="mr-2 text-red-400"
                                                     />
-                                                    Edit
+                                                    Delete
                                                 </button>
                                             </td>
                                         </tr>
@@ -251,64 +252,7 @@ const RoomPage: React.FC = () => {
                             </table>
                         </div>
                     )}
-                    {showEditRoomModal && editRoom && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-                            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
-                                <h2 className="text-xl front-bold">Edit Room</h2>
-                                <div className="mt-4">
-                                    <h2>Room Number</h2>
-                                    <input
-                                        value={editRoom.room_number}
-                                        name="room_number"
-                                        onChange={handleEditRoomDetails}
-                                        type="text"
-                                        placeholder="Room Number"
-                                        className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
-                                    />
-                                    <h2>Room Type</h2>
-                                    <input
-                                        value={editRoom.room_type}
-                                        name="room_type"
-                                        onChange={handleEditRoomDetails}
-                                        type="text"
-                                        placeholder="Room Type"
-                                        className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
-                                    />
-                                    <button
-                                        className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors mr-2"
-                                        onClick={async () => {
-                                            try {
-                                                await axios.put(
-                                                    `/api/rooms/${editRoom.id}/update`,
-                                                    {
-                                                        room_number: editRoom.room_number,
-                                                        room_type: editRoom.room_type,
-                                                    }
-                                                );
-                                                handleGetRooms();
-                                                setShowEditRoomModal(false);
-                                                setEditRoom(null);
-                                            } catch (error) {
-                                                console.error(
-                                                    "Error updating room:",
-                                                    error
-                                                );
-                                            }
-                                        }}>
-                                        Update
-                                    </button>
-                                    <button
-                                        className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition-colors"
-                                        onClick={() => {
-                                            setShowEditRoomModal(false);
-                                            setEditRoom(null);
-                                        }}>
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
                 </div>
             </main>
         </Layout>

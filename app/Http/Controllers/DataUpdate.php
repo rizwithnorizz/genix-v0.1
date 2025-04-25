@@ -51,14 +51,11 @@ class DataUpdate extends Controller
             'message' => 'Department updated successfully',
         ]); 
     }
-    public function updateRoom($roomID, Request $request){
-
+    public function deleteRoom($roomID){
+        \Log::error('Deleting room with ID: ' . $roomID);
         DB::table('classrooms')
             ->where('id', $roomID)
-            ->update([
-                'room_number' => $request->input('room_number'),
-                'room_type' => $request->input('room_type'),
-            ]);
+            ->delete();
         return response()->json([
             'message' => 'Room updated successfully',
         ]);
@@ -118,7 +115,7 @@ class DataUpdate extends Controller
         ]);
     }
 
-    public function deleteRoom($department, $room_number)
+    public function deleteDepartmentRoom($department, $room_number)
     {
         DB::table('department_room')
             ->where('department_short_name', $department)

@@ -22,4 +22,13 @@ class depadminPageController extends Controller
     {
         return Inertia::render('depadmin/feedback');
     }
+    public function about()
+    {
+        return Inertia::render('about');
+    }
+
+    public function help()
+    {
+        return Inertia::render('help');
+    }
 }

@@ -342,7 +342,7 @@ const DepAdminDashboard: React.FC = () => {
                         <div className="relative">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
                                 {instructors?.length === 0 ? (
-                                    <div className="text-center text-gray-500">
+                                    <div className="text-center text-gray-500 col-span-5 mt-10">
                                         No instructors available.
                                     </div>
                                 ) : (

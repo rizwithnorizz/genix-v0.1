@@ -34,6 +34,8 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::get('dep-admin/courseOfferings', [depadminPageController::class, 'courseOfferings'])->name('depadmin.courseofferings');
     Route::get('dep-admin/instructors', [depadminPageController::class, 'instructors'])->name('depadmin.instructor');
     Route::get('dep-admin/feedback', [depadminPageController::class, 'feedback'])->name('depadmin.feedback');
+    Route::get('dep-admin/about', [depadminPageController::class, 'about'])->name('depadmin.about');
+    Route::get('dep-admin/help', [depadminPageController::class, 'help'])->name('depadmin.help');
     
     Route::get('/api/instructors', [DataRelay::class, 'getInstructors'])->name('depadmin.instructors');
     Route::get('/api/instructors-with-subjects', [DataRelay::class, 'getInstructorsWithSubjects'])->name('depadmin.instructors-with-subjects');
@@ -99,9 +101,9 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/departments/{department}/rooms', [DataRelay::class, 'getDepartmentRoom'])->name('admin.getDepartmentDetails');
     Route::get('/api/get-rooms', [DataRelay::class, 'getRoom'])->name('admin.getRoom');
     Route::post('/api/create-room', [DataCreate::class, 'createRoom'])->name('admin.createRoom');
-    Route::put('/api/rooms/{roomID}/update', [DataUpdate::class, 'updateRoom'])->name('admin.updateRoom');
+    Route::delete('/api/rooms/{roomID}/delete', [DataUpdate::class, 'deleteRoom'])->name('admin.deleteRoom');
     Route::post('admin/departments/{department}/assign-rooms', [DataCreate::class, 'assignRoomToDepartment'])->name('admin.assignRoom');
-    Route::delete('/admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteRoom'])->name('admin.deleteRoom');
+    Route::delete('/admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteDepartmentRoom'])->name('admin.deleteRoom');
     Route::delete('admin/deleteFeedback/{department}', [DataUpdate::class, 'deleteDepartmentFeedback'])->name('admin.delete-department');
     
     
