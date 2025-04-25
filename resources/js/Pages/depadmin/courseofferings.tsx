@@ -137,9 +137,10 @@ const CourseOfferingsPage: React.FC = () => {
         try {
             const response = axios.post("/api/curriculum/create", curriculum);
             console.log("Curriculum added: ", response);
-            handleToggleCurriculumPopup();
+            window.alert("Curriculum added!");
         } catch (error) {
             console.error("Error adding curriculum:", error);
+            window.alert("Curriculum added failed!");
         }
     };
 
@@ -912,7 +913,7 @@ const CourseOfferingsPage: React.FC = () => {
                                     No Sections created yet.
                                 </div>
                                 ) : (
-                                    <div>
+                                    <>
                                         <div className="flex w-full justify-end gap-10">
                                             <select
                                                 className="border border-gray-300 rounded-lg p-2 w-1/3"
@@ -971,7 +972,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                     ))}
                                             </select>
                                         </div>
-                                        <div className="overflow-x-auto">
+                                        <div className="overflow-x-auto col-span-2">
                                             <table className="min-w-full divide-y divide-gray-200">
                                                 <thead className="bg-gray-50">
                                                     <tr>
@@ -1063,7 +1064,7 @@ const CourseOfferingsPage: React.FC = () => {
                                             </table>
                                         </div>
 
-                                    </div>
+                                        </>
                                 )}
 
                             </div>

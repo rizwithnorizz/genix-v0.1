@@ -9,10 +9,10 @@ use App\Models\Classroom;
 use App\Models\DepartmentRoom;
 use App\Models\CourseSubject;
 use App\Models\subject_instructor;
-use App\Models\program_offerings;
+use App\Models\ProgramOfferings;
 use App\Models\Subject;
 use App\Models\Course_Sections;
-use App\Models\Department_Curriculum;
+use App\Models\DepartmentCurriculum;
 use App\Models\Instructor;
 use App\Models\Departments;
 
@@ -30,7 +30,7 @@ class DeepSeekController extends Controller
                 'department_rooms' => json_encode(DepartmentRoom::all()->toArray()),
                 'course_subjects' => json_encode(CourseSubject::all()->toArray()),
                 'subject_instructors' => json_encode(subject_instructor::all()->toArray()),
-                'program_offerings' => json_encode(program_offerings::all()->toArray()),
+                'program_offerings' => json_encode(ProgramOfferings::all()->toArray()),
                 'course_sections' => json_encode(Course_Sections::all()->toArray()),
                 'department_curriculum' => json_encode(Department_Curriculum::all()->toArray()),
                 'instructors' => json_encode(Instructor::all()->toArray()),

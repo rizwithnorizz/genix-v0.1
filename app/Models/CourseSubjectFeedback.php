@@ -6,5 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class CourseSubjectFeedback extends Model
 {
-    //
+    protected $table = 'course_subject_feedbacks';
+    
 }

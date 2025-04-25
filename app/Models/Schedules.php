@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 class Schedules extends Model
 {
+    protected $table = 'schedules';
     public function subject()
     {
         return $this->belongsTo(Subject::class, 'subject_code', 'subject_code');

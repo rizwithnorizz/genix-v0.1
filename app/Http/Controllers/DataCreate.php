@@ -7,13 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Models\Department_Curriculum;
-use App\Models\Program_Offerings;
+use App\Models\ProgramOfferings;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use App\Models\Departments;
 use DeepSeekClient;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Models\CourseSubject;
+use App\Models\Subject;
+use App\Models\CourseSections;
+use App\Models\DepartmentCurriculum;
 class DataCreate extends Controller
 {
     public function assignRoomToDepartment(Request $request, $department)
@@ -204,9 +208,6 @@ class DataCreate extends Controller
 
     public function uploadCurriculum(Request $request)
     {
-        $request->validate([
-            'curriculum_file' => 'required|file|max:10240', // 10MB max
-        ]);
 
         try {
             $file = $request->file('curriculum_file');
@@ -462,11 +463,10 @@ PROMPT;
 
     public function createCurriculum(Request $request)
     {
+        \Log::error("i got this far 1");
         $validated = $request->validate([
             'curriculum_name' => 'required|string|max:255',
             'program_name' => 'required|string|max:255',
-            'program_short_name' => 'required|string|max:10',
-            'subjects' => 'required|array',
         ]);
         $request->merge([
             'department_short_name' => auth()->user()->department_short_name,
@@ -482,7 +482,7 @@ PROMPT;
 
         try {
             
-            Program_Offerings::firstOrCreate(
+            ProgramOfferings::firstOrCreate(
                 [
                     'program_short_name' => $request->input('program_short_name'),
                 ],
@@ -492,15 +492,21 @@ PROMPT;
                 ]
             );
 
-            DB::table('department_curriculum')
-            ->insert([
-                'department_short_name' => $request->input('department_short_name'),
-                'curriculum_name' => $request->input('curriculum_name'),
-                'program_short_name' => $request->input('program_short_name'),
-            ]);
+            DepartmentCurriculum::firstOrCreate(
+                [
+                    'program_short_name' => $request->input('program_short_name'), // Ensure this is included
+                    'department_short_name' => $request->input('department_short_name'),
+                    'curriculum_name' => $request->input('curriculum_name'),
+                ],
+                [
+                    'program_short_name' => $request->input('program_short_name'), // Ensure this is included
+                    'department_short_name' => $request->input('department_short_name'),
+                    'curriculum_name' => $request->input('curriculum_name'),
+                ]
+            );
 
             foreach ($request->input('subjects') as $subjectData) {
-                Subjects::firstOrCreate([
+                Subject::firstOrCreate([
                         'subject_code' => $subjectData['subject_code'],
                     ],
                     [
@@ -513,8 +519,8 @@ PROMPT;
                 );
                 CourseSubject::firstOrCreate(
                     [
-                        'program_short_name' => $curriculum->program_short_name,
-                        'curriculum_name' => $curriculum->curriculum_name,
+                        'program_short_name' => $request->input('program_short_name'),
+                        'curriculum_name' => $request->input('curriculum_name'),
                         'subject_code' => $subjectData['subject_code'],
                         'semester' => $subjectData['semester'],
                         'year_level' => $subjectData['year_level'],

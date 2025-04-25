@@ -598,7 +598,7 @@ const DepAdminDashboard: React.FC = () => {
                                                         End Time
                                                     </th>
                                                     <th className="border border-gray-300 px-4 py-2 text-left">
-                                                        Instructor ID
+                                                        Instructor Name
                                                     </th>
                                                 </tr>
                                             </thead>
