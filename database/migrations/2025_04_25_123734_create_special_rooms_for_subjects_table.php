@@ -11,26 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('course_subjects', function (Blueprint $table) {
+        Schema::create('special_rooms_for_subjects', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('programID');
-            $table->unsignedBigInteger('curriculumID');
-            $table->integer('year_level');
-            $table->string('semester');
             $table->unsignedBigInteger('subjectID');
+            $table->unsignedBigInteger('roomID');
 
-            $table->foreign('curriculumID')->references('id')->on('department_curriculums')->onDelete('cascade');
-            $table->foreign('programID')->references('id')->on('program_offerings')->onDelete('cascade');
             $table->foreign('subjectID')->references('id')->on('subjects')->onDelete('cascade');
+            $table->foreign('roomID')->references('id')->on('classrooms')->onDelete('cascade');
             $table->timestamps();
-        }); 
-    }   
+        });
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('course_subjects');
+        Schema::dropIfExists('special_rooms_for_subjects');
     }
 };

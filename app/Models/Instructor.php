@@ -11,7 +11,7 @@ class Instructor extends Model
     protected $fillable = [
         'name',
         'prof_subject_instructor',
-        'department_short_name',
+        'departmentID',
     ];
     public function subjects()
     {

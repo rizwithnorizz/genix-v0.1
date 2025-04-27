@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->json('schedule');
             $table->string('repo_name');
-            $table->string('department_short_name');
+            $table->unsignedBigInteger('departmentID');
             $table->string('semester');
             $table->boolean('status')->default(false);
-            $table->foreign('department_short_name')
-                ->references('department_short_name')
+            $table->foreign('departmentID')
+                ->references('departmentID')
                 ->on('departments')
                 ->onDelete('cascade');
             $table->timestamps();

@@ -18,27 +18,32 @@ use App\Models\CourseSubject;
 use App\Models\Subject;
 use App\Models\CourseSections;
 use App\Models\DepartmentCurriculum;
+use App\Models\DepartmentRoom;
 class DataCreate extends Controller
 {
     public function assignRoomToDepartment(Request $request, $department)
     {
-        
+        \Log::error($request);
         $validated = $request->validate([
             'rooms' => 'required|array',
-            'rooms.*' => 'string',
+            'rooms.*' => 'integer',
         ]);
-
-        foreach ($validated['rooms'] as $roomNumber) {
-            DB::table('department_room')->insert([
-                'department_short_name' => $department,
-                'room_number' => $roomNumber,
+        
+        foreach ($validated['rooms'] as $roomID) {
+            \Log::error($roomID);
+            DepartmentRoom::firstOrCreate([
+                'departmentID' => $department,
+                'roomID' => $roomID,
+            ],[
+                'departmentID' => $department,
+                'roomID' => $roomID,
             ]);
         }
 
         return response()->json(['message' => 'Rooms assigned successfully'], 200);
     }
     public function createInstructor(Request $request){
-        $department = auth()->user()->department_short_name;
+        $department = auth()->user()->departmentID;
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
@@ -46,7 +51,7 @@ class DataCreate extends Controller
         $instructor = DB::table('instructors')
         ->insert([
             'name' => $validated['name'],
-            'department_short_name' => $department,
+            'departmentID' => $department,
         ]);
 
         return response()->json([
@@ -56,9 +61,6 @@ class DataCreate extends Controller
     }
 
     public function deleteInstructor($id){
-        $validated = request()->validate([
-            'id' => 'required|integer|exists:instructors,id',
-        ]);
         $instructor = DB::table('instructors')
         ->find($id);
 
@@ -67,11 +69,6 @@ class DataCreate extends Controller
                 'message' => 'Instructor not found.',
             ], 404);
         }
-
-        DB::table('instructors')
-        ->where('id', $id)
-        ->delete();
-
         DB::table('subject_instructors')
         ->where('instructor_id', $id)
         ->delete();
@@ -79,6 +76,11 @@ class DataCreate extends Controller
         DB::table('schedules')
         ->where('instructor_id', $id)
         ->delete();
+
+        DB::table('instructors')
+        ->where('id', $id)
+        ->delete();
+
         return response()->json([
             'message' => 'Instructor deleted successfully.',
         ]);
@@ -162,8 +164,12 @@ class DataCreate extends Controller
         $validated = $request->validate([
             'department_short_name' => 'required|string|max:10|unique:departments,department_short_name',
             'department_full_name' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = '/storage/' . $request->file('logo')->store('logos', 'public'); // Save to 'storage/app/public/logos'
+        }
         try {
             $department = Departments::firstOrCreate([
                 'department_short_name' => $request->input('department_short_name'),
@@ -171,23 +177,25 @@ class DataCreate extends Controller
             ], [
                 'department_short_name' => $request->input('department_short_name'),
                 'department_full_name' => $request->input('department_full_name'),
+                'logo_img_path' => $logoPath,
             ]);
             $user = DB::table('users')
             ->insert([
-                'name' => $request->input('department_full_name'),
-                'email' => $request->input('department_short_name') . '@gmail.com',
-                'password' => $request->input('password'),
+                'name' => $request->input('admin_name'),
+                'email' => $request->input('admin_email'),
+                'password' => bcrypt($request->input('password')),
                 'actualPassword' => $request->input('password'),
-                'department_short_name' => $request->input('department_short_name'),
+                'departmentID' => $department->id,
                 'user_type' => 1,
             ]);
-
+            \Log::error($department->id);
+            \Log::error($request->input('selectedRooms'));
             if ($request->has('selectedRooms')) {
                 $selectedRooms = $request->input('selectedRooms');
                 foreach ($selectedRooms as $roomNumber) {
                     DB::table('department_room')->insert([
-                        'department_short_name' => $department->department_short_name,
-                        'room_number' => $roomNumber,
+                        'departmentID' => $department->id,
+                        'roomID' => $roomNumber,
                     ]);
                 }
             }
@@ -265,69 +273,157 @@ class DataCreate extends Controller
                     if (class_exists('Smalot\PdfParser\Parser')) {
                         $parser = new \Smalot\PdfParser\Parser();
                         $pdf = $parser->parseFile($filePath);
+                
+                        // Initialize the structured object
+                        $curriculumData = [
+                            'normalText' => [],
+                            'subjects' => [],
+                        ];
+                
+                        // Extract plain text
                         $text = $pdf->getText();
-                        $fileInfo['content'] = substr($text, 0, 15000);
-                        if (strlen($text) > 20000) {
-                            $fileInfo['content'] .= "\n[...content truncated...]\n";
-                            $fileInfo['content'] .= substr($text, -5000);
+                        $lines = explode("\n", $text); // Split text into lines
+                        foreach ($lines as $line) {
+                            $line = trim($line);
+                            if (!empty($line)) {
+                                $curriculumData['normalText'][] = $line;
+                            }
                         }
+                
+                        // Extract tables (if any)
+                        $details = $pdf->getDetails();
+                        if (isset($details['Tables'])) {
+                            foreach ($details['Tables'] as $table) {
+                                foreach ($table as $rowIndex => $row) {
+                                    if ($rowIndex === 0) {
+                                        // Skip the header row
+                                        continue;
+                                    }
+                
+                                    $subjectData = [];
+                                    foreach ($row as $cellIndex => $cellText) {
+                                        $cellText = trim($cellText);
+                
+                                        // Map cell data to subject fields based on the column index
+                                        switch ($cellIndex) {
+                                            case 0: // CODE
+                                                $subjectData['subject_code'] = $cellText;
+                                                break;
+                                            case 1: // COURSE TITLE
+                                                $subjectData['name'] = $cellText;
+                                                break;
+                                            case 4: // Lec (Hours per week)
+                                                $subjectData['lec'] = (int)$cellText;
+                                                break;
+                                            case 5: // Lab (Hours per week)
+                                                $subjectData['lab'] = (int)$cellText;
+                                                break;
+                                            case 6: // Prerequisite/Co-requisite
+                                                $subjectData['prerequisite'] = $cellText;
+                                                break;
+                                        }
+                                    }
+                
+                                    // Add semester and year level dynamically
+                                    $subjectData['semester'] = '1st'; // Example: Set semester dynamically
+                                    $subjectData['year_level'] = 1; // Example: Set year level dynamically
+                
+                                    // Add the subject to the subjects array
+                                    $curriculumData['subjects'][] = $subjectData;
+                                }
+                            }
+                        }
+                
+                        // Save the structured data
+                        $fileInfo['content'] = json_encode($curriculumData, JSON_PRETTY_PRINT);
+                
+                        // Log the stringified curriculum data
+                        \Log::info('Curriculum Data as String: ' . $fileInfo['content']);
                     } else {
                         $fileInfo['content'] = "PDF file contents (PDF parser not available)";
                     }
                     break;
                     
                     case 'docx':
-                        if (class_exists('\PhpOffice\PhpWord\IOFactory')) {
-                            $phpWord = \PhpOffice\PhpWord\IOFactory::load($filePath);
-                            $text = '';
-                    
-                            foreach ($phpWord->getSections() as $section) {
-                                foreach ($section->getElements() as $element) {
-                                    if ($element instanceof \PhpOffice\PhpWord\Element\Text) {
-                                        $text .= $element->getText() . "\n";
-                                    }
-                                    elseif ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
-                                        foreach ($element->getElements() as $inline) {
-                                            if (method_exists($inline, 'getText')) {
-                                                $text .= $inline->getText();
+
+                            if (class_exists('\PhpOffice\PhpWord\IOFactory')) {
+                                $phpWord = \PhpOffice\PhpWord\IOFactory::load($filePath);
+                            
+                                // Initialize the structured object
+                                $curriculumData = [
+                                    'normalText' => [],
+                                    'subjects' => [],
+                                ];
+                            
+                                $currentSemester = null; // Variable to track the current semester
+                            
+                                foreach ($phpWord->getSections() as $section) {
+                                    foreach ($section->getElements() as $element) {
+                                        \Log::info('Element type: ' . get_class($element));
+
+                                        if ($element instanceof \PhpOffice\PhpWord\Element\TextRun || $element instanceof \PhpOffice\PhpWord\Element\Text || $element instanceof \PhpOffice\PhpWord\Element\Title) {
+                                            $text = $element->getText();
+                                            if (!empty($text)) {
+                                                $curriculumData['normalText'][] = $text;
+                                                \Log::error('Text found', [
+                                                    'text' => $text
+                                                ]);
                                             }
-                                        }
-                                        $text .= "\n";
-                                    }
-                                    elseif ($element instanceof \PhpOffice\PhpWord\Element\Table) {
-                                        $text .= "\n[Table Start]\n";
-                                        foreach ($element->getRows() as $rowIndex => $row) {
-                                            $text .= "Row " . ($rowIndex + 1) . ":\n";
-                                            foreach ($row->getCells() as $cellIndex => $cell) {
-                                                $cellText = '';
-                                                foreach ($cell->getElements() as $cellElement) {
-                                                    if (method_exists($cellElement, 'getText')) {
-                                                        $cellText .= $cellElement->getText() . ' ';
-                                                    } elseif ($cellElement instanceof \PhpOffice\PhpWord\Element\TextRun) {
-                                                        foreach ($cellElement->getElements() as $inline) {
-                                                            if (method_exists($inline, 'getText')) {
-                                                                $cellText .= $inline->getText() . ' ';
-                                                            }
+                                        } elseif ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+                                            foreach ($element->getRows() as $rowIndex => $row) {
+                                                if ($rowIndex === 0 && $rowIndex === 1) {
+                                                    // Skip the header row
+                                                    continue;
+                                                }
+                            
+                                                $subjectData = [];
+                                                foreach ($row->getCells() as $cellIndex => $cell) {
+                                                    $cellText = '';
+                                                    foreach ($cell->getElements() as $cellElement) {
+                                                        if (method_exists($cellElement, 'getText')) {
+                                                            $cellText .= $cellElement->getText() . ' ';
                                                         }
                                                     }
+                                                    $cellText = trim($cellText);
+                            
+                                                    // Map cell data to subject fields based on the column index
+                                                    switch ($cellIndex) {
+                                                        case 0: // CODE
+                                                            $subjectData['subject_code'] = $cellText;
+                                                            break;
+                                                        case 1: // COURSE TITLE
+                                                            $subjectData['name'] = $cellText;
+                                                            break;
+                                                        case 4: // Lec (Hours per week)
+                                                            $subjectData['lec'] = (int)$cellText;
+                                                            break;
+                                                        case 5: // Lab (Hours per week)
+                                                            $subjectData['lab'] = (int)$cellText;
+                                                            break;
+                                                        case 6: // Prerequisite/Co-requisite
+                                                            $subjectData['prerequisite'] = $cellText;
+                                                            break;
+                                                    }
                                                 }
-                                                $text .= "  Cell " . ($cellIndex + 1) . ": " . trim($cellText) . "\n";
+                            
+                                                // Add the subject to the subjects array
+                                                $curriculumData['subjects'][] = $subjectData;
                                             }
-                                            $text .= "\n";
                                         }
-                                        $text .= "[Table End]\n";
                                     }
+                                    
+                                // Example of how to handle large content (truncation logic)
+                                $fileInfo['content'] = json_encode($curriculumData, JSON_PRETTY_PRINT);
+
+                                // Log the stringified curriculum data
+                                \Log::info('Curriculum Data as String: ' . $fileInfo['content']);   
                                 }
+                            
+                            } else {
+                                $fileInfo['content'] = [
+                                    'error' => 'DOCX parser not available',
+                                ];
                             }
-                    
-                            $fileInfo['content'] = substr($text, 0, 15000);
-                            if (strlen($text) > 20000) {
-                                $fileInfo['content'] .= "\n[...content truncated...]\n";
-                                $fileInfo['content'] .= substr($text, -5000);
-                            }
-                        } else {
-                            $fileInfo['content'] = "DOCX file contents (DOCX parser not available)";
-                        }
                         break;
                     
                 case 'csv':
@@ -391,7 +487,7 @@ class DataCreate extends Controller
             $fileInfo['name'] = $fileName;
             $fileInfo['extension'] = $fileExtension;
             $fileInfo['size'] = $fileSize;
-            
+            \Log::error($fileInfo['content']);
             // Build a prompt with file information
             $prompt = <<<PROMPT
 Parse the provided curriculum file and convert it to a structured JSON format.
@@ -413,11 +509,10 @@ RESPONSE FORMAT:
 {
   "curriculum":
     {
-      "department_short_name": "DEPARTMENT_CODE", <- CICT, CIT, CBA, CNM, CAMS, CAS, CBAHM, CCJE, CENG. Departments with the name that starts with "College of" and following with an abbreviated name will be shortened to just "C"
       "curriculum_name": "CURRICULUM_NAME", <- should be the program short name + year (for example: BSCS 2018-2019 Curriculum) DO NOT FORGET THE YEAR VERY IMPORTANT
       "program_name": "FULL_PROGRAM_NAME",
       "program_short_name": "PROGRAM_CODE",
-      "subjects": [
+      "subjects":
         {
           "subject_code": "SUBJECT_CODE",
           "semester": "SEMESTER", // "1st", "2nd", or "summer"
@@ -469,11 +564,11 @@ PROMPT;
             'program_name' => 'required|string|max:255',
         ]);
         $request->merge([
-            'department_short_name' => auth()->user()->department_short_name,
+            'departmentID' => auth()->user()->departmentID,
         ]);
-    
+        \Log::error("i got this far 2");
         $request->validate([
-            'department_short_name' => 'required|string',
+            'departmentID' => 'required|integer|exists:departments,departmentID',
             'curriculum_name' => 'required|string',
             'program_name' => 'required|string',
             'program_short_name' => 'required|string',
@@ -481,32 +576,31 @@ PROMPT;
         ]);
 
         try {
-            
-            ProgramOfferings::firstOrCreate(
+            $programOfferings = ProgramOfferings::firstOrCreate(
                 [
                     'program_short_name' => $request->input('program_short_name'),
                 ],
                 [
-                    'department_short_name' => $request->input('department_short_name'),
+                    'departmentID' => $request->input('departmentID'),
                     'program_name' => $request->input('program_name'),
                 ]
             );
-
-            DepartmentCurriculum::firstOrCreate(
+            \Log::error("Got this far 3");
+            $departmentCurriculum = DepartmentCurriculum::firstOrCreate(
                 [
-                    'program_short_name' => $request->input('program_short_name'), // Ensure this is included
-                    'department_short_name' => $request->input('department_short_name'),
+                    'programID' => $programOfferings->id, // Ensure this is included
+                    'departmentID' => $request->input('departmentID'),
                     'curriculum_name' => $request->input('curriculum_name'),
                 ],
                 [
-                    'program_short_name' => $request->input('program_short_name'), // Ensure this is included
-                    'department_short_name' => $request->input('department_short_name'),
+                    'programID' => $programOfferings->id, // Ensure this is included
+                    'departmentID' => $request->input('departmentID'),
                     'curriculum_name' => $request->input('curriculum_name'),
                 ]
             );
 
             foreach ($request->input('subjects') as $subjectData) {
-                Subject::firstOrCreate([
+                $subject = Subject::firstOrCreate([
                         'subject_code' => $subjectData['subject_code'],
                     ],
                     [
@@ -517,11 +611,11 @@ PROMPT;
                         'prof_subject' => $subjectData['prof_sub'],
                     ]
                 );
-                CourseSubject::firstOrCreate(
+                $courseSubject = CourseSubject::firstOrCreate(
                     [
-                        'program_short_name' => $request->input('program_short_name'),
-                        'curriculum_name' => $request->input('curriculum_name'),
-                        'subject_code' => $subjectData['subject_code'],
+                        'programID' => $programOfferings->id,
+                        'curriculumID' => $departmentCurriculum->id,
+                        'subjectID' => $subject->id,
                         'semester' => $subjectData['semester'],
                         'year_level' => $subjectData['year_level'],
                     ]
@@ -544,21 +638,20 @@ PROMPT;
 
     public function createSection(Request $request)
     {
+        \Log::error("i tried");
         // Validate the request
         $request->validate([
             'section_name' => 'required|string',
-            'program_short_name' => 'required|string',
-            'curriculum_name' => 'required|string',
+            'programID' => 'required|integer',
+            'curriculumID' => 'required|integer',
             'year_level' => 'required|integer',
         ]);
-        
-        \Log::error("i got this far 2");
         try {
             DB::table('course_sections')
             ->insert([
                 'section_name' => $request->input('section_name'),
-                'program_short_name' => $request->input('program_short_name'),
-                'curriculum_name' => $request->input('curriculum_name'),
+                'programID' => $request->input('programID'),
+                'curriculumID' => $request->input('curriculumID'),
                 'year_level' => $request->input('year_level'),
             ]);
             return response()->json([

@@ -1,335 +1,566 @@
 import Layout from "@/Components/ui/layout";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { BookAIcon, CheckCheckIcon, EyeIcon, XIcon } from "lucide-react";
 
-interface ScheduleItem {
+interface Schedule {
     id: number;
-    subject_code: string;
-    subject_name: string;
-    time_slot: number;
-    day_slot: number;
-    room_number: string;
-    section_name: string;
+    repo_name: string;
+    departmentID: number;
+    department_short_name: string;
+    semester: string;
+    schedules: GeneratedSchedule[];
+    status: boolean;
 }
 
-interface TimeSlot {
+interface GeneratedSchedule {
     id: number;
-    display: string;
-    actualTime: string;
+    day_slot: number;
+    instructor_id: number;
+    instructor_name: string;
+    subject_code: string;
+    room_number: string;
+    section_name: string;
+    time_start: number;
+    time_end: number;
 }
 
 const SchedulePage: React.FC = () => {
-    const [selectedSubject, setSelectedSubject] = useState<ScheduleItem | null>(
-        null
-    );
-    const [showFeedbackPopup, setShowFeedbackPopup] = useState<boolean>(false);
-    const [feedbackRemaining, setFeedbackRemaining] = useState<number>(3);
-    const [feedbackText, setFeedbackText] = useState<string>("");
-    const [scheduleData, setScheduleData] = useState<ScheduleItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [schedules, setSchedules] = useState<Schedule[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedDepartment, setSelectedDepartment] = useState<string>("");
 
-    const [transformedData, setTransformedData] = useState<ScheduleItem[]>([]);
-
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    // Define time slots with numerical IDs
-    const timeSlots: TimeSlot[] = [
-        { id: 1, display: "7:00 - 7:30", actualTime: "07:00-07:30" },
-        { id: 2, display: "7:30 - 8:00", actualTime: "07:30-08:00" },
-        { id: 3, display: "8:00 - 8:30", actualTime: "08:00-08:30" },
-        { id: 4, display: "8:30 - 9:00", actualTime: "08:30-09:00" },
-        { id: 5, display: "9:00 - 9:30", actualTime: "09:00-09:30" },
-        { id: 6, display: "9:30 - 10:00", actualTime: "09:30-10:00" },
-        { id: 7, display: "10:00 - 10:30", actualTime: "10:00-10:30" },
-        { id: 8, display: "10:30 - 11:00", actualTime: "10:30-11:00" },
-        { id: 9, display: "11:00 - 11:30", actualTime: "11:00-11:30" },
-        { id: 10, display: "11:30 - 12:00", actualTime: "11:30-12:00" },
-        { id: 11, display: "1:00 - 1:30", actualTime: "13:00-13:30" },
-        { id: 12, display: "1:30 - 2:00", actualTime: "13:30-14:00" },
-        { id: 13, display: "2:00 - 2:30", actualTime: "14:00-14:30" },
-        { id: 14, display: "2:30 - 3:00", actualTime: "14:30-15:00" },
-        { id: 15, display: "3:00 - 3:30", actualTime: "15:00-15:30" },
-        { id: 16, display: "3:30 - 4:00", actualTime: "15:30-16:00" },
-        { id: 17, display: "4:00 - 4:30", actualTime: "16:00-16:30" },
-        { id: 18, display: "4:30 - 5:00", actualTime: "16:30-17:00" },
-        { id: 19, display: "5:00 - 5:30", actualTime: "17:00-17:30" },
-        { id: 20, display: "5:30 - 6:00", actualTime: "17:30-18:00" },
-    ];
-
-    const fetchScheduleData = useCallback(async () => {
+    const fetchSchedules = async () => {
         try {
-            setIsLoading(true);
-            const response = await axios.get("/api/schedules");
-            console.log("API Response:", response.data);
-
-            if (Array.isArray(response.data.schedules)) {
-                const transformedData = response.data.schedules.map(
-                    (item: any) => ({
-                        id: item.id,
-                        subject_code: item.subject_code,
-                        subject_name: item.subject?.name || item.subject_code,
-                        time_slot: item.time_slot,
-                        day_slot: item.day_slot,
-                        room_number: item.room_number,
-                        section_name: item.section_name,
-                    })
-                );
-                setScheduleData(transformedData);
-            } else {
-                setError("Unexpected response format");
-                console.error("Unexpected response format:", response.data);
-            }
-        } catch (err) {
-            setError("Failed to fetch schedule data");
-            console.error("API Error:", err);
+            const response = await axios.get("/admin/schedules/list");
+            setSchedules(response.data.data);
+            console.log("Fetched schedules:", response.data.data);
+        } catch (error) {
+            console.error("Error fetching schedules:", error);
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
-    }, []);
-    // Correct useEffect usage
+    };
+
+    const [archiveModal, setArchieveModal] = useState<boolean>(false);
+    const [archives, setArchives] = useState<Schedule[]>([]);
+    const fetchArchiveSchedules = async () => {
+        try {
+            const response = await axios.get("/api/schedules/archives");
+            setArchives(response.data.data);
+            console.log("Fetched archives:", response.data.data);
+        } catch (error) {
+            console.error("Error fetching archives:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleClickArchives = () => {
+        setArchieveModal((prev) => !prev);
+    };
+
     useEffect(() => {
-        fetchScheduleData();
-    }, [fetchScheduleData]);
-    // Helper function to get day abbreviation from day number
-    const getDayAbbreviation = (dayNumber: number): string => {
-        const dayMap: Record<number, string> = {
-            1: "Mon",
-            2: "Tue",
-            3: "Wed",
-            4: "Thu",
-            5: "Fri",
-            6: "Sat",
-        };
-        return dayMap[dayNumber] || "";
+        fetchSchedules();
+        fetchArchiveSchedules();
+    }, []);
+    const [viewGeneratedSchedule, setViewGeneratedSchedule] =
+        useState<Schedule | null>(null);
+    const [viewModal, setViewModal] = useState<boolean>(false);
+    const handleClickView = (schedule: Schedule) => {
+        if (viewModal) {
+            setViewModal(false);
+            setViewGeneratedSchedule(null);
+        } else {
+            setViewGeneratedSchedule(schedule);
+            setViewModal(true);
+        }
+    };
+    const DAY_MAPPING: { [key: number]: string } = {
+        1: "Monday",
+        2: "Tuesday",
+        3: "Wednesday",
+        4: "Thursday",
+        5: "Friday",
+        6: "Saturday",
+        7: "Sunday",
     };
 
-    // Helper function to get the time display for a subject
-    const getSubjectTimeDisplay = (subject: ScheduleItem): string => {
-        const slot = timeSlots.find((ts) => ts.id === subject.time_slot);
-        return slot ? slot.display : "";
-    };
+    const [selectedSection, setSelectedSection] = useState<string>("");
+    const [selectedInstructor, setSelectedInstructor] = useState<string>("");
+    const [selectedDay, setSelectedDay] = useState<string>("");
+    const [selectedRoom, setSelectedRoom] = useState<string>("");
 
-    // Check if a cell should display a subject
-    const getSubjectForCell = (
-        timeSlotId: number,
-        day: string
-    ): ScheduleItem | null => {
-        return (
-            scheduleData.find(
-                (subject) =>
-                    getDayAbbreviation(subject.day_slot) === day &&
-                    subject.time_slot === timeSlotId
-            ) || null
+    const filteredRepo = schedules.filter(
+        (schedule) =>
+            !selectedDepartment ||
+            selectedDepartment === schedule.department_short_name
+    );
+    const filteredSchedules = viewGeneratedSchedule?.schedules.filter(
+        (schedule) =>
+            (!selectedSection || schedule.section_name === selectedSection) &&
+            (!selectedInstructor ||
+                schedule.instructor_name === selectedInstructor) &&
+            (!selectedDay || DAY_MAPPING[schedule.day_slot] === selectedDay) &&
+            (!selectedRoom || schedule.room_number === selectedRoom)
+    );
+
+    const filteredArchives = archives.filter(
+        (schedule) =>
+            !selectedDepartment ||
+            schedule.department_short_name === selectedDepartment
+    );
+
+    const handlePublish = async (scheduleId: number) => {
+        const confirmReject = window.confirm(
+            "Are you sure you want to reject this schedule?"
         );
+        if (!confirmReject) {
+            return;
+        }
+        try {
+            await axios.post(`/api/schedules/publish/${scheduleId}`);
+            fetchSchedules(); // Refresh the schedule list after publishing
+        } catch (error) {
+            console.error("Error publishing schedule:", error);
+        }
     };
 
-    const handleSubjectSelect = (subject: ScheduleItem) => {
-        setSelectedSubject(subject);
-        setShowFeedbackPopup(true);
-    };
-
-    const handleSubmitFeedback = () => {
-        console.log("Feedback submitted:", feedbackText);
-        setFeedbackRemaining((prev) => Math.max(0, prev - 1));
-        setShowFeedbackPopup(false);
-        setFeedbackText("");
-    };
-
-    const handleCancelFeedback = () => {
-        setShowFeedbackPopup(false);
-        setFeedbackText("");
-    };
-
-    if (isLoading) {
-        return (
-            <Layout>
-                <main className="col-span-3 space-y-4">
-                    <h1 className="font-bold text-2xl mb-4">Schedule</h1>
-                    <div>Loading schedule data...</div>
-                    <button
-                        onClick={fetchScheduleData}
-                        className="bg-blue-500 text-white py-2 px-4 rounded-lg mb-4"
-                    >
-                        Refresh Schedule
-                    </button>
-                </main>
-            </Layout>
+    const handleReject = async (scheduleId: number) => {
+        const confirmReject = window.confirm(
+            "Are you sure you want to reject this schedule?"
         );
-    }
-
-    if (error) {
-        return (
-            <Layout>
-                <main className="col-span-3 space-y-4">
-                    <h1 className="font-bold text-2xl mb-4">Schedule</h1>
-                    <div className="text-red-500">{error}</div>
-                </main>
-            </Layout>
-        );
-    }
+        if (!confirmReject) {
+            return;
+        }
+        try {
+            await axios.delete(`/api/schedules/reject/${scheduleId}`);
+            fetchSchedules(); // Refresh the schedule list after rejecting
+        } catch (error) {
+            console.error("Error rejecting schedule:", error);
+        }
+    };
 
     return (
         <Layout>
             <main className="col-span-3 space-y-4">
-                <h1 className="font-bold text-2xl mb-4">Schedule</h1>
+                <h1 className="font-bold text-2xl mb-4">Schedule Approvals</h1>
 
-                <div className="bg-white p-4 rounded-2xl shadow-lg">
-                    <div className="flex justify-between mb-4 gap-10">
-                        <div className="relative w-1/3">
-                            <select className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none">
-                                <option>Department</option>
-                                {/* Department options here */}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"></div>
-                        </div>
+                <div className="mb-4 grid grid-cols-2 w-[35rem] flex items-center">
+                    <select
+                        id="departmentFilter"
+                        value={selectedDepartment}
+                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                        className="mt-1 block w-[15rem] border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                        <option value="">All Departments</option>
+                        {[
+                            ...new Set(
+                                schedules.map((s) => s.department_short_name)
+                            ),
+                        ].map((department, idx) => (
+                            <option key={idx} value={department}>
+                                {department}
+                            </option>
+                        ))}
+                    </select>
+                    <button
+                        className="w-[10rem] h-[2.5rem] bg-white hover:bg-blue-500 text-gray-600 hover:text-white font-bold rounded shadow"
+                        onClick={handleClickArchives}
+                    >
+                        <BookAIcon className="w-6 h-6 mr-1 inline" />
+                        Archives
+                    </button>
+                </div>
+                {/* Filtered Schedules Table */}
 
-                        <div className="relative w-1/3">
-                            <select className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none">
-                                <option>Program</option>
-                                {/* Program options here */}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"></div>
-                        </div>
-
-                        <div className="relative w-1/3">
-                            <select className="appearance-none w-full bg-white border border-gray-300 rounded-lg py-2 px-4 pr-8 leading-tight focus:outline-none">
-                                <option>Section</option>
-                                {/* Section options here */}
-                            </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"></div>
-                        </div>
+                {loading && (
+                    <div>
+                        <h2 className="text-center py-4">Loading...</h2>
                     </div>
-
-                    {/* Schedule display */}
-                    <div className="overflow-y-auto h-[500px]">
-                        <table className="w-full border-collapse">
-                            <thead>
+                )}
+                {!loading && filteredRepo.length === 0 ? (
+                    <div>
+                        <h2 className="text-center py-4">
+                            No schedules available.
+                        </h2>
+                    </div>
+                ) : (
+                    <div className="w-fit overflow-x-auto truncate rounded-2xl shadow-lgs">
+                        <table className="w-2/3 table-auto border-collapse border border-gray-300">
+                            <thead className="bg-gray-200">
                                 <tr>
-                                    <th className="p-2 bg-gray-50 border text-left">
-                                        Time
+                                    <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Department
                                     </th>
-                                    {days.map((day) => (
-                                        <th
-                                            key={day}
-                                            className="p-2 bg-gray-100 border text-center"
-                                        >
-                                            {day}
-                                        </th>
-                                    ))}
+                                    <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Class Schedule Name
+                                    </th>
+                                    <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Action
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {timeSlots.map((timeSlot) => (
-                                    <tr key={timeSlot.id}>
-                                        <td className="p-2 border bg-gray-50 text-sm">
-                                            {timeSlot.display}
+                                {filteredRepo?.map((schedule) => (
+                                    <tr
+                                        key={schedule.id}
+                                        className="hover:bg-gray-100"
+                                    >
+                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {schedule.department_short_name}
                                         </td>
-                                        {days.map((day) => {
-                                            const subject = getSubjectForCell(
-                                                timeSlot.id,
-                                                day
-                                            );
-
-                                            if (subject) {
-                                                return (
-                                                    <td
-                                                        key={`${day}-${timeSlot.id}`}
-                                                        className="p-2 border bg-yellow-100 text-center cursor-pointer"
-                                                        onClick={() =>
-                                                            handleSubjectSelect(
-                                                                subject
-                                                            )
-                                                        }
-                                                    >
-                                                        <div className="font-semibold">
-                                                            {
-                                                                subject.subject_code
-                                                            }
-                                                        </div>
-                                                        <div className="text-xs text-gray-600">
-                                                            {
-                                                                subject.room_number
-                                                            }
-                                                        </div>
-                                                        <div className="text-xs text-gray-600">
-                                                            {
-                                                                subject.section_name
-                                                            }
-                                                        </div>
-                                                    </td>
-                                                );
-                                            } else {
-                                                return (
-                                                    <td
-                                                        key={`${day}-${timeSlot.id}`}
-                                                        className="p-2 border"
-                                                    ></td>
-                                                );
-                                            }
-                                        })}
+                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {schedule.repo_name}
+                                        </td>
+                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <button
+                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                onClick={() =>
+                                                    handleClickView(schedule)
+                                                }
+                                            >
+                                                <EyeIcon className="w-6 h-6 mr-1 inline" />
+                                                View
+                                            </button>
+                                            <button
+                                                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-2"
+                                                onClick={() =>
+                                                    handlePublish(schedule.id)
+                                                }
+                                            >
+                                                <CheckCheckIcon className="w-6 h-6 mr-1 inline" />
+                                                Publish
+                                            </button>
+                                            <button
+                                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
+                                                onClick={() =>
+                                                    handleReject(schedule.id)
+                                                }
+                                            >
+                                                <XIcon className="w-6 h-6 mr-1 inline" />
+                                                Reject
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                </div>
+                )}
 
-                {showFeedbackPopup && selectedSubject && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                        <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
-                            <div className="flex justify-between items-center mb-2">
-                                <h2 className="text-xl font-semibold">
-                                    Selected Subject
-                                </h2>
-                                <div className="bg-gray-200 px-3 py-1 rounded-full text-sm">
-                                    Feedback remaining: {feedbackRemaining}
-                                </div>
+                {archiveModal && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+                        <div className="bg-white w-[50rem] h-[80vh] overflow-y-auto rounded-lg shadow-lg p-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <select
+                                    id="departmentFilter"
+                                    value={selectedDepartment}
+                                    onChange={(e) =>
+                                        setSelectedDepartment(e.target.value)
+                                    }
+                                    className="mt-1 block w-[15rem] border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                >
+                                    <option value="">All Departments</option>
+                                    {[
+                                        ...new Set(
+                                            archives.map(
+                                                (s) => s.department_short_name
+                                            )
+                                        ),
+                                    ].map((department, idx) => (
+                                        <option key={idx} value={department}>
+                                            {department}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button onClick={handleClickArchives}>
+                                    <XIcon className="w-6 h-6 mr-1 inline" />
+                                </button>
                             </div>
-
-                            <div className="mb-4">
-                                <p className="font-semibold">
-                                    {selectedSubject.subject_code} -{" "}
-                                    {selectedSubject.subject_name}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    {getDayAbbreviation(
-                                        selectedSubject.day_slot
+                            <table className="w-2/3 table-auto max-h-[60vh] overflow-y-auto border-collapse border border-gray-300">
+                                <thead className="bg-gray-200">
+                                    <tr>
+                                        <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Department
+                                        </th>
+                                        <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Class Schedule Name
+                                        </th>
+                                        <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Action
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredArchives.map((schedule) => (
+                                        <tr
+                                            key={schedule.id}
+                                            className="hover:bg-gray-100"
+                                        >
+                                            <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {schedule.department_short_name}
+                                            </td>
+                                            <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {schedule.repo_name}
+                                            </td>
+                                            <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {schedule.status
+                                                    ? "Approved"
+                                                    : "Rejected"}
+                                            </td>
+                                            <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                <button
+                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                    onClick={() =>
+                                                        handleClickView(
+                                                            schedule
+                                                        )
+                                                    }
+                                                >
+                                                    <EyeIcon className="w-6 h-6 mr-1 inline" />
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {loading && (
+                                        <tr>
+                                            <td
+                                                colSpan={4}
+                                                className="text-center py-4"
+                                            >
+                                                Loading...
+                                            </td>
+                                        </tr>
                                     )}
-                                    , {getSubjectTimeDisplay(selectedSubject)}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    Room: {selectedSubject.room_number} |
-                                    Section: {selectedSubject.section_name}
-                                </p>
-                            </div>
-
-                            <textarea
-                                placeholder="Request..."
-                                className="p-2 border rounded-lg w-full h-32 mb-4"
-                                value={feedbackText}
-                                onChange={(e) =>
-                                    setFeedbackText(e.target.value)
-                                }
-                            />
-
-                            <div className="flex justify-center space-x-4">
-                                <button
-                                    onClick={handleSubmitFeedback}
-                                    className="bg-green-500 text-white py-2 px-8 rounded-full"
-                                >
-                                    Submit
-                                </button>
-                                <button
-                                    onClick={handleCancelFeedback}
-                                    className="bg-red-500 text-white py-2 px-8 rounded-full"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
+                                    {!loading &&
+                                        filteredArchives.length === 0 && (
+                                            <tr>
+                                                <td
+                                                    colSpan={4}
+                                                    className="text-center py-4"
+                                                >
+                                                    No schedules available.
+                                                </td>
+                                            </tr>
+                                        )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )}
+                {viewModal &&
+                    ((viewGeneratedSchedule?.schedules ?? []).length > 0 ? (
+                        <div className="flex items-center justify-center fixed inset-0 z-50 bg-gray-800 bg-opacity-50">
+                            <div className="bg-white h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6">
+                                <div className="w-full flex justify-between items-center">
+                                    <h2 className="text-2xl font-bold mb-4">
+                                        Generated Schedule
+                                    </h2>
+                                    <button className="flex justify-center">
+                                        <XIcon
+                                            className="w-6 h-6 mr-1 inline"
+                                            onClick={() => setViewModal(false)}
+                                        />
+                                    </button>
+                                </div>
+                                <h2 className="inline">
+                                    {viewGeneratedSchedule?.repo_name}
+                                </h2>
+                                <h2 className="text-2xl font-bold mb-4">
+                                    Department:{" "}
+                                    {
+                                        viewGeneratedSchedule?.department_short_name
+                                    }
+                                </h2>
+                                <div>
+                                    <select
+                                        className="rounded-xl w-[10rem] mr-2"
+                                        value={selectedSection}
+                                        onChange={(e) =>
+                                            setSelectedSection(e.target.value)
+                                        }
+                                    >
+                                        <option value="">Select Section</option>
+                                        {[
+                                            ...new Set(
+                                                viewGeneratedSchedule?.schedules.map(
+                                                    (schedule) =>
+                                                        schedule.section_name
+                                                )
+                                            ),
+                                        ].map((section, idx) => (
+                                            <option key={idx} value={section}>
+                                                {section}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        className="rounded-xl w-[10rem] mr-2"
+                                        value={selectedInstructor}
+                                        onChange={(e) =>
+                                            setSelectedInstructor(
+                                                e.target.value
+                                            )
+                                        }
+                                    >
+                                        <option value="">
+                                            Select Instructor
+                                        </option>
+                                        {[
+                                            ...new Set(
+                                                viewGeneratedSchedule?.schedules.map(
+                                                    (schedule) =>
+                                                        schedule.instructor_name
+                                                )
+                                            ),
+                                        ].map((instructor, idx) => (
+                                            <option
+                                                key={idx}
+                                                value={instructor}
+                                            >
+                                                {instructor}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        className="rounded-xl w-[10rem] mr-2"
+                                        value={selectedDay}
+                                        onChange={(e) =>
+                                            setSelectedDay(e.target.value)
+                                        }
+                                    >
+                                        <option value="">Select Day</option>
+                                        {Object.values(DAY_MAPPING).map(
+                                            (day, idx) => (
+                                                <option key={idx} value={day}>
+                                                    {day}
+                                                </option>
+                                            )
+                                        )}
+                                    </select>
+                                    <select
+                                        className="rounded-xl w-[10rem] mr-2"
+                                        value={selectedRoom}
+                                        onChange={(e) =>
+                                            setSelectedRoom(e.target.value)
+                                        }
+                                    >
+                                        <option value="">Select Room</option>
+                                        {[
+                                            ...new Set(
+                                                viewGeneratedSchedule?.schedules.map(
+                                                    (schedule) =>
+                                                        schedule.room_number
+                                                )
+                                            ),
+                                        ].map((room, idx) => (
+                                            <option key={idx} value={room}>
+                                                {room}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="h-[60vh] overflow-y-auto mr-2 mt-4">
+                                    <table className="w-full table-auto border-collapse border border-gray-300">
+                                        <thead className="bg-gray-200">
+                                            <tr>
+                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Section
+                                                </th>
+                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Subject
+                                                </th>
+                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Day
+                                                </th>
+                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Time
+                                                </th>
+                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Instructor
+                                                </th>
+                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Room
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredSchedules?.map(
+                                                (schedule, idx) => (
+                                                    <tr
+                                                        key={idx}
+                                                        className="hover:bg-gray-100"
+                                                    >
+                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {
+                                                                schedule.section_name
+                                                            }
+                                                        </td>
+                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {
+                                                                schedule.subject_code
+                                                            }
+                                                        </td>
+                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {
+                                                                DAY_MAPPING[
+                                                                    schedule
+                                                                        .day_slot
+                                                                ]
+                                                            }
+                                                        </td>
+                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {
+                                                                schedule.time_start
+                                                            }{" "}
+                                                            -{" "}
+                                                            {schedule.time_end}
+                                                        </td>
+                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {
+                                                                schedule.instructor_name
+                                                            }
+                                                        </td>
+                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            {
+                                                                schedule.room_number
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button
+                                    className="mt-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                                    onClick={() => setViewModal(false)}
+                                >
+                                    <XIcon className="w-6 h-6 mr-1 inline" />
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="fixed inset-0 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg shadow-lg p-6">
+                                <h2 className="text-lg font-bold mb-4">
+                                    No Generated Schedule Available
+                                </h2>
+                                <button
+                                    className="mt-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                                    onClick={() => setViewModal(false)}
+                                >
+                                    <XIcon className="w-6 h-6 mr-1 inline" />
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    ))}
             </main>
         </Layout>
     );

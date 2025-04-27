@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('department_curriculums', function (Blueprint $table) {
             $table->id();
-            $table->string('department_short_name');
-            $table->string('program_short_name');
+            $table->unsignedBigInteger('departmentID');
+            $table->unsignedBigInteger('programID');
             $table->string('curriculum_name')->unique();
             
-            $table->foreign('program_short_name')
-                ->references('program_short_name')
+            $table->foreign('programID')
+                ->references('id')
                 ->on('program_offerings')
                 ->onDelete('cascade');
-            $table->foreign('department_short_name')
-                ->references('department_short_name')
+            $table->foreign('departmentID')
+                ->references('departmentID')
                 ->on('departments')
                 ->onDelete('cascade');
             $table->timestamps();

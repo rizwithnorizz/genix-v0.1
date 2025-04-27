@@ -1,6 +1,6 @@
 import Layout from "@/Components/ui/layout";
 import { useCallback, useEffect, useState } from "react";
-import { Bell, House, Network, Users, type LucideIcon } from "lucide-react";
+import { Bell, CalendarArrowDown, CalendarArrowUp, CalendarSyncIcon, House, Network, Users, type LucideIcon } from "lucide-react";
 import axios from "axios";
 import React from "react";
 
@@ -27,6 +27,7 @@ interface HeaderCount {
 interface Department {
     id: number;
     department_short_name: string;
+    logo_img_path: string;
 }
 
 interface Feedback {
@@ -43,14 +44,18 @@ interface FeedbackData {
 
 const SuperAdminDashboard: React.FC = () => {
     const [department, setDepartment] = useState<Department[] | null>(null);
+    const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+
     const fetchDepartments = async () => {
         try {
             const response = await axios.get("/admin/get-departments");
             setDepartment(response.data.data);
+            console.log("fetched data", response.data.data);
         } catch (error) {
             console.error("Error fetching departments:", error);
         }
     };
+
     const [news, setNews] = useState<News[]>([
         {
             id: 1,
@@ -96,6 +101,7 @@ const SuperAdminDashboard: React.FC = () => {
 
     const [roomCount, setRoomCount] = useState<number>(0);
     const [departmentCount, setDepartmentCount] = useState<number>(0);
+    const [scheduleForApprovalCount, setScheduleForApprovalCount] = useState<number>(0);
 
     const fetchRoomCount = async () => {
         try {
@@ -103,6 +109,7 @@ const SuperAdminDashboard: React.FC = () => {
             console.log("fetched data", response.data);
             setRoomCount(response.data.classrooms);
             setDepartmentCount(response.data.departments);
+            setScheduleForApprovalCount(response.data.schedules);
         } catch (error) {
             console.error("Error fetching room count:", error);
         }
@@ -118,6 +125,12 @@ const SuperAdminDashboard: React.FC = () => {
             console.error("Error fetching feedback:", error);
         }
     };
+
+    const filteredFeedback = feedbackCompile.filter(
+        (feedback) =>
+            !selectedDepartment ||
+            feedback.department_short_name === selectedDepartment
+    );
 
     useEffect(() => {
         fetchFeedback();
@@ -141,6 +154,13 @@ const SuperAdminDashboard: React.FC = () => {
             count: departmentCount,
             url: "/admin/departments",
         },
+        {
+            id: 3,
+            icon: CalendarArrowUp,
+            count: scheduleForApprovalCount,
+            desc: "Class Schedules Approval",
+            url: "/admin/schedules",
+        }
     ];
 
     const [isModal, setIsModal] = useState<boolean>(false);
@@ -189,7 +209,7 @@ const SuperAdminDashboard: React.FC = () => {
                                 <count.icon className="h-20 w-20" />
                             </div>
                             <div>
-                                <label className="text-lg">{count.desc}</label>
+                                <p className="text-lg overflow-hidden truncate text-ellipsis">{count.desc}</p>
                             </div>
                             <div>
                                 <label className="text-4xl font-bold">
@@ -199,6 +219,32 @@ const SuperAdminDashboard: React.FC = () => {
                         </div>
                         </a>
                     ))}
+                </div>
+
+                {/* Department Filter Dropdown */}
+                <div className="mb-4">
+                    <label
+                        htmlFor="departmentFilter"
+                        className="block text-sm font-medium text-gray-700"
+                    >
+                        Filter by Department
+                    </label>
+                    <select
+                        id="departmentFilter"
+                        value={selectedDepartment}
+                        onChange={(e) => setSelectedDepartment(e.target.value)}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                        <option value="">All Departments</option>
+                        {department?.map((dept, idx) => (
+                            <option
+                                key={idx}
+                                value={dept.department_short_name}
+                            >
+                                {dept.department_short_name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
@@ -214,7 +260,7 @@ const SuperAdminDashboard: React.FC = () => {
                                         <th className="p-2">Actions</th>
                                     </tr>
                                 </thead>
-                                {feedbackCompile.map((feedback, idx) => (
+                                {filteredFeedback.map((feedback, idx) => (
                                     <tbody key={idx}>
                                         <tr className="border-b">
                                             <td className="p-2">
@@ -279,13 +325,16 @@ const SuperAdminDashboard: React.FC = () => {
                     </div>
                 </div>
                 <div className="bg-white p-4 rounded-2xl shadow-lg col-span-1 ">
-                    <div className="p-5 grid grid-cols-4 md:grid-cols-5  gap-4 h-[200px] overflow-y-auto">
+                    <div className="p-5 grid grid-cols-4 md:grid-cols-3 lg:grid-cols-5  gap-4 h-[300px] overflow-y-auto">
                         {department?.map((dept, idx) => (
                             <div
                                 key={idx}
-                                className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-30"
+                                className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-full"
                             >
-                                <div className="bg-gray-200 w-16 h-16 rounded-full mb-2"></div>
+                                <img 
+                                    src={dept.logo_img_path}
+                                    alt="Department Logo"
+                                    className="h-[7rem] w-[7rem] rounded-full mb-2"/>
                                 <span>{dept.department_short_name}</span>
                             </div>
                         ))}

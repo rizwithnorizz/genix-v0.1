@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('instructor_feedback', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('instructor_id')->unsigned();
-            $table->string('subject_code');
-            $table->string('department_short_name');
+            $table->unsignedBigInteger('instructor_id')->unsigned();
+            $table->unsignedBigInteger('subjectID');
+            $table->unsignedBigInteger('departmentID');
             $table->boolean('status')->default(false);
             $table->string('feedback');
             $table->timestamps();
 
-            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
+            $table->foreign('departmentID')->references('departmentID')->on('departments')->onDelete('cascade');
             $table->foreign('instructor_id')->references('id')->on('instructors')->onDelete('cascade');
-            $table->foreign('subject_code')->references('subject_code')->on('subjects')->onDelete('cascade');
+            $table->foreign('subjectID')->references('id')->on('subjects')->onDelete('cascade');
 
         });
     }

@@ -8,8 +8,8 @@ class DepartmentCurriculum extends Model
 {
     protected $table = 'department_curriculums';
     protected $fillable = [
-        'department_short_name',
+        'departmentID',
         'curriculum_name',
-        'program_short_name',
+        'programID',
     ];
 }

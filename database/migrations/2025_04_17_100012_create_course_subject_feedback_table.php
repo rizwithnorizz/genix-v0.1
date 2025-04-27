@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('course_subject_feedback', function (Blueprint $table) {
             $table->id();
-            $table->string('section_name');
-            $table->string('department_short_name');
-            $table->string('subject_code');
+            $table->unsignedBigInteger('sectionID');
+            $table->unsignedBigInteger('departmentID');
+            $table->unsignedBigInteger('subjectID');
             $table->string('feedback');
             $table->boolean('status')->default(false);
 
-            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
-            $table->foreign('section_name')->references('section_name')->on('course_sections')->onDelete('cascade');
-            $table->foreign('subject_code')->references('subject_code')->on('course_subjects')->onDelete('cascade');
+            $table->foreign('departmentID')->references('departmentID')->on('departments')->onDelete('cascade');
+            $table->foreign('sectionID')->references('id')->on('course_sections')->onDelete('cascade');
+            $table->foreign('subjectID')->references('id')->on('course_subjects')->onDelete('cascade');
             $table->timestamps();
         });
     }

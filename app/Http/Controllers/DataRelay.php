@@ -12,6 +12,7 @@ use App\Models\DepartmentCurriculum;
 use App\Models\Schedules;
 use App\Models\Instructor;
 use App\Models\Departments;
+use App\Models\ScheduleRepo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -23,14 +24,14 @@ class DataRelay extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $department = auth()->user()->department_short_name;    
+        $department = auth()->user()->departmentID;    
         $feedback = DB::table('instructor_feedback')
-            ->where('department_short_name', $department)
+            ->where('departmentID', $department)
             ->where('status', true)
             ->select('id', 'feedback')
             ->union(
                 DB::table('course_subject_feedback')
-                    ->where('department_short_name', $department)
+                    ->where('departmentID', $department)
                     ->where('status', true)
                     ->select('id', 'feedback')
             )
@@ -48,10 +49,11 @@ class DataRelay extends Controller
         }
         $classrooms = Classroom::count();
         $departments = Departments::count();
-
+        $schedul_repo = ScheduleRepo::count();
         return response()->json([
             'classrooms' => $classrooms,
             'departments' => $departments,
+            'schedules' => $schedul_repo,
         ]);
     }
     public function getRoom()
@@ -86,9 +88,9 @@ class DataRelay extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $departmentRoom = DB::table('department_room')
-            ->where('department_room.department_short_name',$department)
-            ->join('classrooms', 'department_room.room_number', '=', 'classrooms.room_number')
-            ->select('department_room.*', 'classrooms.room_type')
+            ->where('department_room.departmentID',$department)
+            ->join('classrooms', 'department_room.roomID', '=', 'classrooms.id')
+            ->select('department_room.roomID', 'classrooms.room_number', 'classrooms.room_type')
             ->get();
         return response()->json([
             'name' => "department_room",
@@ -96,43 +98,19 @@ class DataRelay extends Controller
         ]);
     }
 
-    public function getCourseSubject()
-    {
-        if (!auth()->check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-        $courseSubject = DB::table('course_subjects')->get();
-        return response()->json([
-            'name' => "course_subject",
-            'data' => $courseSubject,
-        ]);
-    }
-
-    public function getSubjectInstructor()
-    {
-        if (!auth()->check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-        $subjectInstructor = subject_instructor::all();
-        return response()->json([
-            'name' => "subject_instructor",
-            'data' => $subjectInstructor,
-
-        ]);
-    }
 
     public function getCourseSections()
     {
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $userDepartmentShortName = auth()->user()->department_short_name;
+        $userDepartment = auth()->user()->departmentID;
         $courseSections = DB::table('course_sections')
-            ->join('program_offerings', 'course_sections.program_short_name', '=', 'program_offerings.program_short_name')
-            ->select('course_sections.*')
-            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
-                return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
+            ->join('program_offerings', 'course_sections.programID', '=', 'program_offerings.id')
+            ->when($userDepartment, function ($query, $userDepartment) {
+                return $query->where('program_offerings.departmentID', $userDepartment);
             })
+            ->select('course_sections.*', 'program_offerings.program_short_name as program_short_name')
             ->get();
         return response()->json([
             'name' => "course_sections",
@@ -145,16 +123,17 @@ class DataRelay extends Controller
         if (!auth()->check()) {
         return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $userDepartmentShortName = auth()->user()->department_short_name;
+        $userDepartment = auth()->user()->departmentID;
         $departmentCurriculum = DB::table('department_curriculums')
-            ->join('program_offerings', 'department_curriculums.program_short_name', '=', 'program_offerings.program_short_name')
+            ->join('program_offerings', 'department_curriculums.programID', '=', 'program_offerings.id')
             ->select('department_curriculums.*', 'program_offerings.*')
-            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
-                return $query->where('department_curriculums.department_short_name', $userDepartmentShortName);
+            ->when($userDepartment, function ($query, $userDepartment) {
+                return $query->where('department_curriculums.departmentID', $userDepartment);
             })
-            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
-                return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
+            ->when($userDepartment, function ($query, $userDepartment) {
+                return $query->where('program_offerings.departmentID', $userDepartment);
             })
+            ->select('department_curriculums.id as curriculumID', 'department_curriculums.curriculum_name', 'program_offerings.id as programID', 'program_offerings.program_short_name', 'program_offerings.program_name')
             ->get();
         \Log::info('Department Curriculum Data:', ['curriculum' => $departmentCurriculum]);
         return response()->json([
@@ -163,71 +142,164 @@ class DataRelay extends Controller
         ]);
     }
 
-    public function yearLevel(String $yearLevel)
-    {
-        if (!auth()->check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-        switch($yearLevel) {
-            case '1st':
-                return 1;
-            case '2nd':
-                return 2;
-            case '3rd':
-                return 3;
-            case '4th':
-                return 4;
-            default:
-                return null; 
-        }
-    }
-    
     public function getCourseSubjects(Request $request)
     {
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         $validator = Validator::make($request->all(), [
-            'program_short_name' => 'required|string',
-            'curriculum_name' => 'required|string',
+            'programID' => 'required|integer|exists:program_offerings,id',
+            'curriculumID' => 'required|integer|exists:department_curriculums,id',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-        $userDepartmentShortName = auth()->user()->department_short_name;
-        $programShortName = $request->input('program_short_name'); 
-        $curriculumName = $request->input('curriculum_name');
-        $courseSubjects = CourseSubject::join('program_offerings', 'course_subjects.program_short_name', '=', 'program_offerings.program_short_name')
-            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
-                return $query->where('program_offerings.department_short_name', $userDepartmentShortName);
+        $userDepartment = auth()->user()->departmentID;
+        $programID = $request->input('programID'); 
+        $curriculumID = $request->input('curriculumID');
+        $courseSubjects = CourseSubject::join('program_offerings', 'course_subjects.programID', '=', 'program_offerings.id')
+            ->when($userDepartment, function ($query, $userDepartment) {
+                return $query->where('program_offerings.departmentID', $userDepartment);
             })
-            ->when($programShortName, function ($query, $programShortName) {
-                return $query->where('course_subjects.program_short_name', $programShortName);
+            ->when($programID, function ($query, $programID) {
+                return $query->where('course_subjects.programID', $programID);
             })
-            ->when($curriculumName, function ($query, $curriculumName) {
-                return $query->where('course_subjects.curriculum_name', $curriculumName);
+            ->when($curriculumID, function ($query, $curriculumID) {
+                return $query->where('course_subjects.curriculumID', $curriculumID);
             })
-            ->join('subjects', 'course_subjects.subject_code', '=', 'subjects.subject_code')
+            ->join('subjects', 'course_subjects.subjectID', '=', 'subjects.id')
             ->select('subjects.*', 'course_subjects.*')
             ->get();
-
+        
+            \Log::error("dfddf");
         return response()->json([
             'name' => "course_subjects",
             'data' => $courseSubjects,
         ]);
     }
+    public function getArchivedSchedules()
+    {
+       $archived = DB::table('class_schedule_archives')
+        ->get();
+        $sections = DB::table('course_sections')->pluck('section_name', 'id');
+        $subjects = DB::table('subjects')->pluck('subject_code', 'id');
+        $rooms = DB::table('classrooms')->pluck('room_number', 'id');
+        $instructor = DB::table('instructors')->pluck('name', 'id');
+        $decodedSchedules = $archived->map(function ($archived) use ($sections, $subjects, $rooms, $instructor) {
+            $scheduleData = collect(json_decode($archived->schedule)); // Convert to Collection
+
+            $department_short_name = DB::table('departments')
+                ->where('departmentID', $archived->departmentID)
+                ->select('department_short_name')
+                ->get();
+            // Map over each entry in the schedule data
+            $scheduleArray = $scheduleData->map(function ($entry) use ($sections, $subjects, $rooms, $instructor) {
+                $entry->section_name = $sections[$entry->sectionID] ?? null;
+                $entry->instructor_name = $instructor[$entry->instructor_id] ?? null;
+                $entry->subject_code = $subjects[$entry->subjectID] ?? null;
+                $entry->room_number = $rooms[$entry->roomID] ?? null;
+                return $entry;
+            })->filter(function ($entry) {
+                return $entry->section_name && $entry->subject_code && $entry->room_number;
+            })->values()->all(); // Convert back to array and filter out null values
+            
+            return [
+                'id' => $archived->id,
+                'schedules' => $scheduleArray,
+                'repo_name' => $archived->repo_name,
+                'departmentID' => $archived->departmentID,
+                'department_short_name' => $department_short_name[0]->department_short_name,
+                'status' => $archived->status,
+            ];
+        });
+
+
+        return response()->json([
+            'name' => "schedules",
+            'data' => $decodedSchedules,
+        ]);
+    }
+    public function getPublishedSchedules()
+    {
+        $published = DB::table('schedules')
+        ->get();
+        $sections = DB::table('course_sections')->pluck('section_name', 'id');
+        $subjects = DB::table('subjects')->pluck('subject_code', 'id');
+        $rooms = DB::table('classrooms')->pluck('room_number', 'id');
+        $instructor = DB::table('instructors')->pluck('name', 'id');
+        $department = DB::table('departments')->pluck('department_short_name', 'departmentID');
+        $scheduleArray = $published->map(function ($entry) use ($sections, $subjects, $rooms, $instructor, $department) {
+            $entry->section_name = $sections[$entry->sectionID] ?? null;
+            $entry->instructor_name = $instructor[$entry->instructor_id] ?? null;
+            $entry->subject_code = $subjects[$entry->subjectID] ?? null;
+            $entry->room_number = $rooms[$entry->roomID] ?? null;
+            $entry->department_short_name = $department[$entry->departmentID] ?? null;
+            return $entry;
+        })->filter(function ($entry) {
+            return $entry->section_name && $entry->subject_code && $entry->room_number;
+        })->values()->all(); // Convert back to array and filter out null values
+
+        return response()->json([
+            'name' => "schedules",
+            'data' => $scheduleArray,
+        ]);
+    }
     public function getSchedules()
     {
+        \Log::error("User type: " . auth()->user()->user_type);
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $schedules = DB::table('schedule_repos')
-            ->where('department_short_name', auth()->user()->department_short_name)
+        if (auth()->user()->user_type == 1){
+            \Log::info('User is a department admin');
+            $schedulesRetrieve = DB::table('schedule_repos')
+            ->where('departmentID', auth()->user()->departmentID)
             ->get();
-        \Log::info('-----------------Schedules Data:', ['schedules' => $schedules]);
+        } else if (auth()->user()->user_type == 0) {
+            \Log::info('User is a super admin');
+            $schedulesRetrieve = DB::table('schedule_repos')
+            ->where('status', true)
+            ->get();
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $sections = DB::table('course_sections')->pluck('section_name', 'id');
+        $subjects = DB::table('subjects')->pluck('subject_code', 'id');
+        $rooms = DB::table('classrooms')->pluck('room_number', 'id');
+        $instructor = DB::table('instructors')->pluck('name', 'id');
+        $decodedSchedules = $schedulesRetrieve->map(function ($scheduleRetrieve) use ($sections, $subjects, $rooms, $instructor) {
+            $scheduleData = collect(json_decode($scheduleRetrieve->schedule)); // Convert to Collection
+
+            $department_short_name = DB::table('departments')
+                ->where('departmentID', $scheduleRetrieve->departmentID)
+                ->select('department_short_name')
+                ->get();
+            // Map over each entry in the schedule data
+            $scheduleArray = $scheduleData->map(function ($entry) use ($sections, $subjects, $rooms, $instructor) {
+                $entry->section_name = $sections[$entry->sectionID] ?? null;
+                $entry->instructor_name = $instructor[$entry->instructor_id] ?? null;
+                $entry->subject_code = $subjects[$entry->subjectID] ?? null;
+                $entry->room_number = $rooms[$entry->roomID] ?? null;
+                return $entry;
+            })->filter(function ($entry) {
+                return $entry->section_name && $entry->subject_code && $entry->room_number;
+            })->values()->all(); // Convert back to array and filter out null values
+            
+            return [
+                'id' => $scheduleRetrieve->id,
+                'schedules' => $scheduleArray,
+                'repo_name' => $scheduleRetrieve->repo_name,
+                'departmentID' => $scheduleRetrieve->departmentID,
+                'department_short_name' => $department_short_name[0]->department_short_name,
+                'status' => $scheduleRetrieve->status,
+            ];
+        });
+
+
         return response()->json([
             'name' => "schedules",
-            'data' => $schedules
+            'data' => $decodedSchedules,
         ]);
     }
 
@@ -236,9 +308,9 @@ class DataRelay extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $department = auth()->user()->department_short_name;
+        $department = auth()->user()->departmentID;
         $instructors = DB::table('instructors')
-            ->where('department_short_name', $department)   
+            ->where('departmentID', $department)   
             ->get();
         return response()   ->json([
             'name' => "instructors",
@@ -247,28 +319,16 @@ class DataRelay extends Controller
     }
 
 
-    public function getSubject()
-    {
-        if (!auth()->check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-        $subjects = Subject::all();
-        return response()->json([
-            'name' => "subjects",
-            'data' => $subjects
-        ]);
-    }
-
     public function getStudentFeedback()
     {
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $userDepartmentShortName = auth()->user()->department_short_name;
+        $userDepartment = auth()->user()->departmentID;
         $studentFeedback = DB::table('course_subject_feedback')
-        ->join('course_sections', 'course_subject_feedback.section_name', '=', 'course_sections.section_name')
-        ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
-            return $query->where('course_subject_feedback.department_short_name', $userDepartmentShortName);
+        ->join('course_sections', 'course_subject_feedback.sectionID', '=', 'course_sections.id')
+        ->when($userDepartment, function ($query, $userDepartment) {
+            return $query->where('course_subject_feedback.departmentID', $userDepartment);
         })
         ->select('course_subject_feedback.*', 'course_sections.section_name')
         ->get();    
@@ -284,11 +344,11 @@ class DataRelay extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $userDepartmentShortName = auth()->user()->department_short_name;
+        $userDepartment = auth()->user()->departmentID;
         $instructorFeedback = DB::table('instructor_feedback')
             ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
-            ->when($userDepartmentShortName, function ($query, $userDepartmentShortName) {
-                return $query->where('instructor_feedback.department_short_name', $userDepartmentShortName);
+            ->when($userDepartment, function ($query, $userDepartment) {
+                return $query->where('instructor_feedback.departmentID', $userDepartment);
             })
             ->select('instructor_feedback.*', 'instructors.name as name')
             ->get();
@@ -304,9 +364,9 @@ class DataRelay extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $department = auth()->user()->department_short_name;
+        $department = auth()->user()->departmentID;
         $instructors = Instructor::with(['subjects'])
-        ->where('department_short_name', $department)
+        ->where('departmentID', $department)
         ->get();
 
         return response()->json([
@@ -320,7 +380,7 @@ class DataRelay extends Controller
                     'initials' => $initials,
                     'subjects' => $instructor->subjects->map(function ($subject) {
                         return [
-                            'id' => $subject->id,
+                            'subjectID' => $subject->id,
                             'name' => $subject->name,
                             'subject_code' => $subject->subject_code,
                             'prof_sub' => $subject->prof_subject,
@@ -335,11 +395,11 @@ class DataRelay extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        $department = auth()->user()->department_short_name;
+        $department = auth()->user()->departmentID;
         $subjects = DB::table('subjects')
-            ->join('course_subjects', 'subjects.subject_code', '=', 'course_subjects.subject_code')
-            ->join('program_offerings', 'course_subjects.program_short_name', '=', 'program_offerings.program_short_name')
-            ->where('program_offerings.department_short_name', $department)
+            ->join('course_subjects', 'subjects.id', '=', 'course_subjects.subjectID')
+            ->join('program_offerings', 'course_subjects.programID', '=', 'program_offerings.id')
+            ->where('program_offerings.departmentID', $department)
             ->select('subjects.*')
             ->get();
 
@@ -361,18 +421,18 @@ class DataRelay extends Controller
                 'instructor_feedback.feedback as feedback',
                 'instructor_feedback.created_at as feedback_date',
                 'instructors.name as sender',
-                'instructors.department_short_name'
+                'instructors.departmentID'
             )
             ->get();
 
         $courseSectionFeedback = DB::table('course_subject_feedback')
             ->where('status', true)
-            ->join('course_sections', 'course_subject_feedback.section_name', '=', 'course_sections.section_name')
+            ->join('course_sections', 'course_subject_feedback.sectionID', '=', 'course_sections.id')
             ->select(
                 'course_subject_feedback.feedback as feedback',
                 'course_subject_feedback.created_at as feedback_date',
                 'course_sections.section_name as sender',
-                'course_subject_feedback.department_short_name'
+                'course_subject_feedback.departmentID'
             )
             ->get();
 
@@ -406,8 +466,8 @@ class DataRelay extends Controller
         }
         $departmentAdmins = DB::table('users')
             ->where('user_type', 1)
-            ->where('department_short_name', $department)
-            ->select('name', 'email', 'department_short_name', 'actualPassword as password')
+            ->where('departmentID', $department)
+            ->select('name', 'email', 'departmentID', 'actualPassword as password')
             ->get();
 
         return response()->json([

@@ -26,7 +26,7 @@ class S_02_UserTableSeeder extends Seeder
             'password' => 'password',
             'actualPassword' => 'password',
             'user_type' => 1, // Department Admin,
-            'department_short_name' => 'CICT',
+            'departmentID' => 1,
         ]);
 
         User::create([

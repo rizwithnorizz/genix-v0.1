@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('program_name');
             $table->string('program_short_name')->unique();
-            $table->string('department_short_name');
+            $table->unsignedBigInteger('departmentID');
             $table->timestamps();
             
-            $table->foreign('department_short_name')->references('department_short_name')->on('departments')->onDelete('cascade');
+            $table->foreign('departmentID')->references('departmentID')->on('departments')->onDelete('cascade');
         });
     }
 

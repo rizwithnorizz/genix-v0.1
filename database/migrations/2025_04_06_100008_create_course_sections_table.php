@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('course_sections', function (Blueprint $table) {
             $table->id();
             $table->string('section_name')->unique();
-            $table->string('program_short_name');
+            $table->unsignedBigInteger('programID');
             $table->integer('year_level');
-            $table->string('curriculum_name');
+            $table->unsignedBigInteger('curriculumID');
 
-            $table->foreign('program_short_name')
-                ->references('program_short_name')
+            $table->foreign('programID')
+                ->references('id')
                 ->on('program_offerings')
                 ->onDelete('cascade');
-            $table->foreign('curriculum_name')
-                ->references('curriculum_name')
+            $table->foreign('curriculumID')
+                ->references('id')
                 ->on('department_curriculums')
                 ->onDelete('cascade');
             $table->timestamps();

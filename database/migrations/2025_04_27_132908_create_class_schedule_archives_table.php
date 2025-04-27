@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('department_room', function (Blueprint $table) {
+        Schema::create('class_schedule_archives', function (Blueprint $table) {
             $table->id();
+            $table->json('schedule');
+            $table->string('repo_name');
             $table->unsignedBigInteger('departmentID');
-            $table->unsignedBigInteger('roomID');
+            $table->string('semester');
+            $table->boolean('status')->default(false);
+            $table->foreign('departmentID')
+                ->references('departmentID')
+                ->on('departments')
+                ->onDelete('cascade');
             $table->timestamps();
-            
-            $table->foreign('roomID')->references('id')->on('classrooms')->onDelete('cascade');
-            $table->foreign('departmentID')->references('departmentID')->on('departments')->onDelete('cascade');
         });
     }
 
@@ -27,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('department_room');
+        Schema::dropIfExists('class_schedule_archives');
     }
 };

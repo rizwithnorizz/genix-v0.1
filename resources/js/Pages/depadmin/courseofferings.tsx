@@ -6,8 +6,9 @@ import { Upload, Edit, Trash, Trash2, X } from "lucide-react";
 
 interface Curriculum {
     id: number;
-    department_short_name: string;
     curriculum_name: string;
+    curriculumID: number;
+    programID: number;
     program_name: string;
     program_short_name: string;
 }
@@ -15,6 +16,7 @@ interface Curriculum {
 interface Section {
     id: number;
     section_name: string;
+    programID: number;
     program_short_name: string;
     year_level: number;
     semester: string;
@@ -23,7 +25,8 @@ interface Section {
 interface CourseSubject {
     id: number;
     name: string;
-    program_short_name: string;
+    programID: number;
+    subjectID: number;
     subject_code: string;
     semester: string;
     year_level: number;
@@ -32,6 +35,7 @@ interface CourseSubject {
 }
 
 interface Subject {
+    id: number;
     name: string;
     prof_sub: boolean;
     room_req: number;
@@ -91,6 +95,7 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
+    {/*fetch section information*/}
     const [sections, setSections] = useState<Section[]>([]);
     const fetchSections = async () => {
         try {
@@ -102,12 +107,13 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
+    {/*fetch course subjects*/}
     const [courseSubjects, setCourseSubjects] = useState<CourseSubject[]>([]);
     const fetchCourseSubjects = async (request: Curriculum) => {
         try {
-            const response = await axios.post("/api/course-subject", {
-                program_short_name: request.program_short_name,
-                curriculum_name: request.curriculum_name,
+            const response = await axios.put("/api/course-subject", {
+                programID: request.programID,
+                curriculumID: request.curriculumID,
             });
             setCourseSubjects(response.data.data);
             console.log("Course Subjects: ", response.data.data);
@@ -224,8 +230,8 @@ const CourseOfferingsPage: React.FC = () => {
             };
             const response = axios.post("/api/section/create", {
                 section_name: sectionName,
-                program_short_name: selectedCurriculum?.program_short_name,
-                curriculum_name: selectedCurriculum?.curriculum_name,
+                programID: selectedCurriculum?.programID,
+                curriculumID: selectedCurriculum?.curriculumID,
                 year_level: yearLevelMap[yearLevelCourse],
             });
             fetchSections();
@@ -330,63 +336,41 @@ const CourseOfferingsPage: React.FC = () => {
                             </div>
 
                             <div className="overflow-x-auto">
-                                {curriculum.length === 0 ? (
-                                    <div className="flex justify-center items-center h-64">
-                                        <p className="text-gray-500">
-                                            No curriculum added yet.
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-50">
-                                            <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Curriculum
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Program
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Department
-                                                </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Actions
-                                                </th>
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Curriculum
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Program
+                                            </th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                        {curriculum.map((curr, idx) => (
+                                            <tr key={idx} className="hover:bg-gray-50">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {curr.curriculum_name}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {curr.program_name}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <button
+                                                        onClick={() => handleShowCurriculumCourses(curr)}
+                                                        className="text-blue-600 hover:text-blue-900"
+                                                    >
+                                                        View Curriculum
+                                                    </button>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
-                                            {curriculum.map((curr, idx) => (
-                                                <tr
-                                                    key={idx}
-                                                    className="hover:bg-gray-50"
-                                                >
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        {curr.curriculum_name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {curr.program_name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {curr.department_short_name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        <button
-                                                            onClick={() =>
-                                                                handleShowCurriculumCourses(
-                                                                    curr
-                                                                )
-                                                            }
-                                                            className="text-blue-600 hover:text-blue-900"
-                                                        >
-                                                            View Curriculum
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                )}
-
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     )}
@@ -944,7 +928,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                     setSelectedCurriculum(
                                                         curriculum.find(
                                                             (curr) =>
-                                                                curr.program_short_name ===
+                                                                curr.programID.toString() ===
                                                                 e.target.value
                                                         ) || null
                                                     )
@@ -956,13 +940,13 @@ const CourseOfferingsPage: React.FC = () => {
                                                         (curr, index, self) =>
                                                             self.findIndex(
                                                                 (item) =>
-                                                                    item.program_short_name ===
-                                                                    curr.program_short_name
+                                                                    item.programID ===
+                                                                    curr.programID
                                                             ) === index
                                                     )
-                                                    .map((curr) => (
+                                                    .map((curr, idx) => (
                                                         <option
-                                                            key={curr.id}
+                                                            key={idx}
                                                             value={
                                                                 curr.program_short_name
                                                             }
@@ -1015,14 +999,14 @@ const CourseOfferingsPage: React.FC = () => {
                                                                 "Year Level"
                                                             ) {
                                                                 return (
-                                                                    section.program_short_name ===
-                                                                    selectedCurriculum?.program_short_name
+                                                                    section.programID ===
+                                                                    selectedCurriculum?.programID
                                                                 );
                                                             }
                                                             return (
                                                                 (!selectedCurriculum ||
-                                                                    section.program_short_name ===
-                                                                    selectedCurriculum?.program_short_name) &&
+                                                                    section.programID ===
+                                                                    selectedCurriculum?.programID) &&
                                                                 (!selectedYearLevel ||
                                                                     section.year_level ===
                                                                     yearLevelMap[
@@ -1108,9 +1092,9 @@ const CourseOfferingsPage: React.FC = () => {
                                     className="appearance-none bg-gray-200 p-3 rounded-lg w-full"
                                 >
                                     <option>Curriculum</option>
-                                    {curriculum.map((curriculum, idx) => (
+                                    {curriculum.map((curriculum) => (
                                         <option
-                                            key={idx}
+                                            key={curriculum.curriculumID}
                                             value={curriculum.curriculum_name}
                                         >
                                             {curriculum.curriculum_name}

@@ -82,7 +82,7 @@ class ScheduleController extends Controller
 
             // Fetch current schedules
             $currentSchedules = DB::table('schedules')
-                ->where('department_short_name', $userDepartment)
+                ->where('departmentID', $userDepartment)
                 ->get();
 
             // Calculate available timeslots
@@ -145,8 +145,8 @@ class ScheduleController extends Controller
                         "time_start": "08:00",
                         "time_end": "09:30",
                         "day_slot": "Monday",
-                        "room_number": "R101",
-                        "section_name": "BSCS-1A",
+                        "roomID": "R101",
+                        "sectionID": "BSCS-1A",
                         "instructor": "Dr. Smith",
                         "department": "CS"
                     }
@@ -193,42 +193,43 @@ class ScheduleController extends Controller
     public function generateSchedule(Request $request)
     {
         try {
-            $userDepartment = auth()->user()->department_short_name;
+            $userDepartment = auth()->user()->departmentID;
             $semester = $request->input('semester');
             $repo_name = $request->input('school_year');
-            DB::table('schedules')->where('department_short_name', $userDepartment)->delete();
+            DB::table('schedules')->where('departmentID', $userDepartment)->delete();
             
-            $rooms = DepartmentRoom::where('department_short_name', $userDepartment)
-                ->join('classrooms', 'department_room.room_number', '=', 'classrooms.room_number')
-                ->select('department_room.room_number', 'classrooms.room_type')
+            $rooms = DepartmentRoom::where('departmentID', $userDepartment)
+                ->join('classrooms', 'department_room.roomID', '=', 'classrooms.id')
+                ->select('classrooms.id as roomID', 'classrooms.room_type', 'classrooms.room_number')
                 ->get();
             \Log::error('Rooms: ' . json_encode($rooms));
 
             
-            $instructors = Instructor::where('department_short_name', $userDepartment)->get();
+            $instructors = Instructor::where('departmentID', $userDepartment)->get();
             
             
             $programs = DB::table('program_offerings')
-                ->where('department_short_name', $userDepartment)
+                ->where('departmentID', $userDepartment)
                 ->get();
             \Log::error('Programs: ' . json_encode($programs));
             
             $courseSections = DB::table('course_sections')
-                ->whereIn('program_short_name', $programs->pluck('program_short_name'))
+                ->whereIn('programID', $programs->pluck('id'))
+                ->select('course_sections.id as sectionID', 'course_sections.section_name', 'course_sections.year_level', 'course_sections.curriculumID', 'course_sections.programID')
                 ->get();
             \Log::error('Course Sections: ' . json_encode($courseSections));
             
             $courseSubjects = DB::table('course_subjects')
-                ->whereIn('program_short_name', $programs->pluck('program_short_name'))
-                ->join('subjects', 'course_subjects.subject_code', '=', 'subjects.subject_code')
+                ->whereIn('programID', $programs->pluck('id'))
+                ->join('subjects', 'course_subjects.subjectID', '=', 'subjects.id')
                 ->where('course_subjects.semester', $semester)
-                ->select('course_subjects.*', 'subjects.name as subject_name', 'subjects.room_req', 'subjects.lec', 'subjects.lab', 'subjects.prof_subject')
+                ->select('course_subjects.*', 'subjects.subject_code' , 'subjects.name as subject_name', 'subjects.lec', 'subjects.lab', 'subjects.prof_subject')
                 ->get();
             \Log::error('Course Subjects: ' . json_encode($courseSubjects));
             
             $subjectInstructors = DB::table('subject_instructors')
                 ->join('subjects', 'subject_instructors.subject_code', '=', 'subjects.id')
-                ->select('subject_instructors.instructor_id', 'subjects.subject_code')
+                ->select('subject_instructors.*')
                 ->get();
             \Log::error('Subject Instructors: ' . json_encode($subjectInstructors));
             
@@ -253,29 +254,10 @@ class ScheduleController extends Controller
             DB::table('schedule_repos')->insert([
                 'schedule' => json_encode($bestSchedule),
                 'repo_name' => $repo_name . " " . "(created at " . date('Y-m-d') . " )",
-                'department_short_name' => $userDepartment,
+                'departmentID' => $userDepartment,
                 'semester' => $semester,
             ]);
-            DB::table('schedules')->where('department_short_name', $userDepartment)->delete();
-            
-            foreach ($bestSchedule as $item) {  
-                try {
-                    DB::table('schedules')->insert([
-                        'subject_code' => $item['subject_code'],
-                        'section_name' => $item['section_name'],
-                        'room_number' => $item['room_number'],
-                        'instructor_id' => $item['instructor_id'],
-                        'day_slot' => $item['day_slot'], 
-                        'time_start' => $item['time_start'],
-                        'time_end' => $item['time_end'],
-                        'department_short_name' => $userDepartment,
-                        'semester' => $semester,
-                    ]);
-                    \Log::info('Inserted Schedule: ' . json_encode($item));
-                } catch (\Exception $e) {
-                    \Log::error('Failed to insert schedule: ' . $e->getMessage());
-                }
-            }
+
             return response()->json([
                 'success' => true,
                 'data' => $bestSchedule,
@@ -305,9 +287,9 @@ class ScheduleController extends Controller
             foreach ($courseSections as $section) {
                 \Log::info('Processing Section: ' . json_encode($section));
                 $sectionSubjects = $courseSubjects->filter(function ($subject) use ($section) {
-                    return $subject->program_short_name === $section->program_short_name &&
+                    return $subject->programID === $section->programID &&
                         $subject->year_level === $section->year_level &&
-                        $subject->curriculum_name === $section->curriculum_name;
+                        $subject->curriculumID === $section->curriculumID;
                 });
                 \Log::info('Section Subjects: ' . json_encode($sectionSubjects));
 
@@ -319,32 +301,31 @@ class ScheduleController extends Controller
                     \Log::info('Eligible Instructors: ' . json_encode($eligibleInstructors));
 
                     if ($eligibleInstructors->isEmpty()) {
-                        \Log::warning('No eligible instructors for subject: ' . $subject->subject_code);
+                        \Log::warning('No eligible instructors for subject: ' . $subject->subjectID);
                         continue;
                     }
-
                     
                     $eligibleRooms = $this->getEligibleRooms($subject, $rooms);
                     \Log::info('Eligible Rooms: ' . json_encode($eligibleRooms));
 
                     if ($eligibleRooms->isEmpty()) {
-                        \Log::warning('No eligible rooms for subject: ' . $subject->subject_code);
+                        \Log::warning('No eligible rooms for subject: ' . $subject->subjectID);
                         continue;
                     }
 
-                    $instructorId = $eligibleInstructors->random()->id;
+                    $instructorId = $eligibleInstructors->random();
 
                     if ($subject->lec == 3 && $subject->lab == 0) {
-                        \Log::error("Lecture only subject: " . $subject->subject_code);
+                        \Log::error("Lecture only subject: " . $subject->subjectID);
                         
                         $daySlot1 = rand(1, 4); 
                         $daySlot2 = $daySlot1 + 1; 
 
-                        $availableTimeSlots1 = $this->getAvailableTimeSlots($eligibleRooms->first()->room_number, $daySlot1, $schedule, 3);
-                        $availableTimeSlots2 = $this->getAvailableTimeSlots($eligibleRooms->first()->room_number, $daySlot2, $schedule, 3);
+                        $availableTimeSlots1 = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlot1, $schedule, 3);
+                        $availableTimeSlots2 = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlot2, $schedule, 3);
 
                         if (empty($availableTimeSlots1) || empty($availableTimeSlots2)) {
-                            \Log::warning('No available time slots for subject: ' . $subject->subject_code);
+                            \Log::warning('No available time slots for subject: ' . $subject->subjectID);
                             continue;
                         }
 
@@ -353,43 +334,49 @@ class ScheduleController extends Controller
 
                         $roomLec = $eligibleRooms->filter(function ($room) {
                             return $room->room_type === 'Lecture';
-                        })->random()->room_number;
-
+                        })->random();
                         
                         $schedule[] = [
+                            'subjectID' => $subject->subjectID,
                             'subject_code' => $subject->subject_code,
                             'subject_name' => $subject->subject_name,
                             'time_start' => $timeSlot1['time_start'],
                             'time_end' => $timeSlot1['time_end'],
                             'day_slot' => $daySlot1,
-                            'room_number' => $roomLec,
+                            'roomID' => $roomLec->roomID,
+                            'room_number' => $roomLec->room_number,
+                            'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
-                            'instructor_id' => $instructorId,
+                            'instructor_id' => $instructorId->id,
+                            'instructor_name' => $instructorId->instructor_name,
                         ];
-
                         
                         $schedule[] = [
+                            'subjectID' => $subject->subjectID,
                             'subject_code' => $subject->subject_code,
                             'subject_name' => $subject->subject_name,
                             'time_start' => $timeSlot2['time_start'],
                             'time_end' => $timeSlot2['time_end'],
                             'day_slot' => $daySlot2,
-                            'room_number' => $roomLec,
+                            'roomID' => $roomLec->roomID,
+                            'room_number' => $roomLec->room_number,
+                            'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
-                            'instructor_id' => $instructorId,
+                            'instructor_id' => $instructorId->id,
+                            'instructor_name' => $instructorId->instructor_name,
                         ];
                     } elseif ($subject->lec > 0 && $subject->lab > 0) {
-                        \Log::info("Lecture and Lab subject: " . $subject->subject_code);
+                        \Log::info("Lecture and Lab subject: " . $subject->subjectID);
 
                         
                         $daySlotLec = rand(1, 3); 
                         $daySlotLab = rand($daySlotLec + 1, 5); 
 
                         
-                        $availableTimeSlotsLec = $this->getAvailableTimeSlots($eligibleRooms->first()->room_number, $daySlotLec, $schedule, 3);
+                        $availableTimeSlotsLec = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlotLec, $schedule, 3);
 
                         if (empty($availableTimeSlotsLec)) {
-                            \Log::warning('No available time slots for lecture: ' . $subject->subject_code);
+                            \Log::warning('No available time slots for lecture: ' . $subject->subjectID);
                             continue;
                         }
 
@@ -404,54 +391,68 @@ class ScheduleController extends Controller
 
                         $roomLec = $eligibleRooms->filter(function ($room) {
                             return $room->room_type === 'Lecture';
-                        })->random()->room_number;
+                        })->random();
 
                         $roomLab = $eligibleRooms->filter(function ($room) {
                             return $room->room_type === 'Laboratory';
-                        })->random()->room_number;
+                        })->random();
 
                         
                         $schedule[] = [
+                            'subjectID' => $subject->subjectID,
                             'subject_code' => $subject->subject_code,
                             'subject_name' => $subject->subject_name,
                             'time_start' => $timeSlotLec['time_start'],
                             'time_end' => $timeSlotLec['time_end'],
                             'day_slot' => $daySlotLec,
-                            'room_number' => $roomLec,
+                            'roomID' => $roomLec->roomID,
+                            'room_number' => $roomLec->room_number,
+                            'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
-                            'instructor_id' => $instructorId,
+                            'instructor_id' => $instructorId->id,
+                            'instructor_name' => $instructorId->instructor_name
                         ];
 
                         
                         $schedule[] = [
-                            'subject_code' => $subject->subject_code,
+                            'subjectID' => $subject->subjectID,
                             'subject_name' => $subject->subject_name,
+                            'subject_code' => $subject->subject_code,
                             'time_start' => $timeSlotLab['time_start'],
                             'time_end' => $timeSlotLab['time_end'],
                             'day_slot' => $daySlotLab,
-                            'room_number' => $roomLab,
+                            'roomID' => $roomLab->roomID,
+                            'room_number' => $roomLab->room_number,
+                            'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
-                            'instructor_id' => $instructorId,
+                            'instructor_id' => $instructorId->id,
+                            'instructor_name' => $instructorId->instructor_name
                         ];
-                    } else {
-                        $availableTimeSlots = $this->getAvailableTimeSlots($eligibleRooms->first()->room_number, $daySlot, $schedule, 4);
-
+                    } else if ($subject->lec == 2 && $subject->lab == 0 ){
+                        $daySlot = rand(1, 3); 
+                        \Log::error("PE Probably");
+                        $availableTimeSlots = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlot, $schedule, 4);
                         if (empty($availableTimeSlots)) {
-                            \Log::warning('No available time slots for subject: ' . $subject->subject_code);
+                            \Log::warning('No available time slots for subject: ' . $subject->subjectID);
                             continue;
                         }
+                        $roomEligible = $eligibleRooms->random();
 
                         $timeSlot = $availableTimeSlots[array_rand($availableTimeSlots)];
 
                         $schedule[] = [
-                            'subject_code' => $subject->subject_code,
+                            'subjectID' => $subject->subjectID,
                             'subject_name' => $subject->subject_name,
+                            'subject_code' => $subject->subject_code,
                             'time_start' => $timeSlot['time_start'],
                             'time_end' => $timeSlot['time_end'],
                             'day_slot' => $daySlot,
-                            'room_number' => $eligibleRooms->first()->room_number,
+                            'roomID' => $roomEligible->roomID,
+                            'room_number' => $roomEligible->roomID,
+                            'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
-                            'instructor_id' => $instructorId,
+                            'instructor_id' => $instructorId->id,
+                            'instructor_name' => $instructorId->instructor_name
                         ];
                     }
                 }
@@ -472,8 +473,6 @@ class ScheduleController extends Controller
             foreach ($population as $index => $schedule) {
                 \Log::error('calculating fitness', $schedule);
                 $fitnessScores[$index] = $this->calculateFitness($schedule, $courseSubjects, $courseSections, $rooms, $instructors);
-                
-                
                 if ($fitnessScores[$index] > $bestFitness) {
                     $bestFitness = $fitnessScores[$index];
                     $bestSchedule = $schedule;
@@ -509,7 +508,6 @@ class ScheduleController extends Controller
                     $child = $population[$parent1Index];
                     \Log::info('Child from Parent 1: ' . json_encode($child));
                 }
-            
                 $child = $this->mutate($child, $courseSubjects, $courseSections, $rooms, $instructors, $subjectInstructors);
                 \Log::info('Mutated Child: ' . json_encode($child));
             
@@ -554,7 +552,7 @@ class ScheduleController extends Controller
         $parent2BySections = [];
         
         foreach ($parent1 as $item) {
-            $section = $item['section_name'];
+            $section = $item['sectionID'];
             if (!isset($parent1BySections[$section])) {
                 $parent1BySections[$section] = [];
             }
@@ -562,7 +560,7 @@ class ScheduleController extends Controller
         }
         
         foreach ($parent2 as $item) {
-            $section = $item['section_name'];
+            $section = $item['sectionID'];
             if (!isset($parent2BySections[$section])) {
                 $parent2BySections[$section] = [];
             }
@@ -593,7 +591,7 @@ class ScheduleController extends Controller
     {
         $scheduleBySubject = [];
         foreach ($schedule as $index => $item) {
-            $key = $item['subject_code'] . '-' . $item['section_name'];
+            $key = $item['subjectID'] . '-' . $item['sectionID'];
             if (!isset($scheduleBySubject[$key])) {
                 $scheduleBySubject[$key] = [];
             }
@@ -604,7 +602,7 @@ class ScheduleController extends Controller
             if (mt_rand() / mt_getrandmax() < self::MUTATION_RATE) {
                 list($subjectCode, $sectionName) = explode('-', $key);
 
-                $subject = $courseSubjects->firstWhere('subject_code', $subjectCode);
+                $subject = $courseSubjects->firstWhere('subjectID', $subjectCode);
                 if (!$subject) continue;
 
                 $mutationType = 4 / mt_rand(1, 12);
@@ -614,9 +612,9 @@ class ScheduleController extends Controller
                         \Log::error("mutate room");
                         $eligibleRooms = $this->getEligibleRooms($subject, $rooms);
                         if (!$eligibleRooms->isEmpty()) {
-                            $newRoom = $eligibleRooms->random()->room_number;
+                            $newRoom = $eligibleRooms->random()->roomID;
                             foreach ($indices as $idx) {
-                                $schedule[$idx]['room_number'] = $newRoom;
+                                $schedule[$idx]['roomID'] = $newRoom;
                             }
                         }
                         break;
@@ -638,7 +636,7 @@ class ScheduleController extends Controller
                         $newDayLec = rand(1, 3); 
                         $newDayLab = rand($newDayLec + 1, 5); 
 
-                        $roomNumber = $schedule[$indices[0]]['room_number'];
+                        $roomNumber = $schedule[$indices[0]]['roomID'];
 
                         
                         $availableTimeSlotsLec = $this->getAvailableTimeSlots($roomNumber, $newDayLec, $schedule, 3);
@@ -653,7 +651,7 @@ class ScheduleController extends Controller
                             ];
 
                             foreach ($indices as $idx) {
-                                if ($schedule[$idx]['room_number'] === $roomNumber && $schedule[$idx]['day_slot'] === $newDayLec) {
+                                if ($schedule[$idx]['roomID'] === $roomNumber && $schedule[$idx]['day_slot'] === $newDayLec) {
                                     
                                     $schedule[$idx]['day_slot'] = $newDayLec;
                                     $schedule[$idx]['time_start'] = $newTimeSlotLec['time_start'];
@@ -684,15 +682,12 @@ class ScheduleController extends Controller
         $instructorConflicts = $this->countInstructorConflicts($schedule);
         $sectionConflicts = $this->countSectionConflicts($schedule);
         $instructorConsecutiveHours = $this->checkInstructorConsecutiveHours($schedule);
-        $labRoomAssignments = $this->checkLabRoomAssignments($schedule, $courseSubjects, $rooms);
         $distributionScore = $this->calculateDistributionScore($schedule);
-        
         
         $penaltyFactor -= ($roomConflicts * 0.2);
         $penaltyFactor -= ($instructorConflicts * 0.2);
         $penaltyFactor -= ($sectionConflicts * 0.2);
         $penaltyFactor -= ($instructorConsecutiveHours * 0.1);
-        $penaltyFactor -= ($labRoomAssignments * 0.1);
         
         
         $baseScore = count($schedule);
@@ -710,7 +705,7 @@ class ScheduleController extends Controller
         $roomUsage = [];
 
         foreach ($schedule as $item) {
-            $key = $item['room_number'] . '-' . $item['day_slot'];
+            $key = $item['roomID'] . '-' . $item['day_slot'];
             $timeStart = strtotime($item['time_start']);
             $timeEnd = strtotime($item['time_end']);
 
@@ -742,7 +737,6 @@ class ScheduleController extends Controller
     {
         $conflicts = 0;
         $instructorUsage = [];
-        
         foreach ($schedule as $item) {
             $key = $item['instructor_id'] . '-' . $item['time_start'] . '-' . $item['time_end']. '-' . $item['day_slot'];
             if (isset($instructorUsage[$key])) {
@@ -750,7 +744,6 @@ class ScheduleController extends Controller
             }
             $instructorUsage[$key] = true;
         }
-        
         return $conflicts;
     }
     
@@ -760,7 +753,7 @@ class ScheduleController extends Controller
         $sectionUsage = [];
         
         foreach ($schedule as $item) {
-            $key = $item['section_name'] . '-' . $item['time_start'] . '-' . $item['time_end'] . '-' . $item['day_slot'];
+            $key = $item['sectionID'] . '-' . $item['time_start'] . '-' . $item['time_end'] . '-' . $item['day_slot'];
             if (isset($sectionUsage[$key])) {
                 $conflicts++;
             }
@@ -819,33 +812,6 @@ class ScheduleController extends Controller
             }
         }
 
-        return $violations;
-    }
-    
-    private function checkLabRoomAssignments($schedule, $courseSubjects, $rooms)
-    {
-        $violations = 0;
-        $roomMap = [];
-        
-        foreach ($rooms as $room) {
-            $roomMap[$room->room_number] = $room->is_lab;
-        }
-        
-        foreach ($schedule as $item) {
-            $subject = $courseSubjects->firstWhere('subject_code', $item['subject_code']);
-            
-            if (!$subject) {
-                continue;
-            }
-            
-            $subjectNeedsLab = ($subject->room_req === 1);
-            $roomIsLab = $roomMap[$item['room_number']] ?? false;
-            
-            if ($subjectNeedsLab !== $roomIsLab) {
-                $violations++;
-            }
-        }
-        
         return $violations;
     }
     
@@ -913,10 +879,10 @@ class ScheduleController extends Controller
     private function getEligibleInstructors($subject, $instructors, $subjectInstructors)
     {
         $eligibleIds = $subjectInstructors
-            ->where('subject_code', $subject->subject_code)
+            ->where('subject_code', $subject->id)
             ->pluck('instructor_id')
             ->toArray();
-
+        \Log::error("hello: " . json_encode($instructors));
         return $instructors->filter(function ($instructor) use ($eligibleIds) {
             return in_array($instructor->id, $eligibleIds);
         });
@@ -958,7 +924,7 @@ class ScheduleController extends Controller
 
         
         foreach ($schedule as $item) {
-            if ($item['room_number'] === $roomNumber && $item['day_slot'] === $daySlot) {
+            if ($item['roomID'] === $roomNumber && $item['day_slot'] === $daySlot) {
                 $occupiedStart = strtotime($item['time_start']);
                 $occupiedEnd = strtotime($item['time_end']);
 
@@ -973,7 +939,7 @@ class ScheduleController extends Controller
 
         
         $occupiedTimeSlots = DB::table('schedules')
-            ->where('room_number', $roomNumber)
+            ->where('roomID', $roomNumber)
             ->where('day_slot', $daySlot)
             ->get(['time_start', 'time_end']);
 
@@ -1002,8 +968,8 @@ class ScheduleController extends Controller
                 'subject_code' => $item['subject_code'],
                 'time_slot' => $item['time_slot'],
                 'day_slot' => $item['day_slot'],
-                'room_number' => $item['room_number'],
-                'section_name' => $item['section_name'],
+                'roomID' => $item['roomID'],
+                'sectionID' => $item['sectionID'],
                 'instructor_id' => $item['instructor_id'],
                 'department_short_name' => $departmentShortName,
             ]);
@@ -1034,8 +1000,8 @@ class ScheduleController extends Controller
                 'time_start' => $schedule->time_start,
                 'time_end' => $schedule->time_end,
                 'day_slot' => self::DAYS[$schedule->day_slot],
-                'room_number' => $schedule->room_number,
-                'section_name' => $schedule->section_name,
+                'roomID' => $schedule->roomID,
+                'sectionID' => $schedule->sectionID,
                 'instructor' => $schedule->instructor_name,
                 'department' => $schedule->department_short_name,
             ];

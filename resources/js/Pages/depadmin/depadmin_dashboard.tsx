@@ -19,7 +19,6 @@ interface Instructor {
     name: string;
     initials: string;
 }
-
 interface Curriculum {
     id: number;
     department_short_name: string;
@@ -36,13 +35,15 @@ interface News {
 
 interface Schedule {
     id: number;
-    schedule: JSON;
     repo_name: string;
-    department_short_name: string;
+    departmentID: number;
+    semester: string;
+    schedules: GeneratedSchedule[];
     status: boolean;
 }
 
 interface GeneratedSchedule {
+    id: number;
     day_slot: number;
     instructor_id: number;
     subject_code: string;
@@ -105,6 +106,7 @@ const DepAdminDashboard: React.FC = () => {
     const fetchGeneratedSchedule = async () => {
         try {
             const response = await axios.get("/api/schedules/list");
+            console.log(response.data.data);
             setGeneratedSchedule(response.data.data);
         } catch (error) {
             console.error("Error fetching generated schedule:", error);
@@ -188,7 +190,15 @@ const DepAdminDashboard: React.FC = () => {
         fetchInstructors();
         fetchFeedback();
     });
-
+    const DAY_MAPPING: { [key: number]: string } = {
+        1: "Monday",
+        2: "Tuesday",
+        3: "Wednesday",
+        4: "Thursday",
+        5: "Friday",
+        6: "Saturday",
+        7: "Sunday",
+    };
     return (
         <Layout>
             <main>
@@ -223,9 +233,16 @@ const DepAdminDashboard: React.FC = () => {
                                             <button
                                                 className="bg-red-500 text-white hover:bg-red-700 rounded-xl p-2"
                                                 onClick={async () => {
+                                                    const confirmDelete = window.confirm("Are you sure you want to delete this schedule?");
+                                                    if (!confirmDelete) {
+                                                        return;
+                                                    }
                                                     try {
                                                         await axios.delete(
                                                             `/api/schedules/${schedule.id}/delete`
+                                                        );
+                                                        console.log(
+                                                            "Schedule deleted successfully: ", schedule.id
                                                         );
                                                         fetchGeneratedSchedule();
                                                     } catch (error) {
@@ -415,19 +432,17 @@ const DepAdminDashboard: React.FC = () => {
                                     <option value="">All Sections</option>
                                     {Array.from(
                                         new Set(
-                                            JSON.parse(
-                                                selectedSchedule.schedule as unknown as string
-                                            ).map(
-                                                (item: GeneratedSchedule) =>
-                                                    item.section_name
+                                            generatedSchedule?.flatMap(
+                                                (schedule) =>
+                                                    schedule.schedules.map(
+                                                        (item) =>
+                                                            item.section_name
+                                                    )
                                             )
                                         )
                                     ).map((sectionName, idx) => (
-                                        <option
-                                            key={idx}
-                                            value={sectionName as string}
-                                        >
-                                            {sectionName as string}
+                                        <option key={idx} value={sectionName}>
+                                            {sectionName}
                                         </option>
                                     ))}
                                 </select>
@@ -462,56 +477,47 @@ const DepAdminDashboard: React.FC = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {JSON.parse(
-                                            selectedSchedule.schedule as unknown as string
-                                        )
+                                        {selectedSchedule.schedules
                                             .filter(
-                                                (item: GeneratedSchedule) =>
+                                                (item) =>
                                                     !selectedSection ||
                                                     item.section_name ===
                                                         selectedSection
                                             )
-                                            .map(
-                                                (
-                                                    item: GeneratedSchedule,
-                                                    idx: number
-                                                ) => (
-                                                    <tr
-                                                        key={idx}
-                                                        className="hover:bg-gray-50"
-                                                    >
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {item.section_name}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {item.subject_code}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {item.room_number}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {item.day_slot}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {item.time_start}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {item.time_end}
-                                                        </td>
-                                                        <td className="border border-gray-300 px-4 py-2">
-                                                            {
-                                                                instructors?.find(
-                                                                    (
-                                                                        instructor
-                                                                    ) =>
-                                                                        instructor.id ===
-                                                                        item.instructor_id
-                                                                )?.name
-                                                            }
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            )}
+                                            .map((schedule, idx) => (
+                                                <tr
+                                                    key={idx}
+                                                    className="hover:bg-gray-50"
+                                                >
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {schedule.section_name}
+                                                    </td>
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {schedule.subject_code}
+                                                    </td>
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {schedule.room_number}
+                                                    </td>
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {DAY_MAPPING[schedule.day_slot] || "Unknown"}
+                                                    </td>
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {schedule.time_start}
+                                                    </td>
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {schedule.time_end}
+                                                    </td>
+                                                    <td className="border border-gray-300 px-4 py-2">
+                                                        {
+                                                            instructors?.find(
+                                                                (instructor) =>
+                                                                    instructor.id ===
+                                                                    schedule.instructor_id
+                                                            )?.name
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -558,13 +564,13 @@ const DepAdminDashboard: React.FC = () => {
                                         {Array.from(
                                             new Set(
                                                 viewGeneratedSchedule.map(
-                                                    (schedule) =>
-                                                        schedule.section_name
+                                                    (item) =>
+                                                        item.section_name
                                                 )
                                             )
-                                        ).map((sectionName) => (
+                                        ).map((sectionName, idx) => (
                                             <option
-                                                key={sectionName}
+                                                key={idx}
                                                 value={sectionName}
                                             >
                                                 {sectionName}
@@ -625,9 +631,7 @@ const DepAdminDashboard: React.FC = () => {
                                                                 }
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
-                                                                {
-                                                                    schedule.day_slot
-                                                                }
+                                                                {DAY_MAPPING[schedule.day_slot] || "Unknown"}
                                                             </td>
                                                             <td className="border border-gray-300 px-4 py-2">
                                                                 {
@@ -726,22 +730,27 @@ const DepAdminDashboard: React.FC = () => {
                                     </div>
                                     <div className="mt-5 flex items-center justify-center">
                                         {retrievedFeedback.length > 0 && (
-                                            <PrimaryButton className="w-1/2 bg-green-600 hover:bg-green-500 text-white flex justify-center rounded-lg"
+                                            <PrimaryButton
+                                                className="w-1/2 bg-green-600 hover:bg-green-500 text-white flex justify-center rounded-lg"
                                                 onClick={async () => {
                                                     try {
-                                                       const response = await axios.get(
-                                                            "/api/schedules/generate-from-feedback"
-                                                        );
+                                                        const response =
+                                                            await axios.get(
+                                                                "/api/schedules/generate-from-feedback"
+                                                            );
                                                         fetchGeneratedSchedule();
-                                                        console.log(response.data.data);
+                                                        console.log(
+                                                            response.data.data
+                                                        );
                                                         setViewFile(false);
-                                                    }
-                                                    catch (error) {
+                                                    } catch (error) {
                                                         console.error(
                                                             "Error generating schedule from feedback:",
                                                             error
                                                         );
-                                                        console.log("Error field");
+                                                        console.log(
+                                                            "Error field"
+                                                        );
                                                     }
                                                 }}
                                             >

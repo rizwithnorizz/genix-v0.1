@@ -10,7 +10,6 @@ class ProgramOfferings extends Model
     protected $fillable = [
         'program_name',
         'program_short_name',
-        'curriculum_name',
-        'department_short_name',
+        'departmentID',
     ];
 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\DataCreate;
 use App\Http\Controllers\DataUpdate;    
 
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
+Route::get("/api/schedules/instructor/published", [DataRelay::class, 'getPublishedSchedules']);
 
 Route::get('/', function () {
     return redirect('login');
@@ -33,7 +34,6 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::get('dep-admin/dashboard', [depadminPageController::class, 'dashboard'])->name('dep-dashboard');
     Route::get('dep-admin/courseOfferings', [depadminPageController::class, 'courseOfferings'])->name('depadmin.courseofferings');
     Route::get('dep-admin/instructors', [depadminPageController::class, 'instructors'])->name('depadmin.instructor');
-    Route::get('dep-admin/feedback', [depadminPageController::class, 'feedback'])->name('depadmin.feedback');
     Route::get('dep-admin/about', [depadminPageController::class, 'about'])->name('depadmin.about');
     Route::get('dep-admin/help', [depadminPageController::class, 'help'])->name('depadmin.help');
     
@@ -54,7 +54,7 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
 
     Route::get('/api/curriculum', [DataRelay::class, 'getDepartmentCurriculum'])->name('depadmin.curriculum');
     Route::get('/api/section', [DataRelay::class, 'getCourseSections'])->name('depadmin.sections');
-    Route::post('/api/course-subject', [DataRelay::class, 'getCourseSubjects'])->name('depadmin.course-subject');
+    Route::put('/api/course-subject', [DataRelay::class, 'getCourseSubjects'])->name('depadmin.course-subject');
 
     Route::post('/api/curriculum/upload', [DataCreate::class, 'uploadCurriculum'])->name('depadmin.upload-curriculum');
     Route::post('/api/curriculum/create', [DataCreate::class, 'createCurriculum'])->name('depadmin.create-curriculum');
@@ -103,13 +103,16 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::post('/api/create-room', [DataCreate::class, 'createRoom'])->name('admin.createRoom');
     Route::delete('/api/rooms/{roomID}/delete', [DataUpdate::class, 'deleteRoom'])->name('admin.deleteRoom');
     Route::post('admin/departments/{department}/assign-rooms', [DataCreate::class, 'assignRoomToDepartment'])->name('admin.assignRoom');
-    Route::delete('/admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteDepartmentRoom'])->name('admin.deleteRoom');
+    Route::delete('admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteDepartmentRoom'])->name('admin.deleteRoom');
     Route::delete('admin/deleteFeedback/{department}', [DataUpdate::class, 'deleteDepartmentFeedback'])->name('admin.delete-department');
     
-    
+    Route::get('/api/schedules/archives', [DataRelay::class, 'getArchivedSchedules'])->name('admin.archived-schedules');
+    Route::delete('/api/schedules/reject/{scheduleID}', [DataUpdate::class, 'deleteSchedule'])->name('admin.reject-schedule');
+    Route::get('/admin/schedules/list', [DataRelay::class, 'getSchedules'])->name('admin.schedules');
+    Route::post('/api/schedules/publish/{scheduleID}', [DataUpdate::class, 'publishSchedule'])->name('admin.publish-schedule');
     Route::delete('admin/departments/delete/{department}', [DataUpdate::class, 'deleteDepartment'])->name('admin.delete-department');
-    Route::delete('/admin/departments/admins/{email}', [DataUpdate::class, 'deleteDepartmentAdmin'])->name('admin.delete-department-admin');
-    Route::put('admin/departments/update/{department}', [DataUpdate::class, 'updateDepartment'])->name('admin.update-department');
+    Route::delete('admin/departments/admins/{email}', [DataUpdate::class, 'deleteDepartmentAdmin'])->name('admin.delete-department-admin');
+    Route::post('admin/departments/update/{departmentID}', [DataUpdate::class, 'updateDepartment'])->name('admin.update-department');
     Route::get('admin/departments/{department}/admins', [DataRelay::class, 'getDepartmentAdmins'])->name('admin.department-details');
     // Add more routes for super admin
 });
