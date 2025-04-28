@@ -205,7 +205,6 @@ const DepartmentPage: React.FC = () => {
             );
 
             fetchData();
-            setShowEditModal(false);
             console.log(response.data.message);
         } catch (error) {
             console.error("Error updating department:", error);

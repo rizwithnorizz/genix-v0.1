@@ -105,6 +105,18 @@ class DataUpdate extends Controller
                 'logo_img_path' => $logo_img_path,
             ]);
         }
+
+        if ($request->input('admin_name') != null && $request->input('admin_email') != null) {
+            DB::table('users')
+                ->insert([
+                'name' => $request->admin_name, 
+                'email' => $request->admin_email,
+                'password' => bcrypt($request->password),
+                'actualPassword' => $request->password,
+                'departmentID' => $departmentID,
+                'user_type' => 1,
+                ]);
+        }
         DB::table('departments')
             ->where('departmentID', $departmentID)
             ->update([
