@@ -14,7 +14,7 @@ class S_02_UserTableSeeder extends Seeder
     {
         User::create([
             'name' => 'superadmin',
-            'email' => 'admin@localhost',
+            'email' => 'admin@genix.com',
             'password' => 'password',
             'actualPassword' => 'password',
             'user_type' => 0, // Super Admin
@@ -22,7 +22,7 @@ class S_02_UserTableSeeder extends Seeder
 
         User::create([
             'name' => 'department admin',
-            'email' => 'depadmin@localhost',
+            'email' => 'depadmin@genix.com',
             'password' => 'password',
             'actualPassword' => 'password',
             'user_type' => 1, // Department Admin,

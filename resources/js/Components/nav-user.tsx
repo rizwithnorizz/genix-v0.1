@@ -84,14 +84,6 @@ export function NavUser({ user, isNavbar, btnClassName }: Props) {
             </>
           )}
             <DropdownMenuGroup>
-              <Dropdown.Link
-                href={route('logout')} //replace with Account
-                method="post"
-                as="button"
-                > 
-              <BadgeCheck />
-              Account
-            </Dropdown.Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <Dropdown.Link

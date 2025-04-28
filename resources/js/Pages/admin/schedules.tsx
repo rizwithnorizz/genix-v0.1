@@ -250,7 +250,7 @@ const SchedulePage: React.FC = () => {
 
                 {archiveModal && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
-                        <div className="bg-white w-[50rem] h-[80vh] overflow-y-auto rounded-lg shadow-lg p-6">
+                        <div className="bg-white w-[55rem] h-[80vh] overflow-y-auto rounded-lg shadow-lg p-6">
                             <div className="flex justify-between items-center mb-4">
                                 <select
                                     id="departmentFilter"
@@ -277,7 +277,7 @@ const SchedulePage: React.FC = () => {
                                     <XIcon className="w-6 h-6 mr-1 inline" />
                                 </button>
                             </div>
-                            <table className="w-2/3 table-auto max-h-[60vh] overflow-y-auto border-collapse border border-gray-300">
+                            <table className="w-2/3 table-auto max-h-[60vh] border-collapse border border-gray-300">
                                 <thead className="bg-gray-200">
                                     <tr>
                                         <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -303,7 +303,7 @@ const SchedulePage: React.FC = () => {
                                             <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {schedule.department_short_name}
                                             </td>
-                                            <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            <td className="text-center text-nowrap truncate px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {schedule.repo_name}
                                             </td>
                                             <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
