@@ -95,10 +95,6 @@ class DeepSeekClient
                 throw new \Exception('Invalid API response format');
             }
         } catch (\Exception $e) {
-            Log::error('DeepSeek API request failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
             throw $e;
         }
     }

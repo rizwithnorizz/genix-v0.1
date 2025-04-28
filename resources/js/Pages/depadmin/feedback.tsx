@@ -171,7 +171,7 @@ const Feedback: React.FC = () => {
                                                             }`}
                                                         >
                                                             {feedback.status
-                                                                ? "Resolved"
+                                                                ? "Approved"
                                                                 : "Pending"}
                                                         </button>
                                                     </td>

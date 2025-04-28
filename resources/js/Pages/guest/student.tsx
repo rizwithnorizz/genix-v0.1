@@ -112,7 +112,7 @@ const SchedulePage: React.FC = () => {
 
         <div className="gap-4 flex">
           <select
-            className="rounded-xl p-2 border border-gray-300"
+            className="w-[12rem] rounded-xl p-2 border border-gray-300"
             value={selectedDepartment}
             onChange={(e) => setSelectedDepartment(e.target.value)}
           >
@@ -127,7 +127,7 @@ const SchedulePage: React.FC = () => {
           </select>
 
           <select
-            className="rounded-xl p-2 border border-gray-300"
+            className="w-[10rem] rounded-xl p-2 border border-gray-300"
             value={selectedSection}
             onChange={(e) => setSelectedSection(e.target.value)}
             disabled={!selectedDepartment} // Disable if no department is selected

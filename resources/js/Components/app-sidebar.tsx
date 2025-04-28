@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import {
+  AppleIcon,
   AudioWaveform,
+  BadgeHelpIcon,
   BookOpen,
   Bot,
   BoxesIcon,
+  BriefcaseBusiness,
   CalendarCheck2,
   CalendarPlus2Icon,
   Command,
@@ -13,11 +16,14 @@ import {
   GalleryVerticalEnd,
   GroupIcon,
   HelpCircleIcon,
+  KeySquareIcon,
   LucideCalendarSync,
   LucideIcon,
   Map,
   MessageCircleQuestionIcon,
+  NotebookPen,
   PenIcon,
+  PenToolIcon,
   PieChart,
   Settings2,
   SquareTerminal,
@@ -117,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "Help",
                 url: "help",
-                icon: MessageCircleQuestionIcon,
+                icon: BadgeHelpIcon,
                 isCollapsible: false,
               },
               {
@@ -161,7 +167,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {
                 title: "Help",
                 url: "help",
-                icon: HelpCircleIcon,
+                icon: BadgeHelpIcon,
                 isCollapsible: false,
               },
               {
@@ -188,25 +194,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               title: "Student Schedule",
               url: "student",
-              icon: Settings2,
+              icon: NotebookPen,
               isCollapsible: false,
             },
             {
               title: "Instructor Schedule",
               url: "instructor",
-              icon: Settings2,
+              icon: AppleIcon,
               isCollapsible: false,
             },
             {
               title: "Login",
               url: "/login",
-              icon: Settings2,
+              icon: KeySquareIcon,
               isCollapsible: false,
             },
             {
               title: "About",
               url: "/   about",
-              icon: Settings2,
+              icon: BadgeHelpIcon,
               isCollapsible: false
             }
           ];

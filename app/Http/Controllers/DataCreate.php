@@ -271,9 +271,6 @@ class DataCreate extends Controller
             $fileName = $file->getClientOriginalName();
             
             $parsedData = $this->parseFileWithDeepSeek($fullPath, $fileExtension, $fileName, $fileSize);
-            \Log::error('Parsed data', [
-                'parsedData' => $parsedData
-            ]);
             if ($parsedData) {
                 $savedCurriculums = $parsedData;
 
