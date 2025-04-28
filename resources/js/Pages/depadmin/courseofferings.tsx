@@ -162,7 +162,6 @@ const CourseOfferingsPage: React.FC = () => {
 
     const [curriculumUploaded, setCurriculumUploaded] =
         useState<uploadedCurriculum | null>(null);
-    // Handle file selection
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setUploadedFile(e.target.files[0]);
@@ -170,7 +169,6 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
-    // Handle file upload
     const handleFileUpload = async () => {
         if (!uploadedFile) {
             setUploadError("Please select a file to upload");
@@ -295,7 +293,6 @@ const CourseOfferingsPage: React.FC = () => {
         }
         );
     };
-
     return (
         <Layout>
             <h1 className="font-bold text-2xl mb-4">Curriculum</h1>

@@ -21,6 +21,46 @@ use App\Models\DepartmentCurriculum;
 use App\Models\DepartmentRoom;
 class DataCreate extends Controller
 {
+
+    public function createStudentFeedback(Request $request)
+    {
+        $validated = $request->validate([
+            'sectionID' => 'required|integer|exists:course_sections,id',
+            'subjectID' => 'required|integer|exists:subjects,id',
+            'feedback' => 'required|string|max:255',
+            'departmentID' => 'required|integer|exists:departments,departmentID',
+        ]);
+        try {
+            // Check how many times the sectionID appears in the database
+            $feedbackCount = DB::table('course_subject_feedback')
+                ->where('sectionID', $validated['sectionID'])
+                ->count();
+    
+            if ($feedbackCount > 3) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Feedback limit reached for this section.'
+                ], 400);
+            }
+    
+            DB::table('course_subject_feedback')->insert([
+                'sectionID' => $validated['sectionID'],
+                'subjectID' => $validated['subjectID'],
+                'feedback' => $validated['feedback'],
+                'departmentID' => $validated['departmentID'],
+            ]);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Feedback submitted successfully'
+            ], 201);
+        }catch (error){
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting feedback: ' . $error->getMessage()
+            ], 500);
+        }
+    }
     public function assignRoomToDepartment(Request $request, $department)
     {
         \Log::error($request);
@@ -87,7 +127,7 @@ class DataCreate extends Controller
     }
     public function assignSubjectToInstructor(Request $request)
     {
-
+        \Log::error($request);
         // Validate request data
         $validator = Validator::make($request->all(), [
             'instructor_id' => 'required|exists:instructors,id',
@@ -125,7 +165,7 @@ class DataCreate extends Controller
         ], 201);
     }
     public function removeSubjectFromInstructor(Request $request)
-    {
+    {\Log::error($request);
         // Validate request data
         $validator = Validator::make($request->all(), [
             'instructor_id' => 'required|exists:instructors,id',

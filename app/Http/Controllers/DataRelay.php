@@ -19,6 +19,27 @@ use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
 
+    public function getInstructorCounts()
+    {
+        try {
+            // Query to count the number of instructors assigned to each subject
+            $instructorCounts = DB::table('subject_instructors')
+                ->select('subject_code', DB::raw('COUNT(instructor_id) as instructor_count'))
+                ->groupBy('subject_code')
+                ->get();
+
+            // Return the counts as a JSON response
+            return response()->json([
+                'success' => true,
+                'data' => $instructorCounts
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching instructor counts: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     public function getFeedbackAccumulate()
     {
         if (!auth()->check()) {
@@ -380,7 +401,7 @@ class DataRelay extends Controller
                     'initials' => $initials,
                     'subjects' => $instructor->subjects->map(function ($subject) {
                         return [
-                            'subjectID' => $subject->id,
+                            'id' => $subject->id,
                             'name' => $subject->name,
                             'subject_code' => $subject->subject_code,
                             'prof_sub' => $subject->prof_subject,

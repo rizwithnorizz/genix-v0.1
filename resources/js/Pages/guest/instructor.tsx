@@ -27,6 +27,10 @@ const SchedulePage: React.FC = () => {
   const [filteredSchedules, setFilteredSchedules] = useState<Schedule[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>('');
   const [searchInstructor, setSearchInstructor] = useState<string>('');
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<Schedule | null>(null);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackRemaining, setFeedbackRemaining] = useState(3); // Example value
 
   const fetchSchedule = async () => {
     try {
@@ -38,6 +42,29 @@ const SchedulePage: React.FC = () => {
       console.error('Error fetching schedule:', error);
     }
   };
+
+  const handleSubmitFeedback = async(schedule: Schedule) => {
+    console.log('Feedback submitted:', feedbackText);
+    try{
+      await axios.post('/api/feedback/student', {
+        sectionID: schedule.sectionID,
+        departmentID: schedule.departmentID,
+        subjectID: schedule.subjectID,
+        feedback: feedbackText,
+      });
+      console.log('Feedback submitted successfully');
+    }catch (error) {
+      console.error('Error submitting feedback:', error);
+    }
+    setShowFeedbackPopup(false);
+    setFeedbackText('');
+  };
+
+  const handleCancelFeedback = () => {
+    setShowFeedbackPopup(false);
+    setFeedbackText('');
+  };
+
   const DAY_MAPPING: { [key: number]: string } = {
     1: "Monday",
     2: "Tuesday",
@@ -46,12 +73,23 @@ const SchedulePage: React.FC = () => {
     5: "Friday",
     6: "Saturday",
     7: "Sunday",
-};
+  };
+
+  const groupedSchedules = Object.keys(DAY_MAPPING).reduce((acc, day) => {
+    const daySchedules = filteredSchedules
+      .filter((schedule) => schedule.day_slot === parseInt(day))
+      .sort((a, b) => a.time_start.localeCompare(b.time_start));
+    acc[day] = daySchedules;
+    return acc;
+  }, {} as { [key: string]: Schedule[] });
 
   useEffect(() => {
     fetchSchedule();
   }, []);
-
+  const handleScheduleClick = (schedule: Schedule) => {
+    setSelectedSubject(schedule);
+    setShowFeedbackPopup(true);
+  };
   // Filter schedules based on department and instructor name
   useEffect(() => {
     const filtered = schedules.filter((schedule) => {
@@ -97,59 +135,108 @@ const SchedulePage: React.FC = () => {
 
         {/* Schedule Table */}
         <div className="overflow-x-auto">
-          {selectedDepartment ? (
+          {selectedDepartment && searchInstructor ? (
             <table className="w-full table-auto border-collapse border border-gray-300 mt-4">
               <thead className="bg-gray-200">
                 <tr>
-                  <th className="px-4 py-2 border border-gray-300">Section</th>
-                  <th className="px-4 py-2 border border-gray-300">Subject</th>
-                  <th className="px-4 py-2 border border-gray-300">Day</th>
-                  <th className="px-4 py-2 border border-gray-300">Time</th>
-                  <th className="px-4 py-2 border border-gray-300">Instructor</th>
-                  <th className="px-4 py-2 border border-gray-300">Room</th>
+                  {Object.values(DAY_MAPPING).map((day) => (
+                    <th key={day} className="px-4 py-2 border border-gray-300">
+                      {day}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {filteredSchedules.map((schedule) => (
-                  <tr key={schedule.id} className="hover:bg-gray-100">
-                    <td className="px-4 py-2 border border-gray-300">
-                      {schedule.section_name}
+                <tr>
+                  {Object.keys(DAY_MAPPING).map((day) => (
+                    <td key={day} className="px-4 py-2 border border-gray-300 w-[10rem]  align-top">
+                      {groupedSchedules[day]?.length > 0 ? (
+                        groupedSchedules[day].map((schedule) => (
+                          <button key={schedule.id} className="mb-2 bg-gray-100 w-full" 
+                            onClick={() => handleScheduleClick(schedule)}>
+                            <p className="text-xl text-blue-500 font-semibold">
+                              {schedule.room_number}
+                            </p>
+                            <p className="font-semibold">
+                              {schedule.subject_code}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {schedule.instructor_name}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {schedule.time_start} - {schedule.time_end} 
+                            </p>
+                          </button>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">No schedules</p>
+                      )}
                     </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      {schedule.subject_code}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      {DAY_MAPPING[schedule.day_slot] || 'Unknown'}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      {schedule.time_start} - {schedule.time_end}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      {schedule.instructor_name}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      {schedule.room_number}
-                    </td>
-                  </tr>
-                ))}
-                {filteredSchedules.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="text-center px-4 py-2 border border-gray-300"
-                    >
-                      No schedules found.
-                    </td>
-                  </tr>
-                )}
+                  ))}
+                </tr>
               </tbody>
             </table>
           ) : (
             <div className="text-center mt-4 text-gray-500">
-              Please select a department to view schedules.
+              Please select a department and instructor to view schedules.
             </div>
           )}
         </div>
+
+        {/* Feedback Popup */}
+        {showFeedbackPopup && selectedSubject && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
+            <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="text-xl font-semibold">Create Feedback</h2>
+                <div className="bg-gray-200 px-3 py-1 rounded-full text-sm">
+                  Feedback remaining: {feedbackRemaining}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p >
+                  <h2>
+                    Subject: {selectedSubject.subject_code}
+                  </h2>
+                  <h2>Section: {selectedSubject.section_name}</h2> 
+                    Day: {DAY_MAPPING[selectedSubject.day_slot]}
+                  <h2>
+                    Room: {selectedSubject.room_number}
+                  </h2>
+                  <h2>
+                    Time: {selectedSubject.time_start} - {selectedSubject.time_end}
+                  </h2>
+                  <h2>
+                    Instructor: {selectedSubject.instructor_name}
+                  </h2>
+                </p>
+              </div>
+
+              <textarea
+                placeholder="Request..."
+                className="p-2 border rounded-lg w-full h-32 mb-4"
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+              />
+
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={() => handleSubmitFeedback(selectedSubject)}
+                  className="bg-green-500 text-white py-2 px-8 rounded-full"
+                >
+                  Submit
+                </button>
+                <button
+                  onClick={handleCancelFeedback}
+                  className="bg-red-500 text-white py-2 px-8 rounded-full"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </Layout>
   );

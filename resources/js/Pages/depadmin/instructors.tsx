@@ -17,6 +17,10 @@ interface Subject {
     prof_subject: boolean;
 }
 
+interface InstructorCount {
+    instructor_count: number;
+    subject_code: number;
+}
 const InstructorsPage: React.FC = () => {
     const [instructors, setInstructors] = useState<Instructor[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
@@ -63,7 +67,9 @@ const InstructorsPage: React.FC = () => {
     useEffect(() => {
         fetchInstructors();
         fetchAllSubjects();
-    }, []);
+        fetchInstructorCounts();
+    }, [
+        console.log("Instructors: ", instructors)]);
 
     const filteredInstructors = instructors.filter((i) =>
         i.name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -103,6 +109,7 @@ const InstructorsPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
+        fetchInstructorCounts();
     };
 
     const removeSubjectFromInstructor = async (
@@ -134,6 +141,7 @@ const InstructorsPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
+        fetchInstructorCounts();
     };
 
     const isSubjectAssigned = (subjectId: number) =>
@@ -194,6 +202,19 @@ const InstructorsPage: React.FC = () => {
     const [tab, setTab] = useState<string>("Professional Subjects");
     const handleTabChange = (newTab: string) => {
         setTab(newTab);
+    };
+
+    const [instructorCounts, setInstructorCounts] = useState<
+        InstructorCount[] | null>(null);
+    const fetchInstructorCounts = async () => {
+        try {
+            const response = await axios.get("/api/instructor-counts");
+            const counts = response.data.data; // Assuming the API returns an object with subjectID as keys and counts as values
+            setInstructorCounts(counts);
+            console.log("Instructor Counts: ", counts);
+        } catch (error) {
+            console.error("Error fetching instructor counts:", error);
+        }
     };
     return (
         <Layout>
@@ -268,7 +289,9 @@ const InstructorsPage: React.FC = () => {
                                     <button
                                         className="text-red-600 hover:underline"
                                         onClick={() =>
-                                            handleDeleteInstructor(instructor.id)
+                                            handleDeleteInstructor(
+                                                instructor.id
+                                            )
                                         }
                                     >
                                         Delete
@@ -278,7 +301,6 @@ const InstructorsPage: React.FC = () => {
                         ))}
                     </div>
                 )}
-
 
                 {/* Create Instructor Modal */}
                 {isCreateModalOpen && (
@@ -380,10 +402,11 @@ const InstructorsPage: React.FC = () => {
                                     onClick={() =>
                                         handleTabChange("Professional Subjects")
                                     }
-                                    className={`${tab === "Professional Subjects"
+                                    className={`${
+                                        tab === "Professional Subjects"
                                             ? "border-b-2 border-blue-500 font-semibold"
                                             : ""
-                                        } px-4 py-2`}
+                                    } px-4 py-2`}
                                 >
                                     Professional Subjects
                                 </button>
@@ -392,10 +415,11 @@ const InstructorsPage: React.FC = () => {
                                     onClick={() =>
                                         handleTabChange("General Subjects")
                                     }
-                                    className={`${tab === "General Subjects"
+                                    className={`${
+                                        tab === "General Subjects"
                                             ? "border-b-2 border-blue-500 font-semibold"
                                             : ""
-                                        } px-4 py-2`}
+                                    } px-4 py-2`}
                                 >
                                     {" "}
                                     General Subjects
@@ -410,12 +434,13 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
-                                                        subject.id
-                                                    )
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
+                                                            subject.id
+                                                        )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -440,6 +465,14 @@ const InstructorsPage: React.FC = () => {
                                                     <div className="text-xs text-gray-600">
                                                         {subject.name}
                                                     </div>
+                                                    <label className="justify-end flex">
+                                                        {instructorCounts?.filter(
+                                                            (count) =>
+                                                                count.subject_code ===
+                                                                subject.id
+                                                        )[0]
+                                                            ?.instructor_count || 0}
+                                                    </label>
                                                 </button>
                                             ))}
                                     </div>
@@ -453,12 +486,13 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
-                                                        subject.id
-                                                    )
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
+                                                            subject.id
+                                                        )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(

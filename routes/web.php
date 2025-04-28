@@ -16,6 +16,7 @@ use App\Http\Controllers\DataUpdate;
 
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
 Route::get("/api/schedules/instructor/published", [DataRelay::class, 'getPublishedSchedules']);
+Route::post('/api/feedback/student', [DataCreate::class, 'createStudentFeedback'])->name('student.feedback');
 
 Route::get('/', function () {
     return redirect('login');
@@ -71,6 +72,9 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::delete('/api/section/delete/{section}', [DataUpdate::class, 'deleteSection'])->name('depadmin.delete-section');
     Route::put('/api/section/update/{sectionID}', [DataUpdate::class, 'updateSection'])->name('depadmin.update-section');
 
+    
+
+    Route::get('/api/instructor-counts', [DataRelay::class, 'getInstructorCounts'])->name('admin.getInstructorCounts');
     //Route::get('dep-admin/course-sections', [/CourseSectionController::class, 'index'])->name('dep.course-sections');
     //Route::get('dep-admin/subjects', [SubjectController::class, 'index'])->name('dep.subjects');
     // Add more routes for department admin
@@ -105,7 +109,7 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::post('admin/departments/{department}/assign-rooms', [DataCreate::class, 'assignRoomToDepartment'])->name('admin.assignRoom');
     Route::delete('admin/departments/{department}/rooms/{room_number}', [DataUpdate::class, 'deleteDepartmentRoom'])->name('admin.deleteRoom');
     Route::delete('admin/deleteFeedback/{department}', [DataUpdate::class, 'deleteDepartmentFeedback'])->name('admin.delete-department');
-    
+
     Route::get('/api/schedules/archives', [DataRelay::class, 'getArchivedSchedules'])->name('admin.archived-schedules');
     Route::delete('/api/schedules/reject/{scheduleID}', [DataUpdate::class, 'deleteSchedule'])->name('admin.reject-schedule');
     Route::get('/admin/schedules/list', [DataRelay::class, 'getSchedules'])->name('admin.schedules');
