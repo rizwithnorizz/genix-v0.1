@@ -64,8 +64,8 @@ class ScheduleController extends Controller
     {
         $deepseek = new \App\Libraries\DeepSeekClient();
         
+        $userDepartment = auth()->user()->departmentID;
         try {
-            $userDepartment = auth()->user()->departmentID;
             
             // Fetch approved feedback from instructor_feedback and course_section_feedback
             $feedback = DB::table('instructor_feedback')
@@ -79,9 +79,10 @@ class ScheduleController extends Controller
                         ->select('id', 'sectionID',  'feedback', 'subjectID')
                 )
                 ->get();
-            $currentSchedules = DB::table('class_schedule_archives')
+            $currentSchedules = DB::table('schedules')
                 ->where('departmentID', $userDepartment)
-                ->first();
+                ->get();
+            \Log::error("Current schedule: " . json_encode($currentSchedules));
             $availableTimeSlots = [];
             foreach (self::DAYS as $daySlot => $dayName) { // Loop through days
                 foreach (self::TIME_SLOTS as $timeSlot => $timeRange) {
@@ -90,7 +91,7 @@ class ScheduleController extends Controller
 
                     $isAvailable = true; // Assume the slot is available
 
-                    $decodedSchedule = json_decode($currentSchedules->schedule);    
+                    $decodedSchedule = json_decode($currentSchedules);    
                     foreach ($decodedSchedule as $schedule) {
                         
                         if (
@@ -114,19 +115,20 @@ class ScheduleController extends Controller
             }
             // Compile data
             $feedbackJson = json_encode($feedback);
-            $currentSchedulesJson = json_encode($currentSchedules);
             $availableTimeSlotsJson = json_encode($availableTimeSlots);
             
-
             $prompt = <<<PROMPT
             Generate an optimized class schedule in valid JSON format (no markdown, no explanations). Follow the exact structure shown below.
 
             INPUT DATA:
             1. Feedback: {$feedbackJson}
-            2. Current Schedules: {$currentSchedulesJson}
+            2. Current Schedules: {$currentSchedules}
             3. Available Time Slots: {$availableTimeSlotsJson}
 
             CONSTRAINTS:
+            - Only adjust the subjects on the feedback.
+            - With the feedback's scheduleID, find the subject to adjust in the currentSchedules then ONLY ADJUST that.
+            - Find feasible and available time slots from availableTimeSlotsJson
             - Prioritize student feedback when assigning subjects.
             - Avoid double-booking rooms (same room/day/time).
             - Evenly distribute schedules across days and time slots per section.
@@ -136,25 +138,57 @@ class ScheduleController extends Controller
             {
                 "schedule": [
                     {
-                        "subject_code": "CS101",
-                        "subject_name": "Data Structures",
+                        "id": number, 
+                        "subjectID": number,
                         "time_start": "08:00",
                         "time_end": "09:30",
-                        "day_slot": "Monday",
-                        "roomID": "R101",
-                        "sectionID": "BSCS-1A",
-                        "instructor": "Dr. Smith",
-                        "department": "CS"
+                        "day_slot": number, 
+                        "roomID": string,
+                        "sectionID": number,
+                        "instructor_id": string,
+                        "departmentID": {$userDepartment}, //Do note change this
                     }
                 ]
             }
             PROMPT;
             
             $response = $deepseek->query($prompt)->run();
-            
+            \Log::error($response);
+            // Clean the response
             $cleanedResponse = preg_replace('/^```json|```$/m', '', trim($response));
             $scheduleArray = json_decode($cleanedResponse, true);
-            \Log::error('Generated Schedule: ' . json_encode($scheduleArray));
+
+            // Check for JSON decoding errors
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                \Log::error('JSON Decode Error: ' . json_last_error_msg());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to decode JSON response.',
+                    'error' => json_last_error_msg(),
+                ], 500);
+            }
+                
+            $semester = DB::table('course_subjects')
+                ->where('subjectID', $scheduleArray['schedule'][0]['subjectID'])
+                ->select('semester')
+                ->first();
+
+            DB::table('schedule_repos')->insert([
+                'schedule' => json_encode($scheduleArray['schedule']),
+                'repo_name' => "Generated Schedule from Feedback " . date('Y-m-d'),
+                'departmentID' => $userDepartment,
+                'semester' => $semester->semester,
+            ]);
+            \Log::error('magnetic');
+            DB::table('course_subject_feedback')
+                ->where('departmentID', $userDepartment)
+                ->where('status', true)
+                ->delete();
+            DB::table('instructor_feedback')
+                ->where('departmentID', $userDepartment)
+                ->where('status', true)
+                ->delete();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Schedule generated successfully from feedback.',
@@ -226,7 +260,7 @@ class ScheduleController extends Controller
             
             $subjectInstructors = DB::table('subject_instructors')
                 ->get();
-            
+            \Log::error("subject instructors: " . $subjectInstructors);
             
             $population = $this->initializePopulation(
                 $courseSubjects, 
@@ -874,7 +908,7 @@ class ScheduleController extends Controller
     private function getEligibleInstructors($subject, $instructors, $subjectInstructors)
     {
         $eligibleIds = $subjectInstructors
-            ->where('subject_code', $subject->id)
+            ->where('subject_code', $subject->subjectID)
             ->pluck('instructor_id')
             ->toArray();
         

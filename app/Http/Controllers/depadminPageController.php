@@ -29,6 +29,6 @@ class depadminPageController extends Controller
 
     public function help()
     {
-        return Inertia::render('help');
+        return Inertia::render('depadmin/help');
     }
 }

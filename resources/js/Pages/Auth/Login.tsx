@@ -41,7 +41,7 @@ export default function Login({
             ></video>
 
             <Head title="Log in" />
-            <div className="relative z-10 grid grid-cols-2 gap-4">
+            <div className="relative z-10 grid md:grid-cols-2 grid-cols-1 gap-4">
                 <div className="flex flex-col items-center ">
                     <div className="w-full">
                         <img

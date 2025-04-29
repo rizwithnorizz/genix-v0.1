@@ -48,6 +48,10 @@ const Feedback: React.FC = () => {
         type: "student" | "instructor",
         id: number
     ) => {
+        const confirm = window.confirm("Are you sure you want to approve this feedback?");
+        if (!confirm){
+            return;
+        }
         try {
             const endpoint = `/api/feedback/${type}/approve`;
             await axios.post(endpoint, {

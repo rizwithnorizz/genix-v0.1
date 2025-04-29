@@ -18,8 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('departmentID');
             $table->boolean('status')->default(false);
             $table->string('feedback');
+            $table->unsignedBigInteger('scheduleID');
             $table->timestamps();
 
+            $table->foreign('scheduleID')->references('id')->on('schedules')->onDelete('cascade');
             $table->foreign('departmentID')->references('departmentID')->on('departments')->onDelete('cascade');
             $table->foreign('instructor_id')->references('id')->on('instructors')->onDelete('cascade');
             $table->foreign('subjectID')->references('id')->on('subjects')->onDelete('cascade');

@@ -19,10 +19,18 @@ class DataUpdate extends Controller
             'semester' => $schedule->semester,
             'status' => 1,
         ]);
+
         $decodedSchedule = json_decode($schedule->schedule);
         foreach ($decodedSchedule as $item) {
-            \Log::error('Inserting schedule item: ' . json_encode($item));
-            DB::table('schedules')->insert([
+            if (!isset($item->id)) {
+                \Log::error('Inserting schedule item: ' . json_encode($item));
+                DB::table('schedules')->updateOrInsert([
+                'subjectID' => $item->subjectID,
+                'day_slot' => $item->day_slot,  
+                'roomID' => $item->roomID,
+                'departmentID' => $schedule->departmentID,
+                'semester' => $schedule->semester,
+                ], [
                 'subjectID' => $item->subjectID,
                 'time_start' => $item->time_start,
                 'time_end' => $item->time_end,
@@ -32,7 +40,22 @@ class DataUpdate extends Controller
                 'instructor_id' => $item->instructor_id,
                 'departmentID' => $schedule->departmentID,
                 'semester' => $schedule->semester,
-            ]);
+                ]);
+            } else {
+                \Log::error('Updating schedule item: ' . json_encode($item));
+                DB::table('schedules')->updateOrInsert([
+                'id' => $item->id,
+                ], [
+                'time_start' => $item->time_start,
+                'time_end' => $item->time_end,
+                'day_slot' => $item->day_slot,  
+                'roomID' => $item->roomID,
+                'sectionID' => $item->sectionID,
+                'instructor_id' => $item->instructor_id,
+                'departmentID' => $schedule->departmentID,
+                'semester' => $schedule->semester,
+                ]);
+            }
         }
         DB::table('schedule_repos')
             ->where('id', $scheduleID)

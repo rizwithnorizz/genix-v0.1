@@ -16,7 +16,7 @@ use App\Http\Controllers\DataUpdate;
 
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
 Route::get("/api/schedules/instructor/published", [DataRelay::class, 'getPublishedSchedules']);
-Route::post('/api/feedback/student', [DataCreate::class, 'createStudentFeedback'])->name('student.feedback');
+Route::post('/api/feedback/post', [DataCreate::class, 'createFeedback'])->name('feedback');
 
 Route::get('/', function () {
     return redirect('login');
@@ -126,5 +126,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/getusersidebar', [ProfileController::class, 'getUser']);
 });
 
+
+Route::post('/api/send-email', [EmailService::class, 'send'])->name('send.email');
 
 require __DIR__.'/auth.php';

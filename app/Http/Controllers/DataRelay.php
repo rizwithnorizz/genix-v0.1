@@ -70,7 +70,7 @@ class DataRelay extends Controller
         }
         $classrooms = Classroom::count();
         $departments = Departments::count();
-        $schedul_repo = ScheduleRepo::count();
+        $schedul_repo = ScheduleRepo::where('status', true)->count();
         return response()->json([
             'classrooms' => $classrooms,
             'departments' => $departments,
@@ -351,7 +351,8 @@ class DataRelay extends Controller
         ->when($userDepartment, function ($query, $userDepartment) {
             return $query->where('course_subject_feedback.departmentID', $userDepartment);
         })
-        ->select('course_subject_feedback.*', 'course_sections.section_name')
+        ->join('subjects', 'course_subject_feedback.subjectID', '=', 'subjects.id')
+        ->select('course_subject_feedback.*', 'course_sections.section_name', 'subjects.subject_code')
         ->get();    
         \Log::info('Student Feedback Data:', ['feedback' => $studentFeedback]);
         return response()->json([
@@ -371,6 +372,7 @@ class DataRelay extends Controller
             ->when($userDepartment, function ($query, $userDepartment) {
                 return $query->where('instructor_feedback.departmentID', $userDepartment);
             })
+            ->join('subjects', 'instructor_feedback.subjectID', '=', 'subjects.id')
             ->select('instructor_feedback.*', 'instructors.name as name')
             ->get();
 

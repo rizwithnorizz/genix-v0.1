@@ -46,15 +46,14 @@ const SchedulePage: React.FC = () => {
   const handleSubmitFeedback = async(schedule: Schedule) => {
     console.log('Feedback submitted:', feedbackText);
     try{
-      await axios.post('/api/feedback/student', {
-        sectionID: schedule.sectionID,
-        departmentID: schedule.departmentID,
-        subjectID: schedule.subjectID,
+      await axios.post('/api/feedback/post', {
+        sender: false,
+        scheduleID: schedule.id,
         feedback: feedbackText,
       });
-      console.log('Feedback submitted successfully');
+      window.alert('Feedback submitted successfully');
     }catch (error) {
-      console.error('Error submitting feedback:', error);
+      window.alert(error);
     }
     setShowFeedbackPopup(false);
     setFeedbackText('');
@@ -154,18 +153,18 @@ const SchedulePage: React.FC = () => {
                         groupedSchedules[day].map((schedule) => (
                           <button key={schedule.id} className="mb-2 bg-gray-100 w-full" 
                             onClick={() => handleScheduleClick(schedule)}>
-                            <p className="text-xl text-blue-500 font-semibold">
+                            <h2 className="text-xl text-blue-500 font-semibold">
                               {schedule.room_number}
-                            </p>
-                            <p className="font-semibold">
+                            </h2>
+                            <h2 className="font-semibold">
                               {schedule.subject_code}
-                            </p>
-                            <p className="text-sm text-gray-600">
+                            </h2>
+                            <h2 className="text-sm text-gray-600">
                               {schedule.instructor_name}
-                            </p>
-                            <p className="text-sm text-gray-600">
+                            </h2>
+                            <h2 className="text-sm text-gray-600">
                               {schedule.time_start} - {schedule.time_end} 
-                            </p>
+                            </h2>
                           </button>
                         ))
                       ) : (

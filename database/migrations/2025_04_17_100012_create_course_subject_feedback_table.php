@@ -17,8 +17,10 @@ return new class extends Migration
             $table->unsignedBigInteger('departmentID');
             $table->unsignedBigInteger('subjectID');
             $table->string('feedback');
+            $table->unsignedBigInteger('scheduleID');
             $table->boolean('status')->default(false);
 
+            $table->foreign('scheduleID')->references('id')->on('schedules')->onDelete('cascade');
             $table->foreign('departmentID')->references('departmentID')->on('departments')->onDelete('cascade');
             $table->foreign('sectionID')->references('id')->on('course_sections')->onDelete('cascade');
             $table->foreign('subjectID')->references('id')->on('course_subjects')->onDelete('cascade');

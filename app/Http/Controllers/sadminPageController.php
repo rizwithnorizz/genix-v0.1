@@ -31,7 +31,7 @@ class sadminPageController extends Controller
 
     public function help()
     {
-        return Inertia::render('help');
+        return Inertia::render('admin/help');
     }
 
     public function about()

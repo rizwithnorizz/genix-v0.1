@@ -94,12 +94,12 @@ const DepAdminDashboard: React.FC = () => {
                 semester: semester,
                 school_year: semester + " Semester: S.Y " + schoolYear,
             });
-            fetchGeneratedSchedule();
-            
             setViewGeneratedSchedule(response.data.data);
+            fetchGeneratedSchedule();
+
         } catch (error) {
             console.error("Error generating schedule:", error);
-        }finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -109,7 +109,7 @@ const DepAdminDashboard: React.FC = () => {
     const fetchGeneratedSchedule = async () => {
         try {
             const response = await axios.get("/api/schedules/list");
-            
+
             setGeneratedSchedule(response.data.data);
             console.log(response.data.data);
         } catch (error) {
@@ -182,7 +182,6 @@ const DepAdminDashboard: React.FC = () => {
         try {
             const response = await axios.get("/api/feedback/accumulate");
             setRetrievedFeedback(response.data.data);
-            
         } catch (error) {
             console.error("Error fetching feedback:", error);
         }
@@ -206,8 +205,9 @@ const DepAdminDashboard: React.FC = () => {
     };
     const groupedSchedules = Object.keys(DAY_MAPPING).reduce((acc, day) => {
         const daySchedules =
-            viewGeneratedSchedule?.flatMap((schedule) => schedule)
-            .filter(
+            viewGeneratedSchedule
+                ?.flatMap((schedule) => schedule)
+                .filter(
                     (schedule) =>
                         schedule.day_slot === parseInt(day) &&
                         (!selectedSection ||
@@ -220,18 +220,19 @@ const DepAdminDashboard: React.FC = () => {
 
     const scheduleFileView = Object.keys(DAY_MAPPING).reduce((acc, day) => {
         const daySchedules =
-          selectedSchedule?.schedules
-            .filter(
-              (schedule) =>
-                schedule.day_slot === parseInt(day) &&
-                (!selectedSection || schedule.section_name === selectedSection) // Filter by selectedSection
-            )
-            .sort((a, b) => a.time_start - b.time_start) || [];
+            selectedSchedule?.schedules
+                .filter(
+                    (schedule) =>
+                        schedule.day_slot === parseInt(day) &&
+                        (!selectedSection ||
+                            schedule.section_name === selectedSection) // Filter by selectedSection
+                )
+                .sort((a, b) => a.time_start - b.time_start) || [];
         acc[day] = daySchedules;
         return acc;
-      }, {} as { [key: string]: GeneratedSchedule[] });
+    }, {} as { [key: string]: GeneratedSchedule[] });
 
-      const [isLoading, setIsLoading] = useState<boolean>(false);   
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     return (
         <Layout>
@@ -512,47 +513,47 @@ const DepAdminDashboard: React.FC = () => {
                                                     >
                                                         {scheduleFileView[day]
                                                             ?.length > 0 ? (
-                                                                scheduleFileView[
+                                                            scheduleFileView[
                                                                 day
                                                             ].map(
                                                                 (schedule) => (
                                                                     <div
-                                                                            key={
-                                                                                schedule.id
+                                                                        key={
+                                                                            schedule.id
+                                                                        }
+                                                                        className="mb-2 bg-gray-100 p-2 rounded-lg shadow"
+                                                                    >
+                                                                        <p className="font-semibold">
+                                                                            {
+                                                                                schedule.subject_code
                                                                             }
-                                                                            className="mb-2 bg-gray-100 p-2 rounded-lg shadow"
-                                                                        >
-                                                                            <p className="font-semibold">
-                                                                                {
-                                                                                    schedule.subject_code
-                                                                                }
-                                                                            </p>
-                                                                            <p className="text-sm text-gray-600">
-                                                                                {
-                                                                                    schedule.time_start
-                                                                                }{" "}
-                                                                                -{" "}
-                                                                                {
-                                                                                    schedule.time_end
-                                                                                }{" "}
-                                                                                Room:{" "}
-                                                                                {
-                                                                                    schedule.room_number
-                                                                                }
-                                                                            </p>
-                                                                            <p className="text-sm text-gray-600">
-                                                                                Instructor:{" "}
-                                                                                {instructors?.find(
-                                                                                    (
-                                                                                        instructor
-                                                                                    ) =>
-                                                                                        instructor.id ===
-                                                                                        schedule.instructor_id
-                                                                                )
-                                                                                    ?.name ||
-                                                                                    "Unknown"}
-                                                                            </p>
-                                                                        </div>
+                                                                        </p>
+                                                                        <p className="text-sm text-gray-600">
+                                                                            {
+                                                                                schedule.time_start
+                                                                            }{" "}
+                                                                            -{" "}
+                                                                            {
+                                                                                schedule.time_end
+                                                                            }{" "}
+                                                                            Room:{" "}
+                                                                            {
+                                                                                schedule.room_number
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-sm text-gray-600">
+                                                                            Instructor:{" "}
+                                                                            {instructors?.find(
+                                                                                (
+                                                                                    instructor
+                                                                                ) =>
+                                                                                    instructor.id ===
+                                                                                    schedule.instructor_id
+                                                                            )
+                                                                                ?.name ||
+                                                                                "Unknown"}
+                                                                        </p>
+                                                                    </div>
                                                                 )
                                                             )
                                                         ) : (
@@ -648,9 +649,9 @@ const DepAdminDashboard: React.FC = () => {
                                                 <tr>
                                                     {Object.keys(
                                                         DAY_MAPPING
-                                                    ).map((day) => (
+                                                    ).map((day, idx) => (
                                                         <td
-                                                            key={day}
+                                                            key={idx}
                                                             className="border border-gray-300 px-4 py-2 align-top"
                                                         >
                                                             {groupedSchedules[
@@ -713,12 +714,17 @@ const DepAdminDashboard: React.FC = () => {
                                         </table>
                                     </div>
                                 )}
-
                                 {/* Close Button */}
-                                <div className="flex justify-end mt-4">
+                                <div className="flex justify-between mt-4">
                                     <PrimaryButton
                                         onClick={handleGenerateScheduleClick}
-                                        className="bg-red-500 hover:bg-red-400 text-white py-2 px-4 rounded-lg"
+                                        className="bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded-lg"
+                                    >
+                                        Approve
+                                    </PrimaryButton>
+                                    <PrimaryButton
+                                        onClick={handleGenerateScheduleClick}
+                                        className="bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-lg"
                                     >
                                         Close
                                     </PrimaryButton>
@@ -793,8 +799,9 @@ const DepAdminDashboard: React.FC = () => {
                                                                 "/api/schedules/generate-from-feedback"
                                                             );
                                                         console.log(
-                                                            "Generated schedule from feedback:",        
-                                                            response.data.data);
+                                                            "Generated schedule from feedback:",
+                                                            response.data.data
+                                                        );
                                                         fetchGeneratedSchedule();
                                                         setViewGeneratedSchedule(
                                                             response.data.data
@@ -806,11 +813,13 @@ const DepAdminDashboard: React.FC = () => {
                                                             "Error generating schedule from feedback:",
                                                             error
                                                         );
-                                                    } finally{
+                                                    } finally {
                                                         setIsLoading(false);
                                                     }
                                                 }}
-                                                disabled={ isLoading ? true : false}
+                                                disabled={
+                                                    isLoading ? true : false
+                                                }
                                             >
                                                 Generate Class Schedule from
                                                 Feedback
@@ -821,11 +830,11 @@ const DepAdminDashboard: React.FC = () => {
                             </div>
                         </div>
                     ))}
-                    {isLoading && (
-                        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-30">
-                            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-100"></div>
-                        </div>
-                    )}
+                {isLoading && (
+                    <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-30">
+                        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-100"></div>
+                    </div>
+                )}
             </main>
         </Layout>
     );

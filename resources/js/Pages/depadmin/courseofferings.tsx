@@ -144,6 +144,8 @@ const CourseOfferingsPage: React.FC = () => {
             const response = axios.post("/api/curriculum/create", curriculum);
             console.log("Curriculum added: ", response);
             window.alert("Curriculum added!");
+            handleToggleCurriculumPopup();
+            fetchCurriculum();
         } catch (error) {
             console.error("Error adding curriculum:", error);
             window.alert("Curriculum added failed!");

@@ -21,34 +21,53 @@ use App\Models\DepartmentCurriculum;
 use App\Models\DepartmentRoom;
 class DataCreate extends Controller
 {
-
-    public function createStudentFeedback(Request $request)
+    public function createFeedback(Request $request)
     {
         $validated = $request->validate([
-            'sectionID' => 'required|integer|exists:course_sections,id',
-            'subjectID' => 'required|integer|exists:subjects,id',
             'feedback' => 'required|string|max:255',
-            'departmentID' => 'required|integer|exists:departments,departmentID',
+            'scheduleID' => 'required|integer|exists:schedules,id',
         ]);
+
         try {
-            // Check how many times the sectionID appears in the database
-            $feedbackCount = DB::table('course_subject_feedback')
-                ->where('sectionID', $validated['sectionID'])
-                ->count();
-    
-            if ($feedbackCount > 3) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Feedback limit reached for this section.'
-                ], 400);
+            $sched = DB::table('schedules')
+                ->where('id', $request->scheduleID)
+                ->first();
+            if ($request->input('sender')){
+                $feedbackCount = DB::table('course_subject_feedback')
+                    ->where('sectionID', $sched->sectionID)
+                    ->count();
+                if ($feedbackCount > 3) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Feedback limit reached for this section.'
+                    ], 400);
+                }
+                DB::table('course_subject_feedback')->insert([
+                    'scheduleID' => $request->input('scheduleID'),
+                    'sectionID' => $sched->sectionID,
+                    'subjectID' => $sched->subjectID,
+                    'feedback' => $validated['feedback'],
+                    'departmentID' => $sched->departmentID,
+                ]);
+            } else {
+                $feedbackCount = DB::table('instructor_feedback')
+                    ->where('instructor_id', $sched->instructor_id)
+                    ->count();
+                if ($feedbackCount > 3) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Feedback limit reached for this section.'
+                    ], 400);
+                }
+                DB::table('instructor_feedback')->insert([
+                    'scheduleID' => $request->input('scheduleID'),
+                    'instructor_id' => $sched->instructor_id,
+                    'subjectID' => $sched->subjectID,
+                    'feedback' => $validated['feedback'],
+                    'departmentID' => $sched->departmentID,
+                ]);
             }
-    
-            DB::table('course_subject_feedback')->insert([
-                'sectionID' => $validated['sectionID'],
-                'subjectID' => $validated['subjectID'],
-                'feedback' => $validated['feedback'],
-                'departmentID' => $validated['departmentID'],
-            ]);
+            
     
             return response()->json([
                 'success' => true,
@@ -204,7 +223,7 @@ class DataCreate extends Controller
         $validated = $request->validate([
             'department_short_name' => 'required|string|max:10|unique:departments,department_short_name',
             'department_full_name' => 'required|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo_img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         $logoPath = null;
         if ($request->hasFile('logo')) {
