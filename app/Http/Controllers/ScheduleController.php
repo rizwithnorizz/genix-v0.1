@@ -225,8 +225,6 @@ class ScheduleController extends Controller
             
             
             $subjectInstructors = DB::table('subject_instructors')
-                ->join('subjects', 'subject_instructors.subject_code', '=', 'subjects.id')
-                ->select('subject_instructors.*')
                 ->get();
             
             

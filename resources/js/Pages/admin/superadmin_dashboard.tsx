@@ -60,42 +60,22 @@ const SuperAdminDashboard: React.FC = () => {
         {
             id: 1,
             name: "Computer Science",
-            content: "Newly added department CENG",
+            content: "Approved Schedule for CICT",
         },
         {
             id: 2,
             name: "Information Technology",
-            content: "Newly added department CICT",
+            content: "New schedule request from CAS",
         },
         {
             id: 3,
             name: "Civil Engineering",
-            content: "Newly added department CIT",
+            content: "Approved Schedule for CAMS",
         },
         {
             id: 4,
             name: "Electrical Engineering",
-            content: "Newly added department CEE",
-        },
-        {
-            id: 5,
-            name: "Mechanical Engineering",
-            content: "Newly added department CEM",
-        },
-        {
-            id: 6,
-            name: "Electronics Engineering",
-            content: "Newly added department COE",
-        },
-        {
-            id: 7,
-            name: "Information Systems",
-            content: "Newly added department CIS",
-        },
-        {
-            id: 8,
-            name: "Software Engineering",
-            content: "Newly added department CSE",
+            content: "New schedule request from CICT",
         },
     ]);
 
@@ -126,11 +106,6 @@ const SuperAdminDashboard: React.FC = () => {
         }
     };
 
-    const filteredFeedback = feedbackCompile.filter(
-        (feedback) =>
-            !selectedDepartment ||
-            feedback.department_short_name === selectedDepartment
-    );
 
     useEffect(() => {
         fetchFeedback();
@@ -163,35 +138,6 @@ const SuperAdminDashboard: React.FC = () => {
         }
     ];
 
-    const [isModal, setIsModal] = useState<boolean>(false);
-    const [feeedbackModal, setFeedbackModal] = useState<boolean>(false);
-
-    const [selectedFeedback, setSelectedFeedback] = useState<Feedback[]>([]);
-    const handleViewFeedback = (feedback: Feedback[]) => {
-        setFeedbackModal(true);
-        setSelectedFeedback(feedback);
-        console.log("Viewing feedback:", feedback);
-    };
-
-    const handleApproveFeedback = (feedback: FeedbackData) => {
-        // Handle approving feedback
-        console.log("Approving feedback:", feedback);
-        // You can add your approval logic here
-    };
-    const handleRejectFeedback = async (department: string) => {
-        try{
-            const response = await axios.delete(`/admin/deleteFeedback/${department}`);
-            console.log("Rejecting feedback:", department);
-            console.log(response.data);
-            const updatedFeedback = feedbackCompile.filter( 
-                (f) => f.department_short_name !== department
-            );
-            setFeedback(updatedFeedback);   
-        } catch (error) {
-            console.error("Error rejecting feedback:", error);
-        }
-    };
-
     return (
         <Layout>
             <main className="col-span-3 space-y-4">
@@ -221,111 +167,10 @@ const SuperAdminDashboard: React.FC = () => {
                     ))}
                 </div>
 
-                {/* Department Filter Dropdown */}
-                <div className="mb-4">
-                    <label
-                        htmlFor="departmentFilter"
-                        className="block text-sm font-medium text-gray-700"
-                    >
-                        Filter by Department
-                    </label>
-                    <select
-                        id="departmentFilter"
-                        value={selectedDepartment}
-                        onChange={(e) => setSelectedDepartment(e.target.value)}
-                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    >
-                        <option value="">All Departments</option>
-                        {department?.map((dept, idx) => (
-                            <option
-                                key={idx}
-                                value={dept.department_short_name}
-                            >
-                                {dept.department_short_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
 
-                <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                    <div className="bg-white p-4 rounded-2xl shadow-lg col-span-1">
-                        <h2 className="font-semibold text-lg mb-2">
-                            Schedule-Change Requests
-                        </h2>
-                        <div className="h-[300px] overflow-y-auto">
-                            <table className="w-full text-center">
-                                <thead>
-                                    <tr className="border-b">
-                                        <th className="p-2">Department</th>
-                                        <th className="p-2">Actions</th>
-                                    </tr>
-                                </thead>
-                                {filteredFeedback.map((feedback, idx) => (
-                                    <tbody key={idx}>
-                                        <tr className="border-b">
-                                            <td className="p-2">
-                                                {feedback.department_short_name}
-                                            </td>
-                                            <td className="p-2 flex gap-4 flex justify-center">
-                                                <button
-                                                    onClick={() =>
-                                                        handleViewFeedback(
-                                                            feedback.feedbackData
-                                                        )
-                                                    }
-                                                    className="bg-blue-500 text-white py-1 px-3 rounded-lg"
-                                                >
-                                                    View
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        handleApproveFeedback(
-                                                            feedback
-                                                        )
-                                                    }
-                                                    className="bg-green-500 text-white py-1 px-3 rounded-lg"
-                                                >
-                                                    Approve
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        handleRejectFeedback(
-                                                            feedback.department_short_name
-                                                        )
-                                                    }
-                                                    className="bg-red-500 text-white py-1 px-3 rounded-lg"
-                                                >
-                                                    Reject
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                ))}
-                            </table>
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-4 rounded-2xl shadow-lg">
-                        <h2 className="font-semibold text-lg">News</h2>
-                        <div className=" h-[300px] overflow-y-auto">
-                            <div className="mt-5 space-y-4 h-[200px] s:h-70 ove rflow-y-auto">
-                                {news.map((news, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="bg-gray-800 text-white p-4 rounded-full flex justify-between items-center shadow relative"
-                                    >
-                                        <div className="flex items-center gap-5">
-                                            <Bell />
-                                            <span>{news.content}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
                 <div className="bg-white p-4 rounded-2xl shadow-lg col-span-1 ">
-                    <div className="p-5 grid grid-cols-4 md:grid-cols-3 lg:grid-cols-5  gap-4 h-[300px] overflow-y-auto">
+                    <div className="p-5 grid grid-cols-4 md:grid-cols-3 lg:grid-cols-5  gap-4 max-h-[300px] overflow-y-auto">
                         {department?.map((dept, idx) => (
                             <div
                                 key={idx}
@@ -345,60 +190,22 @@ const SuperAdminDashboard: React.FC = () => {
                         </button>
                     </a>
                 </div>
-                {feeedbackModal && selectedFeedback && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
-                            <h2 className="text-xl font-semibold mb-4">
-                                Feedback Details
-                            </h2>
-                            <div className="overflow-y-auto max-h-[400px]">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b">
-                                            <th className="p-2">Sender</th>
-                                            <th className="p-2">Feedback</th>
-                                            <th className="p-2">Date</th>
-                                            <th className="p-2">Department</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedFeedback.map(
-                                            (feedback, idx) => (
-                                                <tr
-                                                    key={idx}
-                                                    className="border-b"
-                                                >
-                                                    <td className="p-2">
-                                                        {feedback.sender}
-                                                    </td>
-                                                    <td className="p-2">
-                                                        {feedback.feedback}
-                                                    </td>
-                                                    <td className="p-2">
-                                                        {new Date(
-                                                            feedback.feedback_date
-                                                        ).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="p-2">
-                                                        {
-                                                            feedback.department_short_name
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <button
-                                onClick={() => setFeedbackModal(false)}
-                                className="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg"
-                            >
-                                Close
-                            </button>
+                <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-3 col-start-1 w-1/2 h-[300px] overflow-y-auto">
+                        <h2 className="font-semibold text-lg">News</h2>
+                        <div className="mt-5 space-y-4 h-[200px] s:h-70 overflow-y-auto">
+                            {news.map((news, idx) => (
+                                <div
+                                    key={idx}
+                                    className="bg-gray-800 text-white p-4 rounded-3xl flex justify-between items-center shadow relative"
+                                >
+                                    <div className="flex items-center gap-5">
+                                        <Bell />
+                                        <span>{news.content}</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                )}
             </main>
         </Layout>
     );
