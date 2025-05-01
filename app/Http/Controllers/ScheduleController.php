@@ -145,7 +145,7 @@ class ScheduleController extends Controller
                         "day_slot": number, 
                         "roomID": string,
                         "sectionID": number,
-                        "instructor_id": string,
+                        "instructor_id": number,
                         "departmentID": {$userDepartment}, //Do note change this
                     }
                 ]
@@ -719,11 +719,23 @@ class ScheduleController extends Controller
         $penaltyFactor -= ($instructorConsecutiveHours * 0.1);
         
         
+        $endOfDay = strtotime('18:00'); 
+        $timeConflicts = 0;
+
+        foreach ($schedule as $item) {
+            $timeEnd = strtotime($item['time_end']);
+            if ($timeEnd > $endOfDay) {
+                $timeConflicts++;
+            }
+        }
+
+        $penaltyFactor -= ($timeConflicts * 0.1); 
+
         $baseScore = count($schedule);
-        
-        
+
         $score = $baseScore + $distributionScore;
         $score *= max(0.1, $penaltyFactor); 
+
         return $score;
     }
     
@@ -983,6 +995,11 @@ class ScheduleController extends Controller
                 return $slotEnd <= $occupiedStart || $slotStart >= $occupiedEnd;
             });
         }
+
+        usort($availableTimeSlots, function ($a, $b) {
+            return strtotime($a['time_start']) <=> strtotime($b['time_start']);
+        });
+        
         return array_values($availableTimeSlots);
     }
 

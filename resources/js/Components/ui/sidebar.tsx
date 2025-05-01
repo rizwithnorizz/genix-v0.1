@@ -375,17 +375,14 @@ const SidebarHeader = React.forwardRef<
     >
       <div className="flex items-center justify-center">
         <img
-          src="/kyoto.png"
+          src="/genixblack.png"
           className={cn(
             "transition-all duration-200 ease-linear", // Smooth transition
-            state === "expanded" ? "w-24 h-24 p-2" : "w-10 h-10 p-1" // Adjust size based on state
+            state === "expanded" ? "w-50 h-24 p-2" : "w-0 h-0 p-1" // Adjust size based on state
           )}
           alt="Logo"
         />
       </div>
-      {state === "expanded" && (
-        <h1 className="text-lg font-semibold text-center">Genix</h1> // Show title only when expanded
-      )}
     </div>
   );
 });

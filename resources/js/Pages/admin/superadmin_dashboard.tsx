@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Bell, CalendarArrowDown, CalendarArrowUp, CalendarSyncIcon, House, Network, Users, type LucideIcon } from "lucide-react";
 import axios from "axios";
 import React from "react";
+import News from "@/Components/news";
 
 interface News {
     id: number;
@@ -190,22 +191,7 @@ const SuperAdminDashboard: React.FC = () => {
                         </button>
                     </a>
                 </div>
-                <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-3 col-start-1 w-1/2 h-[300px] overflow-y-auto">
-                        <h2 className="font-semibold text-lg">News</h2>
-                        <div className="mt-5 space-y-4 h-[200px] s:h-70 overflow-y-auto">
-                            {news.map((news, idx) => (
-                                <div
-                                    key={idx}
-                                    className="bg-gray-800 text-white p-4 rounded-3xl flex justify-between items-center shadow relative"
-                                >
-                                    <div className="flex items-center gap-5">
-                                        <Bell />
-                                        <span>{news.content}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                <News />
             </main>
         </Layout>
     );

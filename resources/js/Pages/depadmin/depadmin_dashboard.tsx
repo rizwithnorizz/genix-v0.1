@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
+import News from "@/Components/news";
 
 interface Instructor {
     id: number;
@@ -96,9 +97,8 @@ const DepAdminDashboard: React.FC = () => {
             });
             setViewGeneratedSchedule(response.data.data);
             fetchGeneratedSchedule();
-
         } catch (error) {
-            console.error("Error generating schedule:", error);
+            window.alert(error + "\nCheck parameters: Instructor-Subject Assignment, Room Assignment");
         } finally {
             setIsLoading(false);
         }
@@ -242,31 +242,23 @@ const DepAdminDashboard: React.FC = () => {
                 </h1>
 
                 <div className="grid md:grid-cols-2 grid-cols1 gap-4">
-                    <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-1 s:h-70">
-                        <div className="flex justify-between">
-                            <h2 className="font-semibold text-lg mb-2">
-                                Generated Schedules
-                            </h2>
-                            <select className="border border-gray-300 rounded-lg p-2 pr-10">
-                                <option value="all">Past day</option>
-                                <option value="current">Past week</option>
-                                <option value="past">Past month</option>
-                                <option value="future">Past year</option>
-                            </select>
-                        </div>
+                    <div className="bg-white p-4 rounded-2xl border-2 border-gray-500 md:row-start-1 s:h-70">
+                        <h2 className="font-semibold text-lg mb-2">
+                            Generated Schedules
+                        </h2>
                         <div className="mt-5 space-y-4 h-[139px] overflow-y-auto">
                             {generatedSchedule?.length != 0 ? (
                                 generatedSchedule?.map((schedule, idx) => (
                                     <div
                                         key={idx}
-                                        className="bg-gray-800 text-white p-2 rounded-3xl flex shadow relative items-center justify-between"
+                                        className="bg-white p-2 flex border-2 border-gray-500 rounded-xl relative items-center justify-between"
                                     >
-                                        <div className="ps-5 flex items-center justify-center">
+                                        <div className="ps-5 text-gray-500 flex items-center justify-center">
                                             <span>{schedule.repo_name}</span>
                                         </div>
                                         <div className="flex gap-2 pr-4">
                                             <button
-                                                className="bg-red-500 text-white hover:bg-red-700 rounded-xl p-2"
+                                                className="border-2 border-gray-500 text-gray-500 hover:border-gray-200 hover:text-gray-200 rounded-xl p-2"
                                                 onClick={async () => {
                                                     const confirmDelete =
                                                         window.confirm(
@@ -296,12 +288,12 @@ const DepAdminDashboard: React.FC = () => {
                                                         schedule
                                                     )
                                                 }
-                                                className="bg-green-400 text-white hover:bg-blue-300 rounded-xl p-2"
+                                                className="border-2 border-gray-500 text-gray-500 hover:border-gray-200 hover:text-gray-200 rounded-xl p-2"
                                             >
                                                 <View size={24} />
                                             </button>
                                             <button
-                                                className="bg-blue-400 text-white hover:bg-green-300 rounded-xl p-2"
+                                                className="border-2 border-gray-500 text-gray-500 hover:border-gray-200 hover:text-gray-200 rounded-xl p-2"
                                                 onClick={async () => {
                                                     if (!schedule.status) {
                                                         try {
@@ -350,12 +342,12 @@ const DepAdminDashboard: React.FC = () => {
                         </div>
                         <PrimaryButton
                             onClick={handleGenerateScheduleClick}
-                            className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg "
+                            className="mt-10 py-2 px-4 rounded-lg "
                         >
                             Generate New Class Schedule
                         </PrimaryButton>
                     </div>
-                    <div className="bg-white p-4 rounded-2xl shadow-lg">
+                    <div className="bg-white p-4 rounded-xl border-2 border-gray-500">
                         <div className="flex justify-between">
                             <h2 className="font-semibold text-lg mb-2">
                                 Curriculums
@@ -371,7 +363,7 @@ const DepAdminDashboard: React.FC = () => {
                                     curriculum.map((Curriculum, idx) => (
                                         <button
                                             key={idx}
-                                            className="w-full h-[55px] hover:bg-gray-700 bg-gray-800 text-white p-2 rounded-3xl flex shadow relative items-center justify-between"
+                                            className="w-full h-[55px] hover:bg-gray-100 bg-white text-gray-700 p-2 rounded-xl flex relative items-center justify-between border-2 border-gray-500" 
                                         >
                                             <div className="pl-5 flex items-center">
                                                 <span>
@@ -384,12 +376,12 @@ const DepAdminDashboard: React.FC = () => {
                             </div>
                         </a>
                         <a href="/dep-admin/courseOfferings">
-                            <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">
+                            <PrimaryButton className="mt-10 py-2 px-4 rounded-lg ">
                                 View Curriculums
                             </PrimaryButton>
                         </a>
                     </div>
-                    <div className="mt-4 bg-white p-4 rounded-2xl shadow-lg col-span-2  ">
+                    <div className="mt-4 mb-4 bg-white p-4 rounded-xl border-2 border-gray-500 col-span-2  ">
                         <h2 className="font-semibold text-lg mb-4">Faculty</h2>
                         <div className="relative">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
@@ -401,9 +393,9 @@ const DepAdminDashboard: React.FC = () => {
                                     instructors?.map((instructor) => (
                                         <PrimaryButton
                                             key={instructor.id}
-                                            className="bg-gray-800 hover:bg-gray-700 text-white p-6 rounded-lg shadow flex flex-col items-center justify-center"
+                                            className="p-6 rounded-lg shadow flex flex-col items-center justify-center h-[10rem]"
                                         >
-                                            <div className="text-6xl font-bold mb-2">
+                                            <div className="text-6xl text-gray-500 font-bold mb-2">
                                                 {instructor.initials}
                                             </div>
                                             <div className="text-center">
@@ -417,29 +409,14 @@ const DepAdminDashboard: React.FC = () => {
 
                         <div className="mt-4 flex justify-between">
                             <a href="/dep-admin/instructors">
-                                <PrimaryButton className="mt-10 bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg ">
+                                <PrimaryButton className="mt-10 py-2 px-4 rounded-lg ">
                                     View All
                                 </PrimaryButton>
                             </a>
                         </div>
                     </div>
 
-                    <div className="bg-white p-4 rounded-2xl shadow-lg md:row-start-3 col-start-1 h-[300px] overflow-y-auto">
-                        <h2 className="font-semibold text-lg">News</h2>
-                        <div className="mt-5 space-y-4 h-[200px] s:h-70 overflow-y-auto">
-                            {news.map((news, idx) => (
-                                <div
-                                    key={idx}
-                                    className="bg-gray-800 text-white p-4 rounded-3xl flex justify-between items-center shadow relative"
-                                >
-                                    <div className="flex items-center gap-5">
-                                        <Bell />
-                                        <span>{news.content}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    <News className="w-full" />
                 </div>
                 {viewFile && selectedSchedule && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
@@ -737,8 +714,8 @@ const DepAdminDashboard: React.FC = () => {
                                 <h2 className="text-xl font-semibold mb-4">
                                     Generate Class Schedule
                                 </h2>
-                                <div className="mb-4">
-                                    <label
+                                <div className="mb-4"> 
+                                <label
                                         htmlFor="schoolYear"
                                         className="mt-2 block text-sm font-medium text-gray-700"
                                     >
@@ -748,8 +725,9 @@ const DepAdminDashboard: React.FC = () => {
                                         type="text"
                                         id="schoolYear"
                                         value={schoolYear}
+                                        required
                                         onChange={handleSchoolYearChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        className="mt-1 block w-full border border-gray-500 rounded-md shadow-sm focus:ring-gray-300 focus:border-gray-200 sm:text-sm"
                                         placeholder="e.g. 2023-2024"
                                     />
                                     <label
@@ -762,7 +740,7 @@ const DepAdminDashboard: React.FC = () => {
                                         id="semester"
                                         value={semester}
                                         onChange={handleSemesterChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        className="mt-1 block w-full border border-gray-500 rounded-md shadow-sm focus:ring-gray-300 focus:border-gray-200 sm:text-sm"
                                     >
                                         <option value="1st">
                                             1st Semester
@@ -773,20 +751,24 @@ const DepAdminDashboard: React.FC = () => {
                                     </select>
                                     <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <PrimaryButton
-                                            onClick={handleGenerateSchedule}
-                                            className="bg-blue-500 hover:bg-blue-400 text-white flex justify-center rounded-lg"
-                                        >
-                                            Generate Schedule
-                                        </PrimaryButton>
-                                        <button
                                             onClick={
                                                 handleGenerateScheduleClick
                                             }
-                                            className="bg-red-500 hover:bg-red-400 text-white flex justify-center p-4 rounded-lg"
+                                            className="flex justify-center rounded-lg"
                                         >
                                             Cancel
-                                        </button>
+                                        </PrimaryButton>
+                                        <PrimaryButton
+                                            onClick={handleGenerateSchedule}
+                                            disabled={isLoading}
+                                            className="flex justify-center rounded-lg"
+                                        >
+                                            Generate Schedule
+                                        </PrimaryButton>
                                     </div>
+                                </div>
+                                <div className="mb-4">
+                                    
                                     <div className="mt-5 flex items-center justify-center">
                                         {retrievedFeedback.length > 0 && (
                                             <PrimaryButton
@@ -802,12 +784,12 @@ const DepAdminDashboard: React.FC = () => {
                                                             "Generated schedule from feedback:",
                                                             response.data.data
                                                         );
-                                                        fetchGeneratedSchedule();
                                                         setViewGeneratedSchedule(
                                                             response.data.data
                                                         );
                                                         setGenerateTab(true);
                                                         setViewFile(false);
+                                                        fetchGeneratedSchedule();
                                                     } catch (error) {
                                                         console.error(
                                                             "Error generating schedule from feedback:",

@@ -130,7 +130,7 @@ export default function Login({
                             </div>
                             <div>
                                 <PrimaryButton
-                                    className="mt-4 bg-transparent border-2 border-white"
+                                    className="text-white mt-4 bg-transparent border-2 border-white"
                                     disabled={processing}
                                 >
                                     Log in
