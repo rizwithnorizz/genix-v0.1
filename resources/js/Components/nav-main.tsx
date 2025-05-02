@@ -29,10 +29,6 @@ export function NavMain({
     icon?: LucideIcon
     isActive?: boolean
     isCollapsible?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
   }[]
 }) {
   return (
@@ -42,9 +38,11 @@ export function NavMain({
            <a href = {item.url}
            key = {item.title}>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip={item.title} className="py-5 text-md flex gap-5">
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
+              <SidebarMenuButton tooltip={item.title} className="py-5 text-md flex gap-5 ">
+                
+                <span className="text-2xl">{item.icon && <item.icon />}</span>
+                
+                <span className="text-2xl">{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </a>))}

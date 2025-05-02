@@ -19,7 +19,7 @@ class ScheduleController extends Controller
 {
     
     
-    const POPULATION_SIZE = 20;
+    const POPULATION_SIZE = 10;
     const MAX_GENERATIONS = 5;
     const MUTATION_RATE = 0.1;
     const CROSSOVER_RATE = 0.1;
@@ -279,7 +279,7 @@ class ScheduleController extends Controller
                 $instructors, 
                 $subjectInstructors
             );
-            
+                
             DB::table('schedule_repos')->insert([
                 'schedule' => json_encode($bestSchedule),
                 'repo_name' => $repo_name . " " . "(created at " . date('Y-m-d') . " )",
@@ -347,24 +347,54 @@ class ScheduleController extends Controller
                     if ($subject->lec == 3 && $subject->lab == 0) {
                         
                         
-                        $daySlot1 = rand(1, 4); 
-                        $daySlot2 = $daySlot1 + 1; 
-
-                        $availableTimeSlots1 = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlot1, $schedule, 3);
-                        $availableTimeSlots2 = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlot2, $schedule, 3);
-
-                        if (empty($availableTimeSlots1) || empty($availableTimeSlots2)) {
-                            \Log::warning('No available time slots for subject: ' . $subject->subjectID);
-                            continue;
-                        }
-
-                        $timeSlot1 = $availableTimeSlots1[array_rand($availableTimeSlots1)];
-                        $timeSlot2 = $availableTimeSlots2[array_rand($availableTimeSlots2)];
-
                         $roomLec = $eligibleRooms->filter(function ($room) {
                             return $room->room_type === 'Lecture';
-                        })->random();
-                        
+                        });
+                        \Log::info('Room Lec: ' . json_encode($roomLec));
+                        foreach ($roomLec as $room){
+                            \Log::error("trying room $room->room_number");
+                            $daySlot1 = rand(1, 3); 
+                            $daySlot2 = $daySlot1+2; 
+                            while($daySlot2 < 6){
+                                $availableTimeSlots1 = $this->getAvailableTimeSlots(
+                                    $room->roomID,
+                                    $daySlot1,
+                                    $schedule,
+                                    3, 
+                                    $instructorId->id,
+                                    $section->sectionID
+                                );
+                                
+                                $availableTimeSlots2 = $this->getAvailableTimeSlots(
+                                    $room->roomID,
+                                    $daySlot2,
+                                    $schedule,
+                                    3,
+                                    $instructorId->id,
+                                    $section->sectionID
+                                );
+                                \Log::error("Time slots for room $room->room_number: " . json_encode($availableTimeSlots1));
+                                if (!empty($availableTimeSlots1 && !empty($availableTimeSlots2))) {
+                                    \Log::error("Slot found");
+                                    \Log::info($room->roomID . " " . $daySlot1  . " Available Time Slots 1: " . json_encode($availableTimeSlots1));
+                                    \Log::info($room->roomID . " " . $daySlot2  . "  Available Time Slots 2: " . json_encode($availableTimeSlots2));
+                                    $roomLec = $room;
+                                    break;
+                                }
+                                $daySlot1++;
+                                $daySlot2++;
+                            }
+                            if (!empty($availableTimeSlots1 && !empty($availableTimeSlots2))) {
+                                \Log::error("break1");
+                                break;
+                            }
+
+                        }
+                        $timeSlot1 = $availableTimeSlots1[array_rand($availableTimeSlots1)];
+                        $timeSlot2 = $availableTimeSlots2[array_rand($availableTimeSlots2)];
+                        \Log::error("chosen time slot for day $daySlot1: " . json_encode($timeSlot1));
+
+                        \Log::error("chosen time slot for day $daySlot2: " . json_encode($timeSlot2));
                         $schedule[] = [
                             'subjectID' => $subject->subjectID,
                             'subject_code' => $subject->subject_code,
@@ -399,25 +429,9 @@ class ScheduleController extends Controller
 
                         
                         $daySlotLec = rand(1, 3); 
-                        $daySlotLab = rand($daySlotLec + 1, 5); 
+                        $daySlotLab = rand($daySlotLec + 1, 6); 
 
                         
-                        $availableTimeSlotsLec = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlotLec, $schedule, 3);
-
-                        if (empty($availableTimeSlotsLec)) {
-                            \Log::warning('No available time slots for lecture: ' . $subject->subjectID);
-                            continue;
-                        }
-
-                        
-                        $timeSlotLec = $availableTimeSlotsLec[array_rand($availableTimeSlotsLec)];
-
-                        
-                        $timeSlotLab = [
-                            'time_start' => $timeSlotLec['time_start'],
-                            'time_end' => date('H:i', strtotime($timeSlotLec['time_start']) + (3 * 3600)), 
-                        ];
-
                         $roomLec = $eligibleRooms->filter(function ($room) {
                             return $room->room_type === 'Lecture';
                         })->random();
@@ -425,6 +439,39 @@ class ScheduleController extends Controller
                         $roomLab = $eligibleRooms->filter(function ($room) {
                             return $room->room_type === 'Laboratory';
                         })->random();
+
+                        $availableTimeSlotsLec = $this->getAvailableTimeSlots(
+                            $roomLec->roomID,
+                            $daySlotLec,
+                            $schedule,
+                            4, // 1.5 hours (3 * 30 minutes)
+                            $instructorId->id,
+                            $section->sectionID
+                        );
+                        $availableTimeSlotsLab = $this->getAvailableTimeSlots(
+                            $roomLab->roomID,
+                            $daySlotLab,
+                            $schedule,
+                            6, // 1.5 hours (3 * 30 minutes)
+                            $instructorId->id,
+                            $section->sectionID
+                        );
+                        \Log::info($roomLec->room_number . "Available Time Slots Lec: " . json_encode($availableTimeSlotsLec));
+                        \Log::info($roomLec->room_number . "Available Time Slots Lab: " . json_encode($availableTimeSlotsLab));
+                        if (empty($availableTimeSlotsLec)) {
+                            \Log::warning('No available time slots for lecture: ' . $subject->subjectID);
+                            continue;
+                        }
+                        if (empty($availableTimeSlotsLab)) {
+                            \Log::warning('No available time slots for lecture: ' . $subject->subjectID);
+                            continue;
+                        }
+                        
+                        $timeSlotLec = $availableTimeSlotsLec[array_rand($availableTimeSlotsLec)];
+
+                        
+                        $timeSlotLab = [$availableTimeSlotsLab[array_rand($availableTimeSlotsLab)]];
+
 
                         
                         $schedule[] = [
@@ -458,14 +505,17 @@ class ScheduleController extends Controller
                             'instructor_name' => $instructorId->instructor_name
                         ];
                     } else if ($subject->lec == 2 && $subject->lab == 0 ){
-                        $daySlot = rand(1, 3); 
-                        
-                        $availableTimeSlots = $this->getAvailableTimeSlots($eligibleRooms->first()->roomID, $daySlot, $schedule, 4);
-                        if (empty($availableTimeSlots)) {
-                            \Log::warning('No available time slots for subject: ' . $subject->subjectID);
-                            continue;
-                        }
-                        $roomEligible = $eligibleRooms->random();
+                        $daySlot = rand(1, 5); 
+                        $roomEligible = $eligibleRooms->filter(function ($room) {
+                            return $room->room_type === 'Lecture';
+                        })->random();
+                        $availableTimeSlots = $this->getAvailableTimeSlots(
+                            $roomEligible->roomID,
+                            $daySlot,
+                            $schedule, // Pass the current schedule being built
+                            $subject->lec// Total hours needed
+                        );
+                        \Log::info("Available Time Slots: " . json_encode($availableTimeSlots));
 
                         $timeSlot = $availableTimeSlots[array_rand($availableTimeSlots)];
 
@@ -477,7 +527,7 @@ class ScheduleController extends Controller
                             'time_end' => $timeSlot['time_end'],
                             'day_slot' => $daySlot,
                             'roomID' => $roomEligible->roomID,
-                            'room_number' => $roomEligible->roomID,
+                            'room_number' => $roomEligible->room_number,
                             'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
                             'instructor_id' => $instructorId->id,
@@ -486,6 +536,9 @@ class ScheduleController extends Controller
                     }
                 }
             }
+            usort($schedule, function ($a, $b) {
+                return $a['day_slot'] <=> $b['day_slot'] ?: $a['time_start'] <=> $b['time_start'];
+            });
             $population[] = $schedule;
         }
 
@@ -500,7 +553,6 @@ class ScheduleController extends Controller
             \Log::info('Generation: ' . $generation);
             $fitnessScores = [];
             foreach ($population as $index => $schedule) {
-                
                 $fitnessScores[$index] = $this->calculateFitness($schedule, $courseSubjects, $courseSections, $rooms, $instructors);
                 if ($fitnessScores[$index] > $bestFitness) {
                     $bestFitness = $fitnessScores[$index];
@@ -558,11 +610,11 @@ class ScheduleController extends Controller
     
     private function selectParent($fitnessScores)
     {
-        $tournamentSize = 3;
+        $tournamentSize = 5; // Increased from 3 to 5
         $indices = array_keys($fitnessScores);
         $best = null;
         $bestFitness = -INF;
-        
+
         for ($i = 0; $i < $tournamentSize; $i++) {
             $randomIndex = $indices[array_rand($indices)];
             if ($fitnessScores[$randomIndex] > $bestFitness) {
@@ -570,7 +622,7 @@ class ScheduleController extends Controller
                 $bestFitness = $fitnessScores[$randomIndex];
             }
         }
-        
+
         return $best;
     }
     
@@ -629,68 +681,105 @@ class ScheduleController extends Controller
 
         foreach ($scheduleBySubject as $key => $indices) {
             if (mt_rand() / mt_getrandmax() < self::MUTATION_RATE) {
-                list($subjectCode, $sectionName) = explode('-', $key);
-
+                list($subjectCode, $sectionId) = explode('-', $key);
+        
                 $subject = $courseSubjects->firstWhere('subjectID', $subjectCode);
                 if (!$subject) continue;
-
-                $mutationType = 4 / mt_rand(1, 12);
-
+        
+                $mutationType = rand(1, 3);
+                $currentItem = $schedule[$indices[0]];
+        
                 switch ($mutationType) {
-                    case 1: 
-                        
+                    case 1: // Room mutation
+                        \Log::info("Mutating room for subject: $subjectCode");
                         $eligibleRooms = $this->getEligibleRooms($subject, $rooms);
-                        if (!$eligibleRooms->isEmpty()) {
-                            $newRoom = $eligibleRooms->random()->roomID;
-                            foreach ($indices as $idx) {
-                                $schedule[$idx]['roomID'] = $newRoom;
+                        if ($eligibleRooms->isEmpty()) break;
+
+                        $newRoom = $eligibleRooms->random();
+                        $currentInstructor = $currentItem['instructor_id'];
+                        $currentSection = $currentItem['sectionID'];
+
+                        foreach ($indices as $idx) {
+                            $timeStart = $schedule[$idx]['time_start'];
+                            $timeEnd = $schedule[$idx]['time_end'];
+                            $daySlot = $schedule[$idx]['day_slot'];
+                            $length = (strtotime($timeEnd) - strtotime($timeStart)) / 1800;
+
+                            $availableSlots = $this->getAvailableTimeSlots(
+                                $newRoom->roomID,
+                                $daySlot,
+                                $schedule,
+                                $length,
+                                $currentInstructor,
+                                $currentSection
+                            );
+
+                            if (empty($availableSlots)) {
+                                \Log::warning("No slots in room: {$newRoom->roomID}");
+                                continue 3;
                             }
+
+                            $newSlot = $availableSlots[array_rand($availableSlots)];
+                            $schedule[$idx]['roomID'] = $newRoom->roomID;
+                            $schedule[$idx]['room_number'] = $newRoom->room_number;
+                            $schedule[$idx]['time_start'] = $newSlot['time_start'];
+                            $schedule[$idx]['time_end'] = $newSlot['time_end'];
                         }
                         break;
 
-                    case 2: 
-                        
+                    case 2: // Instructor mutation
+                        \Log::info("Mutating instructor for subject: $subjectCode");
                         $eligibleInstructors = $this->getEligibleInstructors($subject, $instructors, $subjectInstructors);
-                        if (!$eligibleInstructors->isEmpty()) {
-                            $newInstructor = $eligibleInstructors->random()->id;
+                        if ($eligibleInstructors->isEmpty()) break;
+
+                        $newInstructor = $eligibleInstructors->random();
+                        $currentRoom = $currentItem['roomID'];
+                        $currentDay = $currentItem['day_slot'];
+                        $timeStart = $currentItem['time_start'];
+                        $timeEnd = $currentItem['time_end'];
+                        $length = (strtotime($timeEnd) - strtotime($timeStart)) / 1800;
+
+                        // Verify instructor availability
+                        $availableSlots = $this->getAvailableTimeSlots(
+                            $currentRoom,
+                            $currentDay,
+                            $schedule,
+                            $length,
+                            $newInstructor->id,
+                            $currentItem['sectionID']
+                        );
+
+                        if (!empty($availableSlots)) {
                             foreach ($indices as $idx) {
-                                $schedule[$idx]['instructor_id'] = $newInstructor;
+                                $schedule[$idx]['instructor_id'] = $newInstructor->id;
                             }
                         }
                         break;
 
-                    case 3: 
-                        \Log::info("Mutate day and time slots for lecture and lab");
+                    case 3: // Time/day mutation
+                        \Log::info("Mutating time/day for subject: $subjectCode");
+                        $newDay = rand(1, 5);
+                        $currentRoom = $currentItem['roomID'];
+                        $currentInstructor = $currentItem['instructor_id'];
+                        $timeStart = strtotime($currentItem['time_start']);
+                        $timeEnd = strtotime($currentItem['time_end']);
+                        $length = ($timeEnd - $timeStart) / 1800;
 
-                        $newDayLec = rand(1, 3); 
-                        $newDayLab = rand($newDayLec + 1, 5); 
+                        $availableSlots = $this->getAvailableTimeSlots(
+                            $currentRoom,
+                            $newDay,
+                            $schedule,
+                            $length,
+                            $currentInstructor,
+                            $currentItem['sectionID']
+                        );
 
-                        $roomNumber = $schedule[$indices[0]]['roomID'];
-
-                        
-                        $availableTimeSlotsLec = $this->getAvailableTimeSlots($roomNumber, $newDayLec, $schedule, 3);
-
-                        if (!empty($availableTimeSlotsLec)) {
-                            $newTimeSlotLec = $availableTimeSlotsLec[array_rand($availableTimeSlotsLec)];
-
-                            
-                            $newTimeSlotLab = [
-                                'time_start' => $newTimeSlotLec['time_start'],
-                                'time_end' => date('H:i', strtotime($newTimeSlotLec['time_start']) + (3 * 3600)), 
-                            ];
-
+                        if (!empty($availableSlots)) {
+                            $newSlot = $availableSlots[array_rand($availableSlots)];
                             foreach ($indices as $idx) {
-                                if ($schedule[$idx]['roomID'] === $roomNumber && $schedule[$idx]['day_slot'] === $newDayLec) {
-                                    
-                                    $schedule[$idx]['day_slot'] = $newDayLec;
-                                    $schedule[$idx]['time_start'] = $newTimeSlotLec['time_start'];
-                                    $schedule[$idx]['time_end'] = $newTimeSlotLec['time_end'];
-                                } else {
-                                    
-                                    $schedule[$idx]['day_slot'] = $newDayLab;
-                                    $schedule[$idx]['time_start'] = $newTimeSlotLab['time_start'];
-                                    $schedule[$idx]['time_end'] = $newTimeSlotLab['time_end'];
-                                }
+                                $schedule[$idx]['day_slot'] = $newDay;
+                                $schedule[$idx]['time_start'] = $newSlot['time_start'];
+                                $schedule[$idx]['time_end'] = $newSlot['time_end'];
                             }
                         }
                         break;
@@ -704,39 +793,38 @@ class ScheduleController extends Controller
     private function calculateFitness($schedule, $courseSubjects, $courseSections, $rooms, $instructors)
     {
         $score = 0;
-        $penaltyFactor = 1.0;
-        
-        
+        $baseScore = count($schedule); // Base score based on number of scheduled items
+        \Log::info('Base Score: ' . $baseScore);
+        // Calculate penalties
         $roomConflicts = $this->countRoomConflicts($schedule);
+        \Log::info('Room Conflicts: ' . $roomConflicts);
         $instructorConflicts = $this->countInstructorConflicts($schedule);
+        \Log::info('Instructor Conflicts: ' . $instructorConflicts);
         $sectionConflicts = $this->countSectionConflicts($schedule);
+        \Log::info('Section Conflicts: ' . $sectionConflicts);
         $instructorConsecutiveHours = $this->checkInstructorConsecutiveHours($schedule);
+        \Log::info('Instructor Consecutive Hours: ' . $instructorConsecutiveHours);
         $distributionScore = $this->calculateDistributionScore($schedule);
-        
-        $penaltyFactor -= ($roomConflicts * 0.2);
-        $penaltyFactor -= ($instructorConflicts * 0.2);
-        $penaltyFactor -= ($sectionConflicts * 0.2);
-        $penaltyFactor -= ($instructorConsecutiveHours * 0.1);
-        
-        
-        $endOfDay = strtotime('18:00'); 
-        $timeConflicts = 0;
 
+        \Log::info('Distribution Score: ' . $distributionScore);
+    
+        // Time conflicts (e.g., classes ending after 18:00)
+        $timeConflicts = 0;
         foreach ($schedule as $item) {
-            $timeEnd = strtotime($item['time_end']);
-            if ($timeEnd > $endOfDay) {
+            if (strtotime($item['time_end']) > strtotime('18:00')) {
                 $timeConflicts++;
             }
         }
-
-        $penaltyFactor -= ($timeConflicts * 0.1); 
-
-        $baseScore = count($schedule);
-
+    
+        // Apply penalties (each conflict drastically reduces the score)
         $score = $baseScore + $distributionScore;
-        $score *= max(0.1, $penaltyFactor); 
-
-        return $score;
+        $score -= ($roomConflicts * 0.2);      // -100 per room conflict
+        $score -= ($instructorConflicts * 0.2); // -100 per instructor conflict
+        $score -= ($sectionConflicts * 0.2);    // -100 per section conflict
+        $score -= ($instructorConsecutiveHours * 0.2); // -50 per consecutive hour violation
+        $score -= ($timeConflicts * 0.2);       // -100 per time conflict
+    
+        return max(0, $score); // Ensure score doesn't go negative
     }
     
     private function countRoomConflicts($schedule)
@@ -861,7 +949,7 @@ class ScheduleController extends Controller
         $distributionScore = 0;
 
         
-        $dayDistribution = array_fill(1, 5, 0); 
+        $dayDistribution = array_fill(1, 6, 0); 
         $timeDistribution = [];
 
         
@@ -946,61 +1034,162 @@ class ScheduleController extends Controller
         });
     }
     
-    private function getAvailableTimeSlots($roomNumber, $daySlot, $schedule, $length)
-    {
-        $availableTimeSlots = [];
-        $time_length = 1800 * $length;
-        
-        
-        $workingHoursStart = strtotime('07:00');
-        $workingHoursEnd = strtotime('18:00');
-
-        
-        for ($time = $workingHoursStart; $time < $workingHoursEnd; $time += $time_length) { 
-            $availableTimeSlots[] = [
-                'time_start' => date('H:i', $time),
-                'time_end' => date('H:i', $time + $time_length),
+    private function getAvailableTimeSlots(
+        string $roomId,
+        int $daySlot,
+        array $currentSchedule,
+        int $durationUnits, // Number of 30-minute units
+        ?int $instructorId = null,
+        ?int $sectionId = null
+    ): array {
+        $timeSlots = [];
+        $durationSeconds = $durationUnits * 1800; // Convert to seconds
+    
+        // Generate all possible time slots within working hours
+        $startTime = strtotime('07:00');
+        $endTime = strtotime('17:00') - $durationSeconds;
+    
+        for ($slotStart = $startTime; $slotStart <= $endTime; $slotStart += 1800*$durationUnits) {
+            $slotEnd = $slotStart + $durationSeconds;
+    
+            // Skip time slots overlapping with lunch break (12:00 PM to 1:00 PM)
+            if ($slotStart < strtotime('13:00') && $slotEnd > strtotime('12:00')) {
+                continue;
+            }
+    
+            $timeSlots[] = [
+                'time_start' => date('H:i', $slotStart),
+                'time_end' => date('H:i', $slotEnd),
             ];
         }
-
-        
-        foreach ($schedule as $item) {
-            if ($item['roomID'] === $roomNumber && $item['day_slot'] === $daySlot) {
-                $occupiedStart = strtotime($item['time_start']);
-                $occupiedEnd = strtotime($item['time_end']);
-
-                
-                $availableTimeSlots = array_filter($availableTimeSlots, function ($slot) use ($occupiedStart, $occupiedEnd) {
-                    $slotStart = strtotime($slot['time_start']);
-                    $slotEnd = strtotime($slot['time_end']);
-                    return $slotEnd <= $occupiedStart || $slotStart >= $occupiedEnd;
-                });
+    
+        // Filter out conflicting slots
+        return array_filter($timeSlots, function ($slot) use (
+            $roomId,
+            $daySlot,
+            $currentSchedule,
+            $instructorId,
+            $sectionId
+        ) {
+            return $this->isSlotAvailable(
+                $slot,
+                $roomId,
+                $daySlot,
+                $currentSchedule,
+                $instructorId,
+                $sectionId
+            );
+        });
+    }
+    
+    private function isSlotAvailable(
+        array $slot,
+        string $roomId,
+        int $daySlot,
+        array $currentSchedule,
+        ?int $instructorId,
+        ?int $sectionId
+    ): bool {
+        $slotStart = strtotime($slot['time_start']);
+        $slotEnd = strtotime($slot['time_end']);
+    
+        // Check current schedule conflicts
+        foreach ($currentSchedule as $item) {
+            $itemStart = strtotime($item['time_start']);
+            $itemEnd = strtotime($item['time_end']);
+    
+            // Check room conflict
+            if ($item['roomID'] === $roomId &&
+                $item['day_slot'] === $daySlot &&
+                $slotStart < $itemEnd &&
+                $slotEnd > $itemStart
+            ) {
+                \Log::info("Room conflict: Room {$roomId} is unavailable for day slot {$daySlot} and time slot {$slot['time_start']} - {$slot['time_end']}");
+                return false;
+            }
+    
+            // Check instructor conflict
+            if ($instructorId !== null &&
+                $item['instructor_id'] === $instructorId &&
+                $item['day_slot'] === $daySlot &&
+                $slotStart < $itemEnd &&
+                $slotEnd > $itemStart
+            ) {
+                \Log::info("Instructor conflict: Instructor {$instructorId} is unavailable for day slot {$daySlot} and time slot {$slot['time_start']} - {$slot['time_end']}");
+                return false;
+            }
+    
+            // Check section conflict
+            if ($sectionId !== null &&
+                $item['sectionID'] === $sectionId &&
+                $item['day_slot'] === $daySlot &&
+                $slotStart < $itemEnd &&
+                $slotEnd > $itemStart
+            ) {
+                \Log::info("Section conflict: Section {$sectionId} is unavailable for day slot {$daySlot} and time slot {$slot['time_start']} - {$slot['time_end']}");
+                return false;
             }
         }
-
+    
+        // Check database conflicts using optimized queries
+        return $this->checkDatabaseAvailability(
+            $roomId,
+            $daySlot,
+            $slot['time_start'],
+            $slot['time_end'],
+            $instructorId,
+            $sectionId
+        );
+    }
+    
+    private function checkDatabaseAvailability(
+        string $roomId,
+        int $daySlot,
+        string $startTime,
+        string $endTime,
+        ?int $instructorId,
+        ?int $sectionId,
+    ): bool {
+        $timeFormat = 'H:i:s';
         
-        $occupiedTimeSlots = DB::table('schedules')
-            ->where('roomID', $roomNumber)
+        // Room availability check
+        $roomConflict = DB::table('schedules')
+            ->where('roomID', $roomId)
             ->where('day_slot', $daySlot)
-            ->get(['time_start', 'time_end']);
-
-        foreach ($occupiedTimeSlots as $occupied) {
-            $occupiedStart = strtotime($occupied->time_start);
-            $occupiedEnd = strtotime($occupied->time_end);
-
-            
-            $availableTimeSlots = array_filter($availableTimeSlots, function ($slot) use ($occupiedStart, $occupiedEnd) {
-                $slotStart = strtotime($slot['time_start']);
-                $slotEnd = strtotime($slot['time_end']);
-                return $slotEnd <= $occupiedStart || $slotStart >= $occupiedEnd;
-            });
+            ->where(function ($query) use ($startTime, $endTime, $timeFormat) {
+                $query->whereRaw('? < time_end', [date($timeFormat, strtotime($startTime))])
+                      ->whereRaw('? > time_start', [date($timeFormat, strtotime($endTime))]);
+            })->exists();
+    
+        if ($roomConflict) return false;
+    
+        // Instructor availability check
+        if ($instructorId !== null) {
+            $instructorConflict = DB::table('schedules')
+                ->where('instructor_id', $instructorId)
+                ->where('day_slot', $daySlot)
+                ->where(function ($query) use ($startTime, $endTime, $timeFormat) {
+                    $query->whereRaw('? < time_end', [date($timeFormat, strtotime($startTime))])
+                          ->whereRaw('? > time_start', [date($timeFormat, strtotime($endTime))]);
+                })->exists();
+    
+            if ($instructorConflict) return false;
         }
-
-        usort($availableTimeSlots, function ($a, $b) {
-            return strtotime($a['time_start']) <=> strtotime($b['time_start']);
-        });
-        
-        return array_values($availableTimeSlots);
+    
+        // Section availability check
+        if ($sectionId !== null) {
+            $sectionConflict = DB::table('schedules')
+                ->where('sectionID', $sectionId)
+                ->where('day_slot', $daySlot)
+                ->where(function ($query) use ($startTime, $endTime, $timeFormat) {
+                    $query->whereRaw('? < time_end', [date($timeFormat, strtotime($startTime))])
+                          ->whereRaw('? > time_start', [date($timeFormat, strtotime($endTime))]);
+                })->exists();
+    
+            if ($sectionConflict) return false;
+        }
+    
+        return true;
     }
 
     private function saveSchedule($schedule, $departmentShortName)
@@ -1057,6 +1246,23 @@ class ScheduleController extends Controller
             'success' => true,
             'schedule' => $formattedSchedule,
         ]);
+    }
+
+    private function isTimeSlotAvailable($roomID, $daySlot, $timeStart, $timeEnd, $schedule)
+    {
+        foreach ($schedule as $item) {
+            if (
+                $item['roomID'] === $roomID &&
+                $item['day_slot'] === $daySlot &&
+                (
+                    (strtotime($timeStart) < strtotime($item['time_end'])) &&
+                    (strtotime($timeEnd) > strtotime($item['time_start']))
+                )
+            ) {
+                return false; // Overlapping
+            }
+        }
+        return true;
     }
     
 }

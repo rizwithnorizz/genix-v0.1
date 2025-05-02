@@ -225,11 +225,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, []);
 
   return (
-    <Sidebar collapsible="icon" {...props} className="h-[95vh] rounded-xl border-2 border-gray-500 py-2 my-5 ml-2">
+    <Sidebar collapsible="icon" {...props} className="h-[80vh] rounded-xl border-2 border-gray-500 py-2 my-5 ml-2 ">
       <SidebarHeader className="flex items-center justify-center ">
       </SidebarHeader>
     
-      <SidebarContent>
+      <SidebarContent className="flex flex-col items-center justify-center">
         <ScrollArea>
           <NavMain items={data.navMain} />
         </ScrollArea>
