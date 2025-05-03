@@ -705,6 +705,7 @@ PROMPT;
             'programID' => 'required|integer',
             'curriculumID' => 'required|integer',
             'year_level' => 'required|integer',
+            'population' => 'required|integer',
         ]);
         try {
             DB::table('course_sections')
@@ -713,6 +714,7 @@ PROMPT;
                 'programID' => $request->input('programID'),
                 'curriculumID' => $request->input('curriculumID'),
                 'year_level' => $request->input('year_level'),
+                'population' => $request->input('population'),
             ]);
             return response()->json([
                 'success' => true,

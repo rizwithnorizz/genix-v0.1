@@ -16,6 +16,7 @@ interface Curriculum {
 interface Section {
     id: number;
     section_name: string;
+    population: number;
     programID: number;
     program_short_name: string;
     year_level: number;
@@ -218,6 +219,7 @@ const CourseOfferingsPage: React.FC = () => {
         /*add section pop up*/
     }
     const [sectionName, setSectionName] = useState<string>("");
+    const [population, setPopulation] = useState<number>(0);
     const [addSectionPopup, setAddSectionPopup] = useState<boolean>(false);
     const handleAddSection = () => {
         setAddSectionPopup(!addSectionPopup);
@@ -233,6 +235,7 @@ const CourseOfferingsPage: React.FC = () => {
                 programID: selectedCurriculum?.programID,
                 curriculumID: selectedCurriculum?.curriculumID,
                 year_level: yearLevelMap[yearLevelCourse],
+                population: population,
             });
             fetchSections();
         } catch (error) {
@@ -1064,7 +1067,11 @@ const CourseOfferingsPage: React.FC = () => {
                                     Add Section
                                 </h2>
                             </div>
-                            <div className="relative mb-4">
+                            <div className="mb-4 grid md:grid-cols-2 grid-cols-1 gap-4">
+                                <div>
+                                <h2>
+                                    Section Name
+                                </h2>
                                 <input
                                     type="text"
                                     placeholder="Section Name"
@@ -1072,8 +1079,20 @@ const CourseOfferingsPage: React.FC = () => {
                                     onChange={(e) =>
                                         setSectionName(e.target.value)
                                     }
-                                    className="p-3 bg-gray-200 rounded-lg mb-4 w-full"
+                                    className="p-3 bg-gray-200 rounded-lg w-full md:col-span-1 col-span-2"
                                 />
+                                </div>
+                                <div>
+                                <h2>
+                                    Population
+                                </h2>
+                                <input  
+                                    type="text"
+                                    placeholder="Population"
+                                    value={population}
+                                    onChange={(e) => setPopulation(parseInt(e.target.value))}
+                                    className="p-3 bg-gray-200 rounded-lg w-full md:col-span-1 col-span-2"  />
+                                </div>
                                 <select
                                     onChange={(e) => {
                                         const selectedCurriculum =
@@ -1088,11 +1107,11 @@ const CourseOfferingsPage: React.FC = () => {
                                             );
                                         }
                                     }}
-                                    className="appearance-none bg-gray-200 p-3 rounded-lg w-full"
+                                    className="appearance-none bg-gray-200 p-3 rounded-lg col-span-2"
                                 >
                                     <option>Curriculum</option>
                                     {curriculum.map((curriculum) => (
-                                        <option
+                                        <option 
                                             key={curriculum.curriculumID}
                                             value={curriculum.curriculum_name}
                                         >
@@ -1102,7 +1121,7 @@ const CourseOfferingsPage: React.FC = () => {
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-4 justify-end">
+                            <div className="grid grid-cols-2 gap-4 mb-4 justify-between">
                                 <select
                                     onChange={(e) =>
                                         setYearLevelCourse(e.target.value)
