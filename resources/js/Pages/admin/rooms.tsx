@@ -7,6 +7,7 @@ interface Room {
     id: number;
     room_number: string;
     room_type: string;
+    capacity: number;
 }
 
 const RoomPage: React.FC = () => {
@@ -14,10 +15,24 @@ const RoomPage: React.FC = () => {
     const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
     const [searchTerm, setSearchTerm] = useState<string>("");
     const [showMenuIndex, setShowMenuIndex] = useState<number | null>(null);
-    const [roomType, setRoomType] = useState<string>("Lecture");
-    const [roomName, setRoomName] = useState<string>("");
+    const [room, setRoom] = useState<{
+        room_number: string;
+        room_type: "Lecture" | "Laboratory";
+        capacity: number;
+    }>({
+        room_number: "",
+        room_type: "Lecture",
+        capacity: 0,
+    });
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    const editRoom = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setRoom({
+            ...room,
+            [name]: value,
+        });
+    };
     // Fetch rooms
     const handleGetRooms = async () => {
         try {
@@ -43,22 +58,6 @@ const RoomPage: React.FC = () => {
         );
         setFilteredRooms(filtered);
     }, [searchTerm, roomList]);
-    const [editRoom, setEditRoom] = useState<Room | null>(null);
-    const [showEditRoomModal, setShowEditRoomModal] = useState<boolean>(false);
-    const handleEdit = (room: Room) => {
-        console.log("Edit:", room);
-        setShowEditRoomModal(true);
-        setEditRoom(room);
-        setShowMenuIndex(null);
-    };
-    const handleEditRoomDetails = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (editRoom) {
-            setEditRoom({
-                ...editRoom,
-                [e.target.name]: e.target.value,
-            });
-        }
-    };
     const handleDelete = async (room: Room) => {
         try {
             await axios.delete(`/api/rooms/${room.id}/delete`);
@@ -78,14 +77,19 @@ const RoomPage: React.FC = () => {
 
     const [alertMessage, setAlertMessage] = useState<string>("");
     const handleCreateRoom = async () => {
-        if (!roomName.trim()) return;
+        if (!room.room_number.trim()) return;
 
         try {
             const response = await axios.post("/api/create-room", {
-                room_number: roomName,
-                room_type: roomType,
+                room_number: room.room_number,
+                room_type: room.room_type,
+                capacity: room.capacity,
             });
-            setRoomName("");
+            setRoom({
+                room_number: "",
+                room_type: "Lecture",
+                capacity: 0,
+            });
             handleGetRooms();
             window.alert("Room created successfully!");
         } catch (error) {
@@ -107,14 +111,27 @@ const RoomPage: React.FC = () => {
                 <div className="bg-white p-6 rounded-2xl shadow-lg">
                     <h2 className="font-semibold text-lg mb-4">Add New Room</h2>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="md:col-span-2">
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Room Number
                             </label>
                             <input
-                                value={roomName}
-                                onChange={(e) => setRoomName(e.target.value)}
+                                value={room.room_number}
+                                name="room_number"
+                                onChange={editRoom}
                                 type="text"
+                                placeholder="e.g. 101, LAB-1"
+                                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Capacity
+                            </label>
+                            <input
+                                value={room.capacity}
+                                onChange={editRoom}
+                                name="capacity"
                                 placeholder="e.g. 101, LAB-1"
                                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
@@ -124,20 +141,19 @@ const RoomPage: React.FC = () => {
                                 Room Type
                             </label>
                             <select
-                                value={roomType}
-                                onChange={(e) => setRoomType(e.target.value)}
+                                value={room.room_type}
+                                name="room_type"
+                                onChange={editRoom}
                                 className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 <option value="Lecture">Lecture</option>
                                 <option value="Laboratory">Laboratory</option>
-                                <option value="Conference">Conference</option>
-                                <option value="Office">Office</option>
                             </select>
                         </div>
                         <div className="flex items-end">
                             <button
                                 onClick={handleCreateRoom}
-                                disabled={!roomName.trim()}
+                                disabled={!room.room_number.trim()}
                                 className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors disabled:bg-blue-400"
                             >
                                 <Plus size={18} />
@@ -195,6 +211,9 @@ const RoomPage: React.FC = () => {
                                             Room Number
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Capacity
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Type
                                         </th>
                                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -224,13 +243,18 @@ const RoomPage: React.FC = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2 inline-flex text-sm font-medium">
+                                                    {room.capacity}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="px-2 inline-flex text-sm font-medium">
                                                     {room.room_type}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap font-medium relative flex justify-end">
                                                 <button
-                                                    onClick={
-                                                        () => handleDelete(room)
+                                                    onClick={() =>
+                                                        handleDelete(room)
                                                     }
                                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-red-900"
                                                 >
@@ -247,7 +271,6 @@ const RoomPage: React.FC = () => {
                             </table>
                         </div>
                     )}
-
                 </div>
             </main>
         </Layout>

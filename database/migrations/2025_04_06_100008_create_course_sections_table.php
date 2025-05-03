@@ -17,7 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('programID');
             $table->integer('year_level');
             $table->unsignedBigInteger('curriculumID');
-
+            $table->integer('population')->default(0);
+            
             $table->foreign('programID')
                 ->references('id')
                 ->on('program_offerings')

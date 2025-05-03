@@ -111,7 +111,7 @@ class DataRelay extends Controller
         $departmentRoom = DB::table('department_room')
             ->where('department_room.departmentID',$department)
             ->join('classrooms', 'department_room.roomID', '=', 'classrooms.id')
-            ->select('department_room.roomID', 'classrooms.room_number', 'classrooms.room_type')
+            ->select('department_room.roomID', 'classrooms.room_number', 'classrooms.room_type', 'classrooms.capacity')
             ->get();
         return response()->json([
             'name' => "department_room",
@@ -275,11 +275,13 @@ class DataRelay extends Controller
             \Log::info('User is a department admin');
             $schedulesRetrieve = DB::table('schedule_repos')
             ->where('departmentID', auth()->user()->departmentID)
+            ->latest('id')
             ->get();
         } else if (auth()->user()->user_type == 0) {
             \Log::info('User is a super admin');
             $schedulesRetrieve = DB::table('schedule_repos')
             ->where('status', true)
+            ->latest('id')
             ->get();
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);

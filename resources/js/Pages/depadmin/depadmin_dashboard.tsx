@@ -695,12 +695,6 @@ const DepAdminDashboard: React.FC = () => {
                                 <div className="flex justify-between mt-4">
                                     <PrimaryButton
                                         onClick={handleGenerateScheduleClick}
-                                        className="bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded-lg"
-                                    >
-                                        Approve
-                                    </PrimaryButton>
-                                    <PrimaryButton
-                                        onClick={handleGenerateScheduleClick}
                                         className="bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-lg"
                                     >
                                         Close

@@ -19,6 +19,9 @@ use App\Models\Subject;
 use App\Models\CourseSections;
 use App\Models\DepartmentCurriculum;
 use App\Models\DepartmentRoom;
+
+use App\Mail\EmailAdmins;
+use Illuminate\Support\Facades\Mail;
 class DataCreate extends Controller
 {
     public function createFeedback(Request $request)
@@ -247,8 +250,9 @@ class DataCreate extends Controller
                 'departmentID' => $department->id,
                 'user_type' => 1,
             ]);
-            \Log::error($department->id);
-            \Log::error($request->input('selectedRooms'));
+            
+            Mail::to($request->admin_email)->send(new EmailAdmins($request->admin_name, $request->admin_email, $request->password, $request->department_full_name));
+            
             if ($request->has('selectedRooms')) {
                 $selectedRooms = $request->input('selectedRooms');
                 foreach ($selectedRooms as $roomNumber) {
@@ -752,7 +756,8 @@ PROMPT;
     public function createRoom(Request $request){
         $validated = $request->validate([
             'room_number' => 'required|string|max:10',
-            'room_type' => 'required|string|max:20', // 1 for lecture, 2 for laboratory
+            'room_type' => 'required|string|max:20',
+            'capacity' => 'required|integer|max:50' // 1 for lecture, 2 for laboratory
         ]);
         if (DB::table('classrooms')->where('room_number', $request->input('room_number'))->exists()) {
             return response()->json([
@@ -764,6 +769,7 @@ PROMPT;
         ->insert([
             'room_number' => $request->input('room_number'),
             'room_type' => $request->input('room_type'),
+            'capacity' => $request->input('capacity'),
         ]);
         return response()->json([
             'success' => true,

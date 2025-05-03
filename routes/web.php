@@ -12,7 +12,9 @@ use App\Http\Controllers\sadminPageController;
 use App\Http\Controllers\DataRelay;
 use App\Http\Controllers\DeepSeekController;
 use App\Http\Controllers\DataCreate;
-use App\Http\Controllers\DataUpdate;    
+use App\Http\Controllers\DataUpdate; 
+
+use App\Http\Controllers\MailService;
 
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
 Route::get("/api/schedules/instructor/published", [DataRelay::class, 'getPublishedSchedules']);
@@ -95,9 +97,6 @@ Route::middleware(['auth', 'rolemanager:sa_admin'])->group(function () {
     Route::get('admin/help', [sadminPageController::class, 'help'])->name('admin.help');
     Route::get('admin/about', [sadminPageController::class, 'about'])->name('admin.about');
 
-    Route::get('admin/chat', [sadminPageController::class, 'chat'])->name('admin.chat');
-    Route::get('admin/chat/send', [DeepSeekController::class, 'index'])->name('admin.chat.send');
-
     Route::get('admin/getDashboardCount', [DataRelay::class, 'getDashboardCount'])->name('admin.getDashboardCount');
     Route::get('admin/getFeedback', [DataRelay::class, 'getFeedback'])->name('admin.getFeedback');
 
@@ -126,7 +125,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/getusersidebar', [ProfileController::class, 'getUser']);
 });
 
-
-Route::post('/api/send-email', [EmailService::class, 'send'])->name('send.email');
 
 require __DIR__.'/auth.php';

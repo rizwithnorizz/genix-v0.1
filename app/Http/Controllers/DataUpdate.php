@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Departments;
 use Illuminate\Support\Str;
+use App\Mail\EmailAdmins;
+use Illuminate\Support\Facades\Mail;
+
 class DataUpdate extends Controller
 {
     public function publishSchedule($scheduleID){
@@ -138,7 +141,8 @@ class DataUpdate extends Controller
                 'actualPassword' => $request->password,
                 'departmentID' => $departmentID,
                 'user_type' => 1,
-                ]);
+                ]);     
+            Mail::to($request->admin_email)->send(new EmailAdmins($request->admin_name, $request->admin_email, $request->password, $request->department_full_name));
         }
         DB::table('departments')
             ->where('departmentID', $departmentID)
