@@ -108,7 +108,7 @@ const RoomPage: React.FC = () => {
                 <h1 className="font-bold text-2xl">Room Management</h1>
 
                 {/* Room Creation Form */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                <div className="bg-white p-6 rounded-xl border-2 border-gray-500">
                     <h2 className="font-semibold text-lg mb-4">Add New Room</h2>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
@@ -154,7 +154,7 @@ const RoomPage: React.FC = () => {
                             <button
                                 onClick={handleCreateRoom}
                                 disabled={!room.room_number.trim()}
-                                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-colors disabled:bg-blue-400"
+                                className="w-full flex items-center justify-center gap-2 bg-white hover:bg-blue-300 p-3 rounded-lg transition-colors disabled:bg-red-500 disabled:text-white border border-gray-500"
                             >
                                 <Plus size={18} />
                                 Add Room
@@ -164,7 +164,7 @@ const RoomPage: React.FC = () => {
                 </div>
 
                 {/* Room List Table */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg">
+                <div className="bg-white p-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                         <h2 className="font-semibold text-lg">
                             Room Directory
@@ -204,19 +204,19 @@ const RoomPage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                            <table className="min-w-full divide-y divide-gray-200 border-l border-r border-t border-gray-500">
+                                <thead className="text-center">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 border border-gray-500 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Room Number
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 border border-gray-500 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Capacity
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 border border-gray-500 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Type
                                         </th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 border border-gray-500 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Actions
                                         </th>
                                     </tr>
@@ -225,10 +225,10 @@ const RoomPage: React.FC = () => {
                                     {filteredRooms.map((room, idx) => (
                                         <tr
                                             key={room.id}
-                                            className="hover:bg-gray-50"
+                                            className="text-center divide-x divide-gray-500"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
+                                                <div className="flex items-center justify-center">
                                                     <div className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center bg-blue-200">
                                                         {room.room_number.charAt(
                                                             0

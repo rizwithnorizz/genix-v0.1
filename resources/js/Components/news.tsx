@@ -57,7 +57,7 @@ const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = (
                     {news.map((news, idx) => (
                         <div
                             key={idx}
-                            className="border-2 border-gray-500 p-4 ml-5 mr-5 mb-2 rounded-xl flex justify-between items-center shadow relative"
+                            className="border border-gray-500 p-4 ml-5 mr-5 mb-2 rounded-xl flex justify-between items-center shadow relative"
                         >
                             <div className="flex items-center">
                                 <Bell className="mr-5 text-gray-500"/>

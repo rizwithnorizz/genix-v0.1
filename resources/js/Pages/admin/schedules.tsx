@@ -112,7 +112,7 @@ const SchedulePage: React.FC = () => {
 
     const handlePublish = async (scheduleId: number) => {
         const confirmReject = window.confirm(
-            "Are you sure you want to reject this schedule?"
+            "Are you sure you want to approve this schedule?"
         );
         if (!confirmReject) {
             return;
@@ -142,7 +142,7 @@ const SchedulePage: React.FC = () => {
 
     return (
         <Layout>
-            <main className="col-span-3 space-y-4">
+            <main className="space-y-4">
                 <h1 className="font-bold text-2xl mb-4">Schedule Approvals</h1>
 
                 <div className="mb-4 grid grid-cols-2 w-[35rem] flex items-center">
@@ -150,7 +150,7 @@ const SchedulePage: React.FC = () => {
                         id="departmentFilter"
                         value={selectedDepartment}
                         onChange={(e) => setSelectedDepartment(e.target.value)}
-                        className="mt-1 block w-[15rem] border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="mt-1 block w-[15rem] border border-gray-500 rounded focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     >
                         <option value="">All Departments</option>
                         {[
@@ -164,7 +164,7 @@ const SchedulePage: React.FC = () => {
                         ))}
                     </select>
                     <button
-                        className="w-[10rem] h-[2.5rem] bg-white hover:bg-blue-500 text-gray-600 hover:text-white font-bold rounded shadow"
+                        className="w-[10rem] h-[2.5rem] bg-white hover:bg-blue-500 text-gray-600 hover:text-white font-bold rounded border border-gray-500"
                         onClick={handleClickArchives}
                     >
                         <BookAIcon className="w-6 h-6 mr-1 inline" />
@@ -185,17 +185,17 @@ const SchedulePage: React.FC = () => {
                         </h2>
                     </div>
                 ) : (
-                    <div className="w-fit overflow-x-auto truncate rounded-2xl shadow-lgs">
-                        <table className="w-2/3 table-auto border-collapse border border-gray-300">
-                            <thead className="bg-gray-200">
-                                <tr>
-                                    <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="overflow-y-auto">
+                        <table className="w-full border-l border-r border-t border-gray-500 divide-y divide-gray-300">
+                            <thead>
+                                <tr className="text-center">
+                                    <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Department
                                     </th>
-                                    <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Class Schedule Name
                                     </th>
-                                    <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Action
                                     </th>
                                 </tr>
@@ -204,9 +204,9 @@ const SchedulePage: React.FC = () => {
                                 {filteredRepo?.map((schedule) => (
                                     <tr
                                         key={schedule.id}
-                                        className="hover:bg-gray-100"
+                                        className="divide-x divide-gray-500"
                                     >
-                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <td className="text-center font-semibold px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             {schedule.department_short_name}
                                         </td>
                                         <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -214,7 +214,7 @@ const SchedulePage: React.FC = () => {
                                         </td>
                                         <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <button
-                                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                className="bg-white border border-gray-500 hover:text-white hover:bg-blue-500 font-bold py-2 px-4 rounded"
                                                 onClick={() =>
                                                     handleClickView(schedule)
                                                 }
@@ -223,7 +223,7 @@ const SchedulePage: React.FC = () => {
                                                 View
                                             </button>
                                             <button
-                                                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-2"
+                                                className="bg-white border border-gray-500 hover:bg-green-500 hover:text-white font-bold py-2 px-4 rounded ml-2"
                                                 onClick={() =>
                                                     handlePublish(schedule.id)
                                                 }
@@ -232,7 +232,7 @@ const SchedulePage: React.FC = () => {
                                                 Publish
                                             </button>
                                             <button
-                                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2"
+                                                className="bg-white border border-gray-500 hover:bg-red-500 hover:text-white font-bold py-2 px-4 rounded ml-2"
                                                 onClick={() =>
                                                     handleReject(schedule.id)
                                                 }

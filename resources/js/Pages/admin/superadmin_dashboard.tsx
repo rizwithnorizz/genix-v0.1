@@ -4,6 +4,7 @@ import { Bell, CalendarArrowDown, CalendarArrowUp, CalendarSyncIcon, House, Netw
 import axios from "axios";
 import React from "react";
 import News from "@/Components/news";
+import PrimaryButton from "@/Components/PrimaryButton";
 
 interface News {
     id: number;
@@ -150,7 +151,7 @@ const SuperAdminDashboard: React.FC = () => {
                         <a href={count.url} key={idx}>
                         <div
                             key={idx}
-                            className="bg-white p-4 rounded-2xl shadow-lg md:row-start-1 s:h-70"
+                            className="bg-white p-4 border-2 border-gray-500 rounded-xl md:row-start-1 s:h-70"
                         >
                             <div className="flex items-center justify-center">
                                 <count.icon className="h-20 w-20" />
@@ -170,15 +171,15 @@ const SuperAdminDashboard: React.FC = () => {
 
 
                 
-                <div className="bg-white p-4 rounded-2xl shadow-lg col-span-1 ">
+                <div className="bg-white p-4 rounded-2xl border-2 border-gray-500 col-span-1 ">
                     <div className="p-5 grid grid-cols-4 md:grid-cols-3 lg:grid-cols-5  gap-4 max-h-[300px] overflow-y-auto">
                         {department?.map((dept, idx) => (
                             <div
                                 key={idx}
-                                className="bg-gray-50 p-4 rounded-xl flex flex-col items-center shadow h-full"
+                                className="border border-gray-500 p-4 rounded-xl flex flex-col items-center h-full"
                             >
                                 <img 
-                                    src={dept.logo_img_path}
+                                    src={dept.logo_img_path ?? "/blankicon.png"}
                                     alt="Department Logo"
                                     className="h-[7rem] w-[7rem] rounded-full mb-2"/>
                                 <span>{dept.department_short_name}</span>
@@ -186,9 +187,9 @@ const SuperAdminDashboard: React.FC = () => {
                         ))}
                     </div>
                     <a href="departments">
-                        <button className="mt-4 bg-black text-white py-2 px-4 rounded-lg">
+                        <PrimaryButton className="mt-4 py-2 px-4 rounded-lg">
                             View All Departments
-                        </button>
+                        </PrimaryButton>
                     </a>
                 </div>
                 <News />

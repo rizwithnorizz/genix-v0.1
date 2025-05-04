@@ -323,10 +323,7 @@ const DepartmentPage: React.FC = () => {
     const [toBeAssignedRooms, setToBeAssignedRooms] = useState<Room[]>([]);
     const handleAssignRoom = () => {
         const unassignedRooms = roomList.filter(
-            (room) =>
-                !roomDepartment.some(
-                    (assignedRoom) => assignedRoom.id === room.id
-                )
+            (room) => !roomDepartment.some((roomDep) => roomDep.id === room.id)
         );
         setToBeAssignedRooms(unassignedRooms);
     };
@@ -342,24 +339,23 @@ const DepartmentPage: React.FC = () => {
     const [editLogo, setEditLogo] = useState<File | null>(null);
     return (
         <Layout>
-            <main className="col-span-3 space-y-6">
+            <main className="col-span-3 space-y-6 overflow-y-auto max-h-[90vh]">
                 <div className="flex justify-between items-center">
                     <h1 className="font-bold text-2xl">
                         Department Management
                     </h1>
+                </div>
+
+                {/* Departments List */}
+                <div className="bg-white p-6 rounded-xl">
                     <PrimaryButton
                         onClick={() => setShowCreateModal(true)}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 mb-4"
                     >
                         <Plus size={18} />
                         Create Department
                     </PrimaryButton>
-                </div>
-
-                {/* Departments List */}
-                <div className="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 className="font-semibold text-lg mb-4">Departments</h2>
-
+                    
                     {isLoading ? (
                         <div className="flex justify-center items-center h-32">
                             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -370,16 +366,16 @@ const DepartmentPage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                            <table className="min-w-full divide-y divide-gray-200  border-l border-r border-t border-gray-500">
+                                <thead className="text-center">
                                     <tr>
-                                        <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="border border-gray-500 text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Short Name
                                         </th>
-                                        <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="border border-gray-500 text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Full Name
                                         </th>
-                                        <th className="text-center px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="border border-gray-500 text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Actions
                                         </th>
                                     </tr>
@@ -388,7 +384,7 @@ const DepartmentPage: React.FC = () => {
                                     {departments.map((department, idx) => (
                                         <tr
                                             key={idx}
-                                            className="hover:bg-gray-50"
+                                            className="divide-x divide-gray-500 text-center"
                                         >
                                             <td className="text-center px-6 py-4 whitespace-nowrap text-nowrap truncate">
                                                 {
@@ -401,7 +397,7 @@ const DepartmentPage: React.FC = () => {
                                                 }
                                             </td>
                                             <td className="text-center px-6 py-4 whitespace-nowrap text-nowrap truncate">
-                                                <div className="flex justify-end space-x-2">
+                                                <div className="flex justify-center space-x-2">
                                                     <button
                                                         className="text-blue-600 hover:text-blue-900 p-1"
                                                         onClick={() =>
@@ -707,27 +703,27 @@ const DepartmentPage: React.FC = () => {
                                     </button>
                                 </div>
                                 <div className="mb-6">
-                                    <button
+                                    <PrimaryButton
                                         onClick={() => {
                                             setAssignRoomModal(true);
                                             handleAssignRoom();
                                         }}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700"
+                                        className="px-4 py-2 rounded-md shadow-sm hover:bg-blue-700"
                                     >
                                         Assign Room/s
-                                    </button>
+                                    </PrimaryButton>
                                 </div>
-                                <div className="overflow-x-auto overflow-y-auto max-h-96">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-50">
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200 border-l border-r border-t border-gray-500">
+                                        <thead className="text-center">
                                             <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Room Number
                                                 </th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Room Type
                                                 </th>
-                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                     Actions
                                                 </th>
                                             </tr>
@@ -736,7 +732,7 @@ const DepartmentPage: React.FC = () => {
                                             {roomDepartment.map((room, idx) => (
                                                 <tr
                                                     key={idx}
-                                                    className="hover:bg-gray-50"
+                                                    className="divide-x divide-gray-500"
                                                 >
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {room.room_number}
