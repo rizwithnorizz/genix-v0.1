@@ -19,10 +19,10 @@ class ScheduleController extends Controller
 {
     
     
-    const POPULATION_SIZE = 10;
+    const POPULATION_SIZE = 30;
     const MAX_GENERATIONS = 5;
-    const MUTATION_RATE = 0.1;
-    const CROSSOVER_RATE = 0.1;
+    const MUTATION_RATE = 0.01;
+    const CROSSOVER_RATE = 0.01;
     const ELITE_COUNT = 5;
     
     
@@ -324,9 +324,6 @@ class ScheduleController extends Controller
                         continue;
                     }
                     
-
-                    $instructorId = $eligibleInstructors->random();
-
                     if ($subject->lec == 3 && $subject->lab == 0) {
                         
                         
@@ -337,6 +334,7 @@ class ScheduleController extends Controller
                         foreach($roomLec as $room){
                             $daySlot1 = 1;
                             while($daySlot1 < 5){
+                                $instructorId = $eligibleInstructors->random();
                                 $availableTimeSlots1 = $this->getAvailableTimeSlots(
                                     $room->roomID,
                                     $daySlot1,
@@ -362,6 +360,7 @@ class ScheduleController extends Controller
                         foreach ($roomLec as $room){
                             $daySlot2 = $daySlot1 + 2;
                             while($daySlot2 < 7){
+                                $instructorId = $eligibleInstructors->random();
                                 $availableTimeSlots2 = $this->getAvailableTimeSlots(
                                     $room->roomID,
                                     $daySlot2,
@@ -439,6 +438,7 @@ class ScheduleController extends Controller
                         });
                         while ($daySlotLec < 5){
                             foreach ($roomLec as $room){
+                                $instructorId = $eligibleInstructors->random();
                                 $availableTimeSlotsLec = $this->getAvailableTimeSlots(
                                     $room->roomID,
                                     $daySlotLec,
@@ -467,7 +467,7 @@ class ScheduleController extends Controller
                                     $room->roomID,
                                     $daySlotLab,
                                     $schedule,
-                                    4, // 1.5 hours (3 * 30 minutes)
+                                    6, // 1.5 hours (3 * 30 minutes)
                                     $instructorId->id,
                                     $section->sectionID
                                 );
@@ -532,6 +532,7 @@ class ScheduleController extends Controller
                             });
                             while($daySlotLec < 7 ){
                                 foreach ($roomEligible as $room){
+                                    $instructorId = $eligibleInstructors->random();
                                     $availableTimeSlotsLec = $this->getAvailableTimeSlots(
                                         $room->roomID,
                                         $daySlotLec,
@@ -572,11 +573,12 @@ class ScheduleController extends Controller
                         }
                         if($subject->lab > 0){
                             $daySlotLab = 1;
-                            $roomEligible = $eligibleRooms->filter(function ($room) {
+                            $roomEligible = $rooms->filter(function ($room) {
                                 return $room->room_type === 'Laboratory';
                             });
                             while($daySlotLab < 7){
                                 foreach($roomEligible as $room){
+                                    $instructorId = $eligibleInstructors->random();
                                     $availableTimeSlotsLab = $this->getAvailableTimeSlots(
                                         $room->roomID,
                                         $daySlotLab,
