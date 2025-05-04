@@ -96,7 +96,7 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
-    {/*fetch section information*/}
+    {/*fetch section information*/ }
     const [sections, setSections] = useState<Section[]>([]);
     const fetchSections = async () => {
         try {
@@ -108,7 +108,7 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
-    {/*fetch course subjects*/}
+    {/*fetch course subjects*/ }
     const [courseSubjects, setCourseSubjects] = useState<CourseSubject[]>([]);
     const fetchCourseSubjects = async (request: Curriculum) => {
         try {
@@ -186,6 +186,7 @@ const CourseOfferingsPage: React.FC = () => {
         formData.append("curriculum_file", uploadedFile);
 
         try {
+            setLoading(true);
             const response = await axios.post(
                 "/api/curriculum/upload",
                 formData,
@@ -203,6 +204,7 @@ const CourseOfferingsPage: React.FC = () => {
             setUploadError("Failed to upload curriculum. Please try again.");
         } finally {
             setIsUploading(false);
+            setLoading(false);
         }
     };
     const handleEditCurriculum = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,11 +300,12 @@ const CourseOfferingsPage: React.FC = () => {
         }
         );
     };
+    const [isLoading, setLoading] = useState<boolean>(false);
     return (
         <Layout>
             <h1 className="font-bold text-2xl mb-4">Curriculum</h1>
-            <main className="col-span-3 space-y-4">
-                <div className="bg-white p-4 rounded-2xl shadow-lg">
+            <main className="pace-y-4">
+                <div className="bg-white h-[75vh] p-4 overflow-y-auto">
                     {/* Tabs */}
                     <div className="flex border-b mb-4">
                         <button
@@ -327,38 +330,38 @@ const CourseOfferingsPage: React.FC = () => {
 
                     {/* Course Offerings Tab */}
                     {activeTab === "Course Offerings" && (
-                        <div className="bg-white p-4 rounded-2xl shadow-lg">
+                        <div className="bg-white p-4">
                             <div className="flex justify-between mb-4">
                                 <PrimaryButton
                                     onClick={handleToggleCurriculumPopup}
-                                    className="bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg"
+                                    className="bg-white py-2 px-4 rounded-lg"
                                 >
                                     New Curriculum
                                 </PrimaryButton>
                             </div>
 
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Curriculum
+                                <table className="min-w-full border-t border-l border-r border-gray-500">
+                                    <thead>
+                                        <tr className="h-[3rem] px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500">
+                                                Curriculum name
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500">
                                                 Program
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500">
                                                 Actions
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {curriculum.map((curr, idx) => (
-                                            <tr key={idx} className="hover:bg-gray-50">
+                                            <tr key={idx} className="hover:bg-gray-50 text-center">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {curr.curriculum_name}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 underline">
                                                     {curr.program_name}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -377,18 +380,22 @@ const CourseOfferingsPage: React.FC = () => {
                         </div>
                     )}
                     {showCurriculumCourses && selectedCurriculum && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl shadow-full">
-                                <h2 className="text-2xl font-semibold mb-4">
-                                    {selectedCurriculum.program_name}
-                                </h2>
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30 ">
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-h-[90vh] overflow-y-auto">
+                                <div className="flex justify-between mb-4">
+                                    <h2 className="text-2xl underline">
+                                        {selectedCurriculum.program_name}
+                                    </h2>
+                                    <button
+                                        className="text-red-500 hover:text-red-700"
+                                        onClick={handleCloseCurriculum}
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
                                 <h2 className="text-2xl font-semibold mb-4">
                                     {selectedCurriculum.curriculum_name}
                                 </h2>
-
-                                <h1 className="text-xl font-semibold mt-10">
-                                    Subjects
-                                </h1>
                                 <div className="grid grid-cols-2 gap-4 mb-4 justify-end">
                                     <div className="w-1/2"></div>
                                     <div className="col-span-2">
@@ -454,7 +461,7 @@ const CourseOfferingsPage: React.FC = () => {
                                         </button>
                                         <select
                                             key="semester"
-                                            className=" appearance-none bg-gray-200 rounded-lg w-1/4.5"
+                                            className=" appearance-none border border-gray-500 rounded-lg w-1/4.5"
                                             value={selectedSemester}
                                             onChange={(e) =>
                                                 setSelectedSemester(
@@ -468,9 +475,7 @@ const CourseOfferingsPage: React.FC = () => {
                                         </select>
                                     </div>
                                 </div>
-
-                                <h3 className="font-semibold mb-2">Subjects</h3>
-                                <div className="bg-gray-200 p-3 rounded-lg max-h-64 overflow-y-auto">
+                                <div className="border-2 border-gray-500 p-5 rounded-lg max-h-[70vh] overflow-y-auto">
                                     {courseSubjects
                                         .filter((subject) => {
                                             const yearLevelMap: {
@@ -503,13 +508,13 @@ const CourseOfferingsPage: React.FC = () => {
                                         .map((subject) => (
                                             <div
                                                 key={subject.id}
-                                                className="bg-gray-700 text-white p-3 rounded-full mb-2 grid grid-cols-4"
+                                                className="p3 border border-gray-500 rounded mb-3 grid grid-cols-5"
                                             >
-                                                <label className="text-xl font-bold flex items-center justify-center">
-                                                    {subject.subject_code}
-                                                </label>
-                                                <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-1">
+                                                <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-2">
                                                     {subject.name}
+                                                </label>
+                                                <label className="text-xl font-bold flex items-center pl-5">
+                                                    {subject.subject_code}
                                                 </label>
                                                 <label className="p-4">
                                                     Lec Hr: {subject.lec}
@@ -521,13 +526,13 @@ const CourseOfferingsPage: React.FC = () => {
                                         ))}
                                 </div>
 
-                                <div className="flex justify-start space-x-2 mt-4">
-                                    <button
-                                        className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+                                <div className="flex justify-end space-x-2 mt-4">
+                                    <PrimaryButton
+                                        className="py-2 px-4 rounded-md hover:bg-red-600"
                                         onClick={handleCloseCurriculum}
                                     >
                                         Close
-                                    </button>
+                                    </PrimaryButton>
                                 </div>
                             </div>
                         </div>
@@ -605,10 +610,15 @@ const CourseOfferingsPage: React.FC = () => {
                     {showAddCurriculum &&
                         (curriculumUploaded ? (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30 ">
-                                <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 shadow-full max-h-[850px] h-[90vh] overflow-y-auto">
+                                <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 shadow-full max-h-[90vh] overflow-y-auto">
+                                    <div className="flex justify-end text-red-500">
+                                        <button>
+                                            <X size={24}/>
+                                        </button>
+                                    </div>
                                     <h2>Curriculum Name</h2>
                                     <input
-                                        className="text-2xl font-semibold mb-4 border border-gray-300 rounded-lg p-2 w-full"
+                                        className="text-xl font-semibold mb-4 border border-gray-500 rounded-lg p-2 w-full"
                                         value={
                                             curriculumUploaded.curriculum_name
                                         }
@@ -618,7 +628,7 @@ const CourseOfferingsPage: React.FC = () => {
                                     />
                                     <h2>Program Name</h2>
                                     <input
-                                        className="text-2xl font-semibold mb-4 border border-gray-300 rounded-lg p-2 w-full"
+                                        className="text-xl font-semibold mb-4 border border-gray-500 rounded-lg p-2 w-full"
                                         value={curriculumUploaded.program_name}
                                         name="program_name"
                                         type="text"
@@ -626,7 +636,7 @@ const CourseOfferingsPage: React.FC = () => {
                                     />
                                     <h2>Program Short Name</h2>
                                     <input
-                                        className="text-2xl font-semibold mb-4 border border-gray-300 rounded-lg p-2 w-full"
+                                        className="text-xl font-semibold mb-4 border border-gray-500 rounded-lg p-2 w-full"
                                         value={
                                             curriculumUploaded.program_short_name
                                         }
@@ -634,9 +644,18 @@ const CourseOfferingsPage: React.FC = () => {
                                         type="text"
                                         onChange={handleEditCurriculum}
                                     />
-                                    <h1 className="text-xl font-semibold mt-10">
-                                        Subjects
-                                    </h1>
+                                    <div className="flex justify-end">
+                                        <PrimaryButton
+                                            className="py-2 px-4 rounded-md hover:bg-red-600"
+                                            onClick={() =>
+                                                handleCreateCurriculum(
+                                                    curriculumUploaded
+                                                )
+                                            }
+                                        >
+                                            Add Curriculum
+                                        </PrimaryButton>
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4 mb-4 justify-end">
                                         <div className="w-1/2"></div>
                                         <div className="col-span-2">
@@ -716,11 +735,7 @@ const CourseOfferingsPage: React.FC = () => {
                                             </select>
                                         </div>
                                     </div>
-
-                                    <h3 className="font-semibold mb-2">
-                                        Subjects
-                                    </h3>
-                                    <div className="bg-gray-200 p-3 rounded-lg max-h-64 overflow-y-auto">
+                                    <div className=" p-3 rounded-lg max-h-[70vh] overflow-y-auto">
                                         {curriculumUploaded?.subjects &&
                                             curriculumUploaded.subjects
                                                 .filter((subject) => {
@@ -757,9 +772,9 @@ const CourseOfferingsPage: React.FC = () => {
                                                         key={
                                                             subject.subject_code
                                                         }
-                                                        className="bg-gray-700 text-white p-3 rounded-full mb-2 grid grid-cols-5"
+                                                        className="border border-gray-500 rounded mb-2 grid grid-cols-6"
                                                     >
-                                                        <div className="grid grid-cols-2 pl-5 flex items-center justify-center">
+                                                        <div className="grid grid-cols-2 pl-5 flex items-center justify-center col-span-2">
                                                             <h2>Prof. Sub?</h2>
                                                             <input type="checkbox"
                                                                 name="prof_sub"
@@ -770,13 +785,13 @@ const CourseOfferingsPage: React.FC = () => {
                                                                 onChange={() => handleEditUploadedCurriculum(subject)}
                                                             />
                                                         </div>
+                                                        <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-1">
+                                                            {subject.name}
+                                                        </label>
                                                         <label className="text-xl font-bold flex items-center justify-center">
                                                             {
                                                                 subject.subject_code
                                                             }
-                                                        </label>
-                                                        <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-1">
-                                                            {subject.name}
                                                         </label>
                                                         <label className="p-4">
                                                             Lec Hr:{" "}
@@ -790,17 +805,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                 ))}
                                     </div>
 
-                                    <div className="flex justify-between space-x-2 mt-4">
-                                        <button
-                                            className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                                            onClick={() =>
-                                                handleCreateCurriculum(
-                                                    curriculumUploaded
-                                                )
-                                            }
-                                        >
-                                            Add Curriculum
-                                        </button>
+                                    <div className="flex justify-end space-x-2 mt-4">
                                         <button
                                             className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
                                             onClick={
@@ -819,9 +824,9 @@ const CourseOfferingsPage: React.FC = () => {
                                         Add Curriculum
                                     </h2>
 
-                                    <div className="flex flex-col items-center justify-center mb-4">
+                                    <div className="flex items-center justify-center mb-4">
                                         <label
-                                            className={`bg-blue-500 hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center text-white font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
+                                            className={`border border-gray-500 bg-white hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
                                                 ? "bg-green-500 hover:bg-green-400"
                                                 : ""
                                                 }`}
@@ -859,7 +864,7 @@ const CourseOfferingsPage: React.FC = () => {
 
                                     <div className="flex justify-center items-center">
                                         <PrimaryButton
-                                            className="bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg disabled:bg-red"
+                                            className="py-2 px-4 rounded-lg disabled:bg-red"
                                             onClick={handleFileUpload}
                                             disabled={
                                                 isUploading || !uploadedFile
@@ -873,7 +878,7 @@ const CourseOfferingsPage: React.FC = () => {
 
                                     <div></div>
                                     <button
-                                        className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+                                        className="border border-gray-500 py-2 px-4 rounded-md hover:bg-red-600"
                                         onClick={handleToggleCurriculumPopup}
                                     >
                                         Close
@@ -883,26 +888,26 @@ const CourseOfferingsPage: React.FC = () => {
                         ))}
                     {/* Sections Tab */}
                     {activeTab === "Sections" && (
-                        <div className="bg-white p-4 rounded-2xl shadow-lg">
+                        <div className="bg-white p-4">
                             <div className="flex grid grid-cols-2 mb-4">
 
                                 <div>
                                     <PrimaryButton
                                         onClick={handleToggleAddSection}
-                                        className="ml-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                                        className=""
                                     >
                                         Add Section
                                     </PrimaryButton>
                                 </div>
                                 {sections.length === 0 ? (
-                                    <div className="text-center text-gray-500 row-start-2 flex items-center justify-center w-full col-span-2 my-20"> 
-                                    No Sections created yet.
-                                </div>
+                                    <div className="text-center text-gray-500 row-start-2 flex items-center justify-center w-full col-span-2 my-20">
+                                        No Sections created yet.
+                                    </div>
                                 ) : (
                                     <>
-                                        <div className="flex w-full justify-end gap-10">
+                                        <div className="flex w-full justify-end gap-10 pb-4">
                                             <select
-                                                className="border border-gray-300 rounded-lg p-2 w-1/3"
+                                                className="border border-gray-500 rounded p-2 w-1/3"
                                                 value={selectedYearLevel}
                                                 onChange={(e) =>
                                                     setSelectedYearLevel(e.target.value)
@@ -925,7 +930,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                 </option>
                                             </select>
                                             <select
-                                                className="border border-gray-300 rounded-lg p-2 w-1/3"
+                                                className="border border-gray-500 rounded p-2 w-1/3"
                                                 onChange={(e) =>
                                                     setSelectedCurriculum(
                                                         curriculum.find(
@@ -959,19 +964,19 @@ const CourseOfferingsPage: React.FC = () => {
                                             </select>
                                         </div>
                                         <div className="overflow-x-auto col-span-2">
-                                            <table className="min-w-full divide-y divide-gray-200">
-                                                <thead className="bg-gray-50">
+                                            <table className="min-w-full divide-y divide-gray-200 border-l border-r border-t border-gray-500">
+                                                <thead className="text-center">
                                                     <tr>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             Section
                                                         </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             Program
                                                         </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             Year Level
                                                         </th>
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             Actions
                                                         </th>
                                                     </tr>
@@ -1019,7 +1024,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                         .map((section) => (
                                                             <tr
                                                                 key={section.id}
-                                                                className="hover:bg-gray-50"
+                                                                className="hover:bg-gray-50 text-center"
                                                             >
                                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                                     {section.section_name}
@@ -1050,7 +1055,7 @@ const CourseOfferingsPage: React.FC = () => {
                                             </table>
                                         </div>
 
-                                        </>
+                                    </>
                                 )}
 
                             </div>
@@ -1061,37 +1066,43 @@ const CourseOfferingsPage: React.FC = () => {
                 </div>
                 {addSectionPopup && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-h-[90vh] overflow-y-auto">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-semibold">
                                     Add Section
                                 </h2>
+                                <button className="text-red-500">
+                                    <X size={24} onClick={handleToggleAddSection} />
+                                </button>
                             </div>
                             <div className="mb-4 grid md:grid-cols-2 grid-cols-1 gap-4">
                                 <div>
-                                <h2>
-                                    Section Name
-                                </h2>
-                                <input
-                                    type="text"
-                                    placeholder="Section Name"
-                                    value={sectionName}
-                                    onChange={(e) =>
-                                        setSectionName(e.target.value)
-                                    }
-                                    className="p-3 bg-gray-200 rounded-lg w-full md:col-span-1 col-span-2"
-                                />
+                                    <h2>
+                                        Section Name
+                                    </h2>
+                                    <input
+                                        type="text"
+                                        placeholder="Section Name"
+                                        value={sectionName}
+                                        onChange={(e) =>
+                                            setSectionName(e.target.value)
+                                        }
+                                        className="p-3 rounded-lg w-full md:col-span-1 col-span-2"
+                                    />
                                 </div>
                                 <div>
-                                <h2>
-                                    Population
-                                </h2>
-                                <input  
-                                    type="text"
-                                    placeholder="Population"
-                                    value={population}
-                                    onChange={(e) => setPopulation(parseInt(e.target.value))}
-                                    className="p-3 bg-gray-200 rounded-lg w-full md:col-span-1 col-span-2"  />
+                                    <h2>
+                                        Population
+                                    </h2>
+                                    <input
+                                        type="text"
+                                        placeholder="Population"
+                                        value={population}
+                                        onChange={(e) => {
+                                            const value = parseInt(e.target.value);
+                                            setPopulation(isNaN(value) ? 0 : value);
+                                        }}
+                                        className="p-3 rounded-lg w-full md:col-span-1 col-span-2" />
                                 </div>
                                 <select
                                     onChange={(e) => {
@@ -1107,11 +1118,11 @@ const CourseOfferingsPage: React.FC = () => {
                                             );
                                         }
                                     }}
-                                    className="appearance-none bg-gray-200 p-3 rounded-lg col-span-2"
+                                    className="appearance-none p-3 rounded-lg col-span-2"
                                 >
                                     <option>Curriculum</option>
                                     {curriculum.map((curriculum) => (
-                                        <option 
+                                        <option
                                             key={curriculum.curriculumID}
                                             value={curriculum.curriculum_name}
                                         >
@@ -1126,7 +1137,7 @@ const CourseOfferingsPage: React.FC = () => {
                                     onChange={(e) =>
                                         setYearLevelCourse(e.target.value)
                                     }
-                                    className="appearance-none bg-gray-200 rounded-lg"
+                                    className="appearance-none rounded-lg"
                                 >
                                     <option>Year Level</option>
                                     <option value="First Year">
@@ -1144,7 +1155,7 @@ const CourseOfferingsPage: React.FC = () => {
                                 </select>
                                 <select
                                     key="semester"
-                                    className="appearance-none bg-gray-200 rounded-lg"
+                                    className="appearance-none rounded-lg"
                                     value={selectedSemester}
                                     onChange={(e) =>
                                         setSelectedSemester(e.target.value)
@@ -1155,8 +1166,16 @@ const CourseOfferingsPage: React.FC = () => {
                                     <option>Summer</option>
                                 </select>
                             </div>
-                            <h3 className="font-semibold mb-2">Subjects</h3>
-                            <div className="bg-gray-200 p-3 rounded-lg max-h-48 overflow-y-auto mb-4">
+                            <div className="flex justify-end mb-4">
+
+                                <PrimaryButton
+                                    className="py-2 px-4 rounded-md hover:bg-blue-600"
+                                    onClick={handleAddSection}
+                                >
+                                    Add Section
+                                </PrimaryButton>
+                            </div>
+                            <div className="p-3 max-h-[70vh] overflow-y-auto mb-4">
                                 {courseSubjects
                                     .filter((subject) => {
                                         const yearLevelMap: {
@@ -1185,13 +1204,13 @@ const CourseOfferingsPage: React.FC = () => {
                                     .map((subject, idx) => (
                                         <div
                                             key={idx}
-                                            className="bg-gray-700 text-white p-3 rounded-full mb-2 grid grid-cols-4"
+                                            className="border border-gray-500 rounded mb-2 grid grid-cols-5"
                                         >
+                                            <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-2">
+                                                {subject.name}
+                                            </label>
                                             <label className="text-xl font-bold flex items-center justify-center">
                                                 {subject.subject_code}
-                                            </label>
-                                            <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-1">
-                                                {subject.name}
                                             </label>
                                             <label className="p-4">
                                                 Lec Hr: {subject.lec}
@@ -1202,25 +1221,24 @@ const CourseOfferingsPage: React.FC = () => {
                                         </div>
                                     ))}
                             </div>
-
-                            <div className="space-x-2">
-                                <button
-                                    className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                                    onClick={handleAddSection}
-                                >
-                                    Add Section
-                                </button>
-                                <button
-                                    className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+                            <div className="flex justify-end">
+                                <PrimaryButton
+                                    className="py-2 px-4 rounded-md hover:bg-red-600 flex justify-end"
                                     onClick={handleToggleAddSection}
                                 >
                                     Cancel
-                                </button>
+                                </PrimaryButton>
                             </div>
+
                         </div>
                     </div>
                 )}
             </main>
+            {isLoading && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-30">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-100"></div>
+                </div>
+            )}
         </Layout>
     );
 };

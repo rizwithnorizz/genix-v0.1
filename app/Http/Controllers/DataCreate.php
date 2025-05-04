@@ -575,10 +575,9 @@ RESPONSE FORMAT:
       "subjects":
         {
           "subject_code": "SUBJECT_CODE",
-          "semester": "SEMESTER", // "1st", "2nd", or "summer"
-          "year_level": YEAR_LEVEL, // 1, 2, 3, or 4
+          "semester": "SEMESTER", // "1st", "2nd", or "summer". FOR SUMMER, ALWAYS CHECK THE PREVIOUS YEAR LEVEL AND SET THE YEAR LEVEL TO THAT.
+          "year_level": YEAR_LEVEL, // 1, 2, 3, or 4 If there is a pre-requisite or co-requisite for a subject's year level, set it. If none, assign the year level according to the table's year level. 
           "name": "SUBJECT_NAME",
-          "room_req": ROOM_TYPE, // 1 for lecture, 2 for laboratory
           "lec" : "LECTURE_HOURS", // 2, 3, or 0. IGNORE CELL 3 AND 4 IN THE FILE CONTENT. ONLY RECOGNIZE CELL 5 FOR LEC. THIS IS HOURS PER WEEK, NOT UNITS
           "lab" : "LABORATORY_HOURS", //2,3 or 0. IGNORE CELL 3 AND 4 IN THE FILE CONTENT. ONLY RECOGNIZE CELL 6 FOR LAB. THIS IS HOURS PER WEEK, NOT UNITS
           "prof_sub": BOOLEAN // true or false. IF SUBJECT HAS 2 HOURS ON LECTURE AND 3 HOURS ON LAB, PROF_SUB SHOULD BE TRUE. If the subject name sounds relevant to the program, it should be true. If the subject name sounds irrelevant to the program, it should be false. For example: "Algorithms" is relevant to Computer Science, so prof_sub should be true. "History of the Philippines" is irrelevant to Computer Science, so prof_sub should be false.
@@ -665,7 +664,6 @@ PROMPT;
                     ],
                     [
                         'name' => $subjectData['name'],
-                        'room_req' => $subjectData['room_req'],
                         'lec' => $subjectData['lec'],
                         'lab' => $subjectData['lab'],
                         'prof_subject' => $subjectData['prof_sub'],

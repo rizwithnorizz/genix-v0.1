@@ -70,8 +70,7 @@ const SchedulePage: React.FC = () => {
     3: "Wednesday",
     4: "Thursday",
     5: "Friday",
-    6: "Saturday",
-    7: "Sunday",
+    6: "Saturday",  
   };
 
   const groupedSchedules = Object.keys(DAY_MAPPING).reduce((acc, day) => {
@@ -110,7 +109,7 @@ const SchedulePage: React.FC = () => {
         {/* Filters */}
         <div className="gap-4 flex">
           <select
-            className="rounded-xl p-2 border border-gray-300"
+            className="w-[15rem] rounded-xl p-2 border border-gray-300"
             value={selectedDepartment}
             onChange={(e) => setSelectedDepartment(e.target.value)}
           >
@@ -135,23 +134,23 @@ const SchedulePage: React.FC = () => {
         {/* Schedule Table */}
         <div className="overflow-x-auto">
           {selectedDepartment && searchInstructor ? (
-            <table className="w-full table-auto border-collapse border border-gray-300 mt-4">
-              <thead className="bg-gray-200">
+            <table className="w-full border-l border-r border-t border-gray-500 mt-4">
+              <thead className="">
                 <tr>
                   {Object.values(DAY_MAPPING).map((day) => (
-                    <th key={day} className="px-4 py-2 border border-gray-300">
+                    <th key={day} className="px-4 py-2 border border-gray-500">
                       {day}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr className="divide-x divide-gray-500">
                   {Object.keys(DAY_MAPPING).map((day) => (
-                    <td key={day} className="px-4 py-2 border border-gray-300 w-[10rem]  align-top">
+                    <td key={day} className="px-4 py-2 w-[10rem]  align-top">
                       {groupedSchedules[day]?.length > 0 ? (
                         groupedSchedules[day].map((schedule) => (
-                          <button key={schedule.id} className="mb-2 bg-gray-100 w-full" 
+                          <button key={schedule.id} className="mb-2 border border-gray-500 rounded-xl w-full" 
                             onClick={() => handleScheduleClick(schedule)}>
                             <h2 className="text-xl text-blue-500 font-semibold">
                               {schedule.room_number}

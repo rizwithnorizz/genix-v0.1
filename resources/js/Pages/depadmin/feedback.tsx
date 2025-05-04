@@ -85,13 +85,20 @@ const Feedback: React.FC = () => {
             fetchInstructorFeedbacks();
         }
     };
+    const [searchTerm, setSearchTerm] = useState<string>(""); 
+    const filteredStudentFeedbacks = studentFeedbacks?.filter((feedback) =>
+        feedback.section_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
+    const filteredInstructorFeedbacks = instructorFeedbacks?.filter((feedback) =>
+        feedback.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     return (
         <Layout>
             <main className="col-span-3 space-y-4">
                 <h1 className="font-bold text-2xl mb-4">Feedback Management</h1>
 
-                <div className="bg-white p-4 rounded-2xl shadow-lg">
+                <div className="bg-white p-4">
                     {/* Tabs */}
                     <div className="flex border-b mb-4">
                         <button
@@ -120,29 +127,31 @@ const Feedback: React.FC = () => {
 
                     {/* Student Feedback Table */}
                     {activeTab === "Student Feedback" && (
-                        <div className="bg-white p-4 rounded-2xl shadow-lg">
+                        <div className="bg-white p-4">
                             <div className="flex justify-between mb-4">
                                 <input
                                     className="border border-gray-300 rounded-lg p-2"
                                     type="text"
                                     placeholder="Search section..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)} // Update search term
                                 />
                             </div>
 
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                                <table className="w-full text-center border-l border-r border-t border-gray-500">
+                                    <thead >
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Course Section
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500 px-6 py-3  text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Subject Code
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Feedback
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status
                                             </th>
                                         </tr>
@@ -150,7 +159,7 @@ const Feedback: React.FC = () => {
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {studentFeedbacks?.map(
                                             (feedback, idx) => (
-                                                <tr key={idx}>
+                                                <tr key={idx} className="divide-x divide-gray-500">
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {feedback.section_name}
                                                     </td>
@@ -168,10 +177,10 @@ const Feedback: React.FC = () => {
                                                                     feedback.id
                                                                 )
                                                             }
-                                                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                            className={`px-4 py-1 border border-gray-500 rounded text-xs font-medium ${
                                                                 feedback.status
-                                                                    ? "bg-green-100 text-green-800 hover:bg-green-200"
-                                                                    : "bg-red-100 text-red-800 hover:bg-red-200"
+                                                                    ? "bg-green-300 text-green-800 hover:bg-green-200"
+                                                                    : "text-red-800 hover:bg-red-300"
                                                             }`}
                                                         >
                                                             {feedback.status
@@ -190,37 +199,39 @@ const Feedback: React.FC = () => {
 
                     {/* Instructor Feedback Table */}
                     {activeTab === "Instructor Feedback" && (
-                        <div className="bg-white p-4 rounded-2xl shadow-lg">
+                        <div className="bg-white p-4">
                             <div className="flex justify-between mb-4">
                                 <input
                                     className="border border-gray-300 rounded-lg p-2"
                                     type="text"
                                     placeholder="Search instructor..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)} // Update search term
                                 />
                             </div>
 
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                                <table className="min-w-full divide-y divide-gray-200 border-l border-r border-t border-gray-500 text-center">
+                                    <thead>
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Instructor Name
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Subject Code
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Feedback
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Status
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {instructorFeedbacks?.map(
+                                        {filteredInstructorFeedbacks?.map(
                                             (feedback, idx) => (
-                                                <tr key={idx}>
+                                                <tr key={idx} className="divide-x divide-gray-500">
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                         {feedback.name}
                                                     </td>
@@ -231,21 +242,21 @@ const Feedback: React.FC = () => {
                                                         {feedback.feedback}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <button
+                                                    <button
                                                             onClick={() =>
                                                                 toggleFeedbackStatus(
                                                                     "instructor",
                                                                     feedback.id
                                                                 )
                                                             }
-                                                            className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                                            className={`px-4 py-1 border border-gray-500 rounded text-xs font-medium ${
                                                                 feedback.status
-                                                                    ? "bg-green-100 text-green-800 hover:bg-green-200"
-                                                                    : "bg-red-100 text-red-800 hover:bg-red-200"
+                                                                    ? "bg-green-300 text-green-800 hover:bg-green-200"
+                                                                    : "text-red-800 hover:bg-red-300"
                                                             }`}
                                                         >
                                                             {feedback.status
-                                                                ? "Resolved"
+                                                                ? "Approved"
                                                                 : "Pending"}
                                                         </button>
                                                     </td>

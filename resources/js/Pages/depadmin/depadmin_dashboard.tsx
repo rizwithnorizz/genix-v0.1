@@ -9,6 +9,7 @@ import {
     SendHorizonal,
     Trash2,
     View,
+    X,
     type LucideIcon,
 } from "lucide-react";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -201,7 +202,6 @@ const DepAdminDashboard: React.FC = () => {
         4: "Thursday",
         5: "Friday",
         6: "Saturday",
-        7: "Sunday",
     };
     const groupedSchedules = Object.keys(DAY_MAPPING).reduce((acc, day) => {
         const daySchedules =
@@ -298,8 +298,7 @@ const DepAdminDashboard: React.FC = () => {
                                                     if (!schedule.status) {
                                                         try {
                                                             await axios.put(
-                                                                `/api/schedules/${
-                                                                    schedule.id
+                                                                `/api/schedules/${schedule.id
                                                                 }/${1}`
                                                             );
                                                         } catch (error) {
@@ -311,8 +310,7 @@ const DepAdminDashboard: React.FC = () => {
                                                     } else {
                                                         try {
                                                             await axios.put(
-                                                                `/api/schedules/${
-                                                                    schedule.id
+                                                                `/api/schedules/${schedule.id
                                                                 }/${0}`
                                                             );
                                                         } catch (error) {
@@ -363,7 +361,7 @@ const DepAdminDashboard: React.FC = () => {
                                     curriculum.map((Curriculum, idx) => (
                                         <button
                                             key={idx}
-                                            className="w-full h-[55px] hover:bg-gray-100 bg-white text-gray-700 p-2 rounded-xl flex relative items-center justify-between border-2 border-gray-500" 
+                                            className="w-full h-[55px] hover:bg-gray-100 bg-white text-gray-700 p-2 rounded-xl flex relative items-center justify-between border-2 border-gray-500"
                                         >
                                             <div className="pl-5 flex items-center">
                                                 <span>
@@ -420,12 +418,13 @@ const DepAdminDashboard: React.FC = () => {
                 </div>
                 {viewFile && selectedSchedule && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                        <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-h-[90vh] overflow-y-auto">
                             <h2 className="text-xl font-semibold mb-4">
                                 Schedule for {selectedSchedule.repo_name}
                             </h2>
 
                             {/* Section Filter */}
+                            
                             <div className="mb-4">
                                 <label
                                     htmlFor="sectionFilter"
@@ -439,7 +438,7 @@ const DepAdminDashboard: React.FC = () => {
                                     onChange={(e) =>
                                         setSelectedSection(e.target.value)
                                     }
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    className="mt-1 block w-full border border-gray-500 rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                 >
                                     <option value="">All Sections</option>
                                     {Array.from(
@@ -461,6 +460,7 @@ const DepAdminDashboard: React.FC = () => {
                             </div>
 
                             {/* Schedule Table */}
+                            
                             <div className="overflow-x-auto max-h-[50vh]">
                                 <h3 className="text-lg font-bold mb-2">
                                     Section: {selectedSection || "All Sections"}
@@ -472,7 +472,7 @@ const DepAdminDashboard: React.FC = () => {
                                                 (day) => (
                                                     <th
                                                         key={day}
-                                                        className="border border-gray-300 px-4 py-2 text-left"
+                                                        className="border border-gray-500 px-4 py-2 text-center"
                                                     >
                                                         {day}
                                                     </th>
@@ -486,7 +486,7 @@ const DepAdminDashboard: React.FC = () => {
                                                 (day) => (
                                                     <td
                                                         key={day}
-                                                        className="border border-gray-300 px-4 py-2 align-top"
+                                                        className="border border-gray-500 px-4 py-2 align-top"
                                                     >
                                                         {scheduleFileView[day]
                                                             ?.length > 0 ? (
@@ -498,14 +498,19 @@ const DepAdminDashboard: React.FC = () => {
                                                                         key={
                                                                             schedule.id
                                                                         }
-                                                                        className="mb-2 bg-gray-100 p-2 rounded-lg shadow"
+                                                                        className="mb-2 border border-gray-500 p-2 rounded-lg shadow text-center"
                                                                     >
                                                                         <p className="font-semibold">
                                                                             {
                                                                                 schedule.subject_code
                                                                             }
                                                                         </p>
-                                                                        <p className="text-sm text-gray-600">
+                                                                        <p className="font-semibold text-blue-500">
+                                                                            {
+                                                                                schedule.room_number
+                                                                            }
+                                                                        </p>
+                                                                        <p className="text-sm text-gray-600 underline">
                                                                             {
                                                                                 schedule.time_start
                                                                             }{" "}
@@ -513,13 +518,8 @@ const DepAdminDashboard: React.FC = () => {
                                                                             {
                                                                                 schedule.time_end
                                                                             }{" "}
-                                                                            Room:{" "}
-                                                                            {
-                                                                                schedule.room_number
-                                                                            }
                                                                         </p>
                                                                         <p className="text-sm text-gray-600">
-                                                                            Instructor:{" "}
                                                                             {instructors?.find(
                                                                                 (
                                                                                     instructor
@@ -560,11 +560,16 @@ const DepAdminDashboard: React.FC = () => {
                 {generateTab &&
                     (viewGeneratedSchedule ? (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                            <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-4xl max-h-[90vh]">
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-h-[95vh]">
+                                <div className="flex justify-between mb-4">
                                 <h2 className="text-xl font-semibold mb-4">
                                     Generated Schedule
                                 </h2>
-
+                                <button onClick={() => setGenerateTab(false)}>
+                                    <X size={24}/>
+                                </button>
+                                </div>
+                                
                                 {/* Section Selection */}
                                 <div className="mb-4">
                                     <label
@@ -579,7 +584,7 @@ const DepAdminDashboard: React.FC = () => {
                                         onChange={(e) =>
                                             setSelectedSection(e.target.value)
                                         }
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        className="mt-1 block w-full border border-gray-500 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     >
                                         <option value="" disabled>
                                             Select a section
@@ -615,7 +620,7 @@ const DepAdminDashboard: React.FC = () => {
                                                     ).map((day) => (
                                                         <th
                                                             key={day}
-                                                            className="border border-gray-300 px-4 py-2 text-left"
+                                                            className="border border-gray-500 px-4 py-2 text-center"
                                                         >
                                                             {day}
                                                         </th>
@@ -629,7 +634,7 @@ const DepAdminDashboard: React.FC = () => {
                                                     ).map((day, idx) => (
                                                         <td
                                                             key={idx}
-                                                            className="border border-gray-300 px-4 py-2 align-top"
+                                                            className="border border-gray-500 px-4 py-2 align-top"
                                                         >
                                                             {groupedSchedules[
                                                                 day
@@ -644,14 +649,19 @@ const DepAdminDashboard: React.FC = () => {
                                                                             key={
                                                                                 schedule.id
                                                                             }
-                                                                            className="mb-2 bg-gray-100 p-2 rounded-lg shadow"
+                                                                            className="mb-2 w-full border-gray-500 border-2 p-2 rounded-lg shadow text-center"
                                                                         >
                                                                             <p className="font-semibold">
                                                                                 {
                                                                                     schedule.subject_code
                                                                                 }
                                                                             </p>
-                                                                            <p className="text-sm text-gray-600">
+                                                                            <p className="font-semibold text-blue-500">
+                                                                                {
+                                                                                    schedule.room_number
+                                                                                }
+                                                                            </p>
+                                                                            <p className="text-sm text-gray-600 underline">
                                                                                 {
                                                                                     schedule.time_start
                                                                                 }{" "}
@@ -659,13 +669,9 @@ const DepAdminDashboard: React.FC = () => {
                                                                                 {
                                                                                     schedule.time_end
                                                                                 }{" "}
-                                                                                Room:{" "}
-                                                                                {
-                                                                                    schedule.room_number
-                                                                                }
+
                                                                             </p>
                                                                             <p className="text-sm text-gray-600">
-                                                                                Instructor:{" "}
                                                                                 {instructors?.find(
                                                                                     (
                                                                                         instructor
@@ -692,7 +698,7 @@ const DepAdminDashboard: React.FC = () => {
                                     </div>
                                 )}
                                 {/* Close Button */}
-                                <div className="flex justify-between mt-4">
+                                <div className="flex justify-end mt-4">
                                     <PrimaryButton
                                         onClick={handleGenerateScheduleClick}
                                         className="bg-red-800 hover:bg-red-900 text-white py-2 px-4 rounded-lg"
@@ -708,8 +714,8 @@ const DepAdminDashboard: React.FC = () => {
                                 <h2 className="text-xl font-semibold mb-4">
                                     Generate Class Schedule
                                 </h2>
-                                <div className="mb-4"> 
-                                <label
+                                <div className="mb-4">
+                                    <label
                                         htmlFor="schoolYear"
                                         className="mt-2 block text-sm font-medium text-gray-700"
                                     >
@@ -762,7 +768,7 @@ const DepAdminDashboard: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="mb-4">
-                                    
+
                                     <div className="mt-5 flex items-center justify-center">
                                         {retrievedFeedback.length > 0 && (
                                             <PrimaryButton

@@ -375,7 +375,7 @@ class DataRelay extends Controller
                 return $query->where('instructor_feedback.departmentID', $userDepartment);
             })
             ->join('subjects', 'instructor_feedback.subjectID', '=', 'subjects.id')
-            ->select('instructor_feedback.*', 'instructors.name as name')
+            ->select('instructor_feedback.*', 'instructors.name as name', 'subjects.subject_code')
             ->get();
 
         \Log::info('Instructor Feedback Data:', ['feedback' => $instructorFeedback]);
