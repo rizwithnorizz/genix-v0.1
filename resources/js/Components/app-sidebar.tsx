@@ -110,7 +110,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               { title: "Department", url: "departments", icon: "BoxesIcon", isCollapsible: false },
               { title: "Rooms", url: "rooms", icon: "DoorOpenIcon", isCollapsible: false },
               { title: "Schedules Approval", url: "schedules", icon: "CalendarPlus2Icon", isCollapsible: false },
-              { title: "Help", url: "help", icon: "BadgeHelpIcon", isCollapsible: false },
               { title: "About", url: "about", icon: "UserPenIcon", isCollapsible: false },
             ];
             break;
