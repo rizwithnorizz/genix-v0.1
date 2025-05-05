@@ -143,7 +143,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             { title: "Student Schedule", url: "student", icon: "NotebookPen", isCollapsible: false },
             { title: "Instructor Schedule", url: "instructor", icon: "AppleIcon", isCollapsible: false },
             { title: "Login", url: "/login", icon: "KeySquareIcon", isCollapsible: false },
-            { title: "About", url: "/about", icon: "BadgeHelpIcon", isCollapsible: false },
+            { title: "About", url: "about", icon: "BadgeHelpIcon", isCollapsible: false },
           ];
 
           const sidebarData = {

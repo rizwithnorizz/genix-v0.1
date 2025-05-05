@@ -24,7 +24,9 @@ Route::get('/', function () {
     return redirect('login');
 });
 
-
+Route::get('guest/about', function () {
+    return Inertia::render('about');
+})->name('about');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
