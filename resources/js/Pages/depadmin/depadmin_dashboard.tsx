@@ -426,7 +426,7 @@ const DepAdminDashboard: React.FC = () => {
                             </h2>
 
                             {/* Section Filter */}
-                            
+
                             <div className="mb-4">
                                 <label
                                     htmlFor="sectionFilter"
@@ -462,7 +462,7 @@ const DepAdminDashboard: React.FC = () => {
                             </div>
 
                             {/* Schedule Table */}
-                            
+
                             <div className="overflow-x-auto max-h-[50vh]">
                                 <h3 className="text-lg font-bold mb-2">
                                     Section: {selectedSection || "All Sections"}
@@ -531,12 +531,12 @@ const DepAdminDashboard: React.FC = () => {
                                                                             )
                                                                                 ?.name ||
                                                                                 genEdInstructors?.find(
-                                                                                   (
-                                                                                    instructor
-                                                                                   ) =>
-                                                                                    instructor.id ===
-                                                                                    schedule.instructor_id
-                                                                                )?.name 
+                                                                                    (
+                                                                                        instructor
+                                                                                    ) =>
+                                                                                        instructor.id ===
+                                                                                        schedule.instructor_id
+                                                                                )?.name
                                                                                 || "Unknown"}
                                                                         </p>
                                                                     </div>
@@ -571,14 +571,14 @@ const DepAdminDashboard: React.FC = () => {
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
                             <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-h-[95vh]">
                                 <div className="flex justify-between mb-4">
-                                <h2 className="text-xl font-semibold mb-4">
-                                    Generated Schedule
-                                </h2>
-                                <button onClick={() => setGenerateTab(false)}>
-                                    <X size={24}/>
-                                </button>
+                                    <h2 className="text-xl font-semibold mb-4">
+                                        Generated Schedule
+                                    </h2>
+                                    <button onClick={() => setGenerateTab(false)}>
+                                        <X size={24} />
+                                    </button>
                                 </div>
-                                
+
                                 {/* Section Selection */}
                                 <div className="mb-4">
                                     <label
@@ -689,7 +689,14 @@ const DepAdminDashboard: React.FC = () => {
                                                                                         schedule.instructor_id
                                                                                 )
                                                                                     ?.name ||
-                                                                                    "Unknown"}
+                                                                                    genEdInstructors?.find(
+                                                                                        (
+                                                                                            instructor
+                                                                                        ) =>
+                                                                                            instructor.id ===
+                                                                                            schedule.instructor_id
+                                                                                    )?.name
+                                                                                    || "Unknown"}
                                                                             </p>
                                                                         </div>
                                                                     )

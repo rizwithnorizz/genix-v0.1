@@ -384,8 +384,8 @@ class ScheduleController extends Controller
                         }
                         
                         
-                        $timeSlot1 = $availableTimeSlots1[0];
-                        $timeSlot2 = $availableTimeSlots2[0];
+                        $timeSlot1 = $availableTimeSlots1[array_rand($availableTimeSlots1)];
+                        $timeSlot2 = $availableTimeSlots2[array_rand($availableTimeSlots2)];
 
                         
                         \Log::error("chosen time slot for day $daySlot1: " . json_encode($timeSlot1));
@@ -486,9 +486,9 @@ class ScheduleController extends Controller
                             }
                             $daySlotLab++;
                         }
-                        $timeSlotLec = $availableTimeSlotsLec[0];
                         
-                        $timeSlotLab = $availableTimeSlotsLab[0];
+                        $timeSlotLec = $availableTimeSlotsLec[array_rand($availableTimeSlotsLec)];
+                        $timeSlotLab = $availableTimeSlotsLab[array_rand($availableTimeSlotsLab)];
 
                         \Log::error("Room lecture : " . json_encode($roomLec));
                         \Log::error("Room lab : " . json_encode($roomLab));
@@ -554,7 +554,7 @@ class ScheduleController extends Controller
                                 }
                                 $daySlotLec++;
                             }
-                            $timeSlot = $availableTimeSlotsLec[0];
+                            $timeSlot = $availableTimeSlotsLec[array_rand($availableTimeSlotsLec)];
                             $schedule[] = [
                                 'subjectID' => $subject->subjectID,
                                 'subject_code' => $subject->subject_code,
@@ -596,7 +596,7 @@ class ScheduleController extends Controller
                                     }
                                 }
                             }
-                            $timeSlot = $availableTimeSlotsLab[0];
+                            $timeSlot = $availableTimeSlotsLab[array_rand($availableTimeSlotsLab)];
                             $schedule[] = [
                                 'subjectID' => $subject->subjectID,
                                 'subject_code' => $subject->subject_code,
