@@ -384,6 +384,23 @@ class DataRelay extends Controller
             'data' => $instructorFeedback
         ]);
     }
+    public function getGenEdInstructors()
+    {
+        try{
+            $instructors = DB::table('instructors')->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully fetched',
+                'data' => $instructors,
+            ]);
+        }catch (Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Query failed, try again'
+            ], 422);
+        }
+    }
     public function getInstructorsWithSubjects()
     {
         if (!auth()->check()) {
@@ -403,6 +420,7 @@ class DataRelay extends Controller
                     'id' => $instructor->id,
                     'name' => $instructor->name,
                     'initials' => $initials,
+                    'prof_subject_instructor' => $instructor->prof_subject_instructor,
                     'subjects' => $instructor->subjects->map(function ($subject) {
                         return [
                             'id' => $subject->id,

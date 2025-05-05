@@ -824,7 +824,7 @@ const CourseOfferingsPage: React.FC = () => {
                                         Add Curriculum
                                     </h2>
 
-                                    <div className="flex items-center justify-center mb-4">
+                                    <div className="flex flex-col items-center justify-center mb-4">
                                         <label
                                             className={`border border-gray-500 bg-white hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
                                                 ? "bg-green-500 hover:bg-green-400"

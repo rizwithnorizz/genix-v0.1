@@ -236,8 +236,7 @@ class ScheduleController extends Controller
             
 
             
-            $instructors = Instructor::where('departmentID', $userDepartment)->get();
-            
+            $instructors = DB::table('instructors')->get();
             
             $programs = DB::table('program_offerings')
                 ->where('departmentID', $userDepartment)
@@ -319,7 +318,7 @@ class ScheduleController extends Controller
 
                     \Log::error("Processing subject: " . $subject->subject_code);
                     $eligibleInstructors = $this->getEligibleInstructors($subject, $instructors, $subjectInstructors);
-
+                    \Log::error($eligibleInstructors);
                     if ($eligibleInstructors->isEmpty()) {
                         continue;
                     }
@@ -357,10 +356,10 @@ class ScheduleController extends Controller
                                 break;
                             }
                         }
+                        \Log::error("Chosen instructor : " . $instructorId->name);
                         foreach ($roomLec as $room){
                             $daySlot2 = $daySlot1 + 2;
                             while($daySlot2 < 7){
-                                $instructorId = $eligibleInstructors->random();
                                 $availableTimeSlots2 = $this->getAvailableTimeSlots(
                                     $room->roomID,
                                     $daySlot2,
@@ -404,7 +403,7 @@ class ScheduleController extends Controller
                             'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
                             'instructor_id' => $instructorId->id,
-                            'instructor_name' => $instructorId->instructor_name,
+                            'instructor_name' => $instructorId->name,
                         ];
                         
                         $schedule[] = [
@@ -419,7 +418,7 @@ class ScheduleController extends Controller
                             'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
                             'instructor_id' => $instructorId->id,
-                            'instructor_name' => $instructorId->instructor_name,
+                            'instructor_name' => $instructorId->name,
                         ];
                     } elseif ($subject->lec > 0 && $subject->lab > 0) {
                         \Log::info("Lecture and Lab subject: " . $subject->subjectID);
@@ -506,7 +505,7 @@ class ScheduleController extends Controller
                             'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
                             'instructor_id' => $instructorId->id,
-                            'instructor_name' => $instructorId->instructor_name
+                            'instructor_name' => $instructorId->name
                         ];
 
                         
@@ -522,7 +521,7 @@ class ScheduleController extends Controller
                             'sectionID' => $section->sectionID,
                             'section_name' => $section->section_name,
                             'instructor_id' => $instructorId->id,
-                            'instructor_name' => $instructorId->instructor_name
+                            'instructor_name' => $instructorId->name
                         ];
                     } else {
                         if ($subject->lec > 0){
@@ -568,7 +567,7 @@ class ScheduleController extends Controller
                                 'sectionID' => $section->sectionID,
                                 'section_name' => $section->section_name,
                                 'instructor_id' => $instructorId->id,
-                                'instructor_name' => $instructorId->instructor_name
+                                'instructor_name' => $instructorId->name
                             ];
                         }
                         if($subject->lab > 0){
@@ -610,7 +609,7 @@ class ScheduleController extends Controller
                                 'sectionID' => $section->sectionID,
                                 'section_name' => $section->section_name,
                                 'instructor_id' => $instructorId->id,
-                                'instructor_name' => $instructorId->instructor_name
+                                'instructor_name' => $instructorId->name
                             ];
                         }
                     } 
@@ -1233,7 +1232,6 @@ class ScheduleController extends Controller
     ): bool {
         $timeFormat = 'H:i:s';
         
-        // Room availability check
         $roomConflict = DB::table('schedules')
             ->where('roomID', $roomId)
             ->where('day_slot', $daySlot)
@@ -1244,7 +1242,6 @@ class ScheduleController extends Controller
     
         if ($roomConflict) return false;
     
-        // Instructor availability check
         if ($instructorId !== null) {
             $instructorConflict = DB::table('schedules')
                 ->where('instructor_id', $instructorId)
@@ -1257,7 +1254,6 @@ class ScheduleController extends Controller
             if ($instructorConflict) return false;
         }
     
-        // Section availability check
         if ($sectionId !== null) {
             $sectionConflict = DB::table('schedules')
                 ->where('sectionID', $sectionId)

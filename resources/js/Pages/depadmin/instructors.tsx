@@ -9,6 +9,7 @@ interface Instructor {
     id: number;
     name: string;
     initials: string;
+    prof_subject_instructor: boolean;
     subjects: Subject[];
 }
 
@@ -288,7 +289,7 @@ const InstructorsPage: React.FC = () => {
                                                 handleInstructorClick(instructor)
                                             }
                                         >
-                                            <Edit size={24}/>
+                                            <Edit size={24} />
                                         </button>
                                         <button
                                             className="text-red-600 p-2"
@@ -298,7 +299,7 @@ const InstructorsPage: React.FC = () => {
                                                 )
                                             }
                                         >
-                                            <Trash2 size={24}/>
+                                            <Trash2 size={24} />
                                         </button>
                                     </td>
 
@@ -410,25 +411,28 @@ const InstructorsPage: React.FC = () => {
                                         handleTabChange("Professional Subjects")
                                     }
                                     className={`${tab === "Professional Subjects"
-                                            ? "border-b-2 border-blue-500 font-semibold"
-                                            : ""
+                                        ? "border-b-2 border-blue-500 font-semibold"
+                                        : ""
                                         } px-4 py-2`}
                                 >
                                     Professional Subjects
                                 </button>
-                                <button
-                                    value="General Subjects"
-                                    onClick={() =>
-                                        handleTabChange("General Subjects")
-                                    }
-                                    className={`${tab === "General Subjects"
+                                {!selectedInstructor.prof_subject_instructor && (
+                                    <button
+                                        value="General Subjects"
+                                        onClick={() =>
+                                            handleTabChange("General Subjects")
+                                        }
+                                        className={`${tab === "General Subjects"
                                             ? "border-b-2 border-blue-500 font-semibold"
                                             : ""
-                                        } px-4 py-2`}
-                                >
-                                    {" "}
-                                    General Subjects
-                                </button>
+                                            } px-4 py-2`}
+                                    >
+                                        {" "}
+                                        General Subjects
+                                    </button>
+                                )}
+
                                 {tab === "Professional Subjects" ? (
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                                         {allSubjects
@@ -442,8 +446,8 @@ const InstructorsPage: React.FC = () => {
                                                     className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
                                                         subject.id
                                                     )
-                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                        : "bg-gray-100 hover:bg-gray-200"
                                                         }`}
                                                     onClick={() => {
                                                         if (
@@ -493,8 +497,8 @@ const InstructorsPage: React.FC = () => {
                                                     className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
                                                         subject.id
                                                     )
-                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                        : "bg-gray-100 hover:bg-gray-200"
                                                         }`}
                                                     onClick={() => {
                                                         if (

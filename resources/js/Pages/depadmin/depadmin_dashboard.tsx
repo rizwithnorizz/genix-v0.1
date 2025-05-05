@@ -151,10 +151,12 @@ const DepAdminDashboard: React.FC = () => {
     ]);
 
     const [instructors, setInstructors] = useState<Instructor[] | null>(null);
-
+    const [genEdInstructors, setGenEdInstructors] = useState<Instructor[] | null>(null);
     const fetchInstructors = async () => {
         try {
             const response = await axios.get("/api/instructors");
+            const responseGenEd = await axios.get("/api/genEdInstructors");
+            setGenEdInstructors(responseGenEd.data.data);
             const instructorsData = response.data.data;
 
             const processedInstructors = instructorsData.map(
@@ -528,7 +530,14 @@ const DepAdminDashboard: React.FC = () => {
                                                                                     schedule.instructor_id
                                                                             )
                                                                                 ?.name ||
-                                                                                "Unknown"}
+                                                                                genEdInstructors?.find(
+                                                                                   (
+                                                                                    instructor
+                                                                                   ) =>
+                                                                                    instructor.id ===
+                                                                                    schedule.instructor_id
+                                                                                )?.name 
+                                                                                || "Unknown"}
                                                                         </p>
                                                                     </div>
                                                                 )
