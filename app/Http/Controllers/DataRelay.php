@@ -444,8 +444,13 @@ class DataRelay extends Controller
             ->join('program_offerings', 'course_subjects.programID', '=', 'program_offerings.id')
             ->where('program_offerings.departmentID', $department)
             ->select('subjects.*')
+            ->union(
+            DB::table('subjects')
+                ->where('prof_subject', false)
+                ->select('subjects.*')
+            )
             ->get();
-
+        
             return response()->json([
                 'status' => 'success',
                 'data' => $subjects->unique('subject_code')->values()->all(),

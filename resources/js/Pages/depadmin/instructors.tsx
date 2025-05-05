@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEventHandler } from "react";
 import axios from "axios";
 import Layout from "@/Components/ui/layout";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -33,7 +33,13 @@ const InstructorsPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
-    const [newInstructorName, setNewInstructorName] = useState<string>("");
+    const [newInstructor, setNewInstructor] = useState<Instructor>({
+        id: 0,
+        name: "",
+        initials: "",
+        prof_subject_instructor: false,
+        subjects: [],
+    });
 
     const fetchInstructors = async () => {
         try {
@@ -71,12 +77,10 @@ const InstructorsPage: React.FC = () => {
         fetchInstructors();
         fetchAllSubjects();
         fetchInstructorCounts();
-    }, [
-        console.log("Instructors: ", instructors)]);
+    }, []);
 
     const filteredInstructors = instructors.filter((i) =>
-        i.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+        i.name?.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const handleInstructorClick = (instructor: Instructor) => {
         setSelectedInstructor(instructor);
@@ -150,35 +154,47 @@ const InstructorsPage: React.FC = () => {
     const isSubjectAssigned = (subjectId: number) =>
         selectedInstructor?.subjects.some((s) => s.id === subjectId) ?? false;
 
+
     const handleCreateInstructor = async () => {
         try {
-            if (!newInstructorName.trim()) return;
+            if (!newInstructor?.name.trim()) return;
 
             setIsLoading(true);
             const response = await axios.post("/api/instructor/create", {
-                name: newInstructorName.trim(),
+                name: newInstructor.name,
+                prof_subject_instructor: newInstructor.prof_subject_instructor,
+                subjects: newInstructor.subjects,
             });
 
             console.log("Create instructor response:", response.data);
 
-            const newInstructor = response.data.data;
-
+            const createdInstructor = response.data.data;
+            console.log("test : ", createdInstructor);
             // Generate initials for the new instructor
-            const initials = newInstructor
-                .split(" ")
-                .map((part: string) => part[0])
-                .join("")
-                .toUpperCase();
+            const initials = createdInstructor?.name
+                ? createdInstructor.name
+                    .split(" ")
+                    .map((part: string) => part[0])
+                    .join("")
+                    .toUpperCase()
+                : "";
 
             // Format the new instructor object
-            const formatted = { ...newInstructor, initials, subjects: [] };
+            const formatted = { ...createdInstructor, initials, subjects: [] };
 
             // Update the instructors list in real-time
             setInstructors((prev) => [...prev, formatted]);
 
             // Reset modal and input state
             setIsCreateModalOpen(false);
-            setNewInstructorName("");
+            setNewInstructor({
+                id: 0,
+                name: "",
+                initials: "",
+                prof_subject_instructor: false,
+                subjects: [],
+            });
+            setTab("Professional Subjects");
             fetchInstructors();
         } catch (error) {
             console.error("Create instructor error:", error);
@@ -219,6 +235,7 @@ const InstructorsPage: React.FC = () => {
             console.error("Error fetching instructor counts:", error);
         }
     };
+
     return (
         <Layout>
             <h1 className="text-2xl font-bold mb-6">Instructors</h1>
@@ -233,7 +250,9 @@ const InstructorsPage: React.FC = () => {
                     />
                     <PrimaryButton
                         className="px-4 py-2 w-[10rem] rounded-md font-medium"
-                        onClick={() => setIsCreateModalOpen(true)}
+                        onClick={() => {
+                            setIsCreateModalOpen(true);
+                            setTab("Professional Subjects");}}
                     >
                         Add Instructor
                     </PrimaryButton>
@@ -313,19 +332,201 @@ const InstructorsPage: React.FC = () => {
                 {/* Create Instructor Modal */}
                 {isCreateModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                        <div className="bg-white max-h-[80vh] overflow-y-auto rounded-lg shadow-lg p-6 w-[60rem]">
                             <h2 className="text-lg font-semibold mb-4">
                                 Create New Instructor
                             </h2>
                             <input
                                 type="text"
+                                name="name"
                                 className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4"
                                 placeholder="Enter instructor name"
-                                value={newInstructorName}
+                                value={newInstructor?.name}
                                 onChange={(e) =>
-                                    setNewInstructorName(e.target.value)
-                                }
+                                    setNewInstructor((prev) => ({
+                                        ...prev,
+                                        name: e.target.value,
+                                    }))}
                             />
+                            <div className="flex items-center gap-4 mb-4">
+                                <input
+                                    type="checkbox"
+                                    name="prof_subject_instructor"
+                                    className=""
+                                    checked={newInstructor?.prof_subject_instructor}
+                                    onChange={(e) => {
+
+                                        setNewInstructor((prev) => ({
+                                            ...prev,
+                                            prof_subject_instructor: e.target.checked,
+                                        }));
+                                        setTab("Professional Subjects");
+                                    }
+                                    }
+                                />
+                                <h2 className="font-semibold text-md underline">General Education Instructor?</h2>
+                            </div>
+                            <div className="mb-4">
+                                <h3 className="font-medium mb-2">
+                                    Current Subjects:
+                                </h3>
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {newInstructor.subjects.length > 0 ? (
+                                        newInstructor.subjects.map(
+                                            (subject) => (
+                                                <div
+                                                    key={subject.id}
+                                                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md flex items-center"
+                                                >
+                                                    <span>
+                                                        {subject.subject_code ||
+                                                            subject.name}
+                                                    </span>
+                                                    <button
+                                                        className="ml-2 text-red-500 hover:text-red-700"
+                                                        onClick={() =>
+                                                            setNewInstructor((prev) => ({
+                                                                ...prev,
+                                                                subjects: prev.subjects.filter(
+                                                                    (s) => s.id !== subject.id
+                                                                ),
+                                                            }))
+                                                        }
+                                                        disabled={isLoading}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            )
+                                        )
+                                    ) : (
+                                        <p className="text-gray-500">
+                                            No subjects assigned
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="font-medium mb-2">
+                                    Available Subjects:
+                                </h3>
+                                {newInstructor.prof_subject_instructor && (
+                                    <button
+                                        value="General Education"
+                                        onClick={() =>
+                                            handleTabChange("General Education")
+                                        }
+                                        className={`${tab === "General Education"
+                                            ? "border-b-2 border-blue-500 font-semibold"
+                                            : ""
+                                            } px-4 py-2`}
+                                    >
+                                        {" "}
+                                        General Education
+                                    </button>
+                                )}
+                                <button
+                                    value="Professional Subjects"
+                                    onClick={() =>
+                                        handleTabChange("Professional Subjects")
+                                    }
+                                    className={`${tab === "Professional Subjects"
+                                        ? "border-b-2 border-blue-500 font-semibold"
+                                        : ""
+                                        } px-4 py-2`}
+                                >
+                                    Professional Subjects
+                                </button>
+                                
+
+                                {tab === "Professional Subjects" ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                                        {allSubjects
+                                            .filter(
+                                                (subject) =>
+                                                    subject.prof_subject
+                                            )
+                                            .map((subject) => (
+                                                <button
+                                                    key={subject.id}
+                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
+                                                        (s) => s.id === subject.id
+                                                    )
+                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                        : "bg-gray-100 hover:bg-gray-200"
+                                                        }`}
+                                                    onClick={() => {
+                                                        if (
+                                                            !newInstructor.subjects.some(
+                                                                (s) => s.id === subject.id
+                                                            )
+                                                        ) {
+                                                            setNewInstructor((prev) => ({
+                                                                ...prev,
+                                                                subjects: [...prev.subjects, subject],
+                                                            }));
+                                                        }
+                                                    }}
+                                                    disabled={
+                                                        newInstructor.subjects.some(
+                                                            (s) => s.id === subject.id
+                                                        ) || isLoading
+                                                    }
+                                                >
+                                                    <div className="font-medium">
+                                                        {subject.subject_code}
+                                                    </div>
+                                                    <div className="text-xs text-gray-600">
+                                                        {subject.name}
+                                                    </div>  
+                                                </button>
+                                            ))}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
+                                        {allSubjects
+                                            .filter(
+                                                (subject) =>
+                                                    !subject.prof_subject
+                                            )
+                                            .map((subject) => (
+                                                <button
+                                                    key={subject.id}
+                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
+                                                        (s) => s.id === subject.id
+                                                    )
+                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                        : "bg-gray-100 hover:bg-gray-200"
+                                                        }`}
+                                                    onClick={() => {
+                                                        if (
+                                                            !newInstructor.subjects.some(
+                                                                (s) => s.id === subject.id
+                                                            )
+                                                        ) {
+                                                            setNewInstructor((prev) => ({
+                                                                ...prev,
+                                                                subjects: [...prev.subjects, subject],
+                                                            }));
+                                                        }
+                                                    }}
+                                                    disabled={
+                                                        newInstructor.subjects.some(
+                                                            (s) => s.id === subject.id
+                                                        ) || isLoading
+                                                    }
+                                                >
+                                                    <div className="font-medium">
+                                                        {subject.subject_code}
+                                                    </div>
+                                                    <div className="text-xs text-gray-600">
+                                                        {subject.name}
+                                                    </div>
+                                                </button>
+                                            ))}
+                                    </div>
+                                )}
+                            </div>
                             <div className="flex justify-end space-x-2">
                                 <button
                                     onClick={() => setIsCreateModalOpen(false)}
@@ -348,7 +549,7 @@ const InstructorsPage: React.FC = () => {
                 {/* Subject Management Modal */}
                 {isModalOpen && selectedInstructor && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+                        <div className="bg-white rounded-lg shadow-lg p-6 w-[60rem]">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-bold">
                                     Manage Subjects for{" "}
@@ -405,6 +606,21 @@ const InstructorsPage: React.FC = () => {
                                 <h3 className="font-medium mb-2">
                                     Available Subjects:
                                 </h3>
+                                {!selectedInstructor.prof_subject_instructor && (
+                                    <button
+                                        value="General Education"
+                                        onClick={() =>
+                                            handleTabChange("General Education")
+                                        }
+                                        className={`${tab === "General Education"
+                                            ? "border-b-2 border-blue-500 font-semibold"
+                                            : ""
+                                            } px-4 py-2`}
+                                    >
+                                        {" "}
+                                        General Education
+                                    </button>
+                                )}
                                 <button
                                     value="Professional Subjects"
                                     onClick={() =>
@@ -417,21 +633,7 @@ const InstructorsPage: React.FC = () => {
                                 >
                                     Professional Subjects
                                 </button>
-                                {!selectedInstructor.prof_subject_instructor && (
-                                    <button
-                                        value="General Subjects"
-                                        onClick={() =>
-                                            handleTabChange("General Subjects")
-                                        }
-                                        className={`${tab === "General Subjects"
-                                            ? "border-b-2 border-blue-500 font-semibold"
-                                            : ""
-                                            } px-4 py-2`}
-                                    >
-                                        {" "}
-                                        General Subjects
-                                    </button>
-                                )}
+                                
 
                                 {tab === "Professional Subjects" ? (
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
@@ -524,6 +726,14 @@ const InstructorsPage: React.FC = () => {
                                                     <div className="text-xs text-gray-600">
                                                         {subject.name}
                                                     </div>
+                                                    <label className="justify-end flex">
+                                                        {instructorCounts?.filter(
+                                                            (count) =>
+                                                                count.subject_code ===
+                                                                subject.id
+                                                        )[0]
+                                                            ?.instructor_count || 0}
+                                                    </label>
                                                 </button>
                                             ))}
                                     </div>

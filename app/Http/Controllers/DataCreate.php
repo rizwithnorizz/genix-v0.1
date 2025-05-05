@@ -19,6 +19,7 @@ use App\Models\Subject;
 use App\Models\CourseSections;
 use App\Models\DepartmentCurriculum;
 use App\Models\DepartmentRoom;
+use App\Models\Instructor;
 
 use App\Mail\EmailAdmins;
 use Illuminate\Support\Facades\Mail;
@@ -44,7 +45,7 @@ class DataCreate extends Controller
                         'success' => false,
                         'message' => 'Feedback limit reached for this section.'
                     ], 400);
-                }
+                }   
                 DB::table('course_subject_feedback')->insert([
                     'scheduleID' => $request->input('scheduleID'),
                     'sectionID' => $sched->sectionID,
@@ -108,17 +109,27 @@ class DataCreate extends Controller
         $department = auth()->user()->departmentID;
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'prof_subject_instructor' => 'required|boolean',
+            'subjects' => 'required|array',
         ]);
-        \Log::error("i got this far");
-        $instructor = DB::table('instructors')
-        ->insert([
+
+        $instructor = Instructor::create([
             'name' => $validated['name'],
+            'prof_subject_instructor' => !$validated['prof_subject_instructor'],
             'departmentID' => $department,
         ]);
 
+        foreach ($validated['subjects'] as $subject){
+
+            DB::table('subject_instructors')
+            ->insert([
+                'instructor_id' => $instructor['id'],
+                'subject_code' => $subject['id'],
+            ]);
+        }
         return response()->json([
             'message' => 'Instructor created successfully.',
-            'data' => $request['name'],
+            'data' => $validated['name'],
         ], 201);
     }
 
