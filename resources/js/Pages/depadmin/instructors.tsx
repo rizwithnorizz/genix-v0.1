@@ -115,8 +115,8 @@ const InstructorsPage: React.FC = () => {
             console.error("Add subject error:", error);
         } finally {
             setIsLoading(false);
+            fetchInstructorCounts();
         }
-        fetchInstructorCounts();
     };
 
     const removeSubjectFromInstructor = async (
