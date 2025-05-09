@@ -237,7 +237,6 @@ class DataCreate extends Controller
         $validated = $request->validate([
             'department_short_name' => 'required|string|max:10|unique:departments,department_short_name',
             'department_full_name' => 'required|string|max:255',
-            'logo_img_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         $logoPath = null;
         if ($request->hasFile('logo')) {
@@ -768,7 +767,7 @@ PROMPT;
         $validated = $request->validate([
             'room_number' => 'required|string|max:10',
             'room_type' => 'required|string|max:20',
-            'capacity' => 'required|integer|max:50' // 1 for lecture, 2 for laboratory
+            'capacity' => 'required|integer|max:300' // 1 for lecture, 2 for laboratory
         ]);
         if (DB::table('classrooms')->where('room_number', $request->input('room_number'))->exists()) {
             return response()->json([

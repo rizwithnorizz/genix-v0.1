@@ -17,7 +17,7 @@ const RoomPage: React.FC = () => {
     const [showMenuIndex, setShowMenuIndex] = useState<number | null>(null);
     const [room, setRoom] = useState<{
         room_number: string;
-        room_type: "Lecture" | "Laboratory";
+        room_type: "Lecture" | "Laboratory" | "Gym";
         capacity: number;
     }>({
         room_number: "",
@@ -93,8 +93,7 @@ const RoomPage: React.FC = () => {
             handleGetRooms();
             window.alert("Room created successfully!");
         } catch (error) {
-            console.error("Error creating room:", error);
-            window.alert("Room already exists. Please try again.");
+            window.alert(error);
         }
     };
 
@@ -148,6 +147,7 @@ const RoomPage: React.FC = () => {
                             >
                                 <option value="Lecture">Lecture</option>
                                 <option value="Laboratory">Laboratory</option>
+                                <option value="Gym">Gym</option>
                             </select>
                         </div>
                         <div className="flex items-end">

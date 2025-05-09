@@ -18,6 +18,8 @@ interface Subject {
     name: string;
     subject_code: string;
     prof_subject: boolean;
+    year_level: number;
+    semester: string;
 }
 
 interface InstructorCount {
@@ -67,6 +69,7 @@ const InstructorsPage: React.FC = () => {
     const fetchAllSubjects = async () => {
         try {
             const response = await axios.get("/api/subjects");
+            console.log("All subjects response:", response.data.data);
             setAllSubjects(response.data.data);
         } catch (error) {
             console.error("Error fetching subjects:", error);
@@ -80,7 +83,8 @@ const InstructorsPage: React.FC = () => {
     }, []);
 
     const filteredInstructors = instructors.filter((i) =>
-        i.name?.toLowerCase().includes(searchTerm.toLowerCase()));
+        i.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const handleInstructorClick = (instructor: Instructor) => {
         setSelectedInstructor(instructor);
@@ -154,8 +158,9 @@ const InstructorsPage: React.FC = () => {
     const isSubjectAssigned = (subjectId: number) =>
         selectedInstructor?.subjects.some((s) => s.id === subjectId) ?? false;
 
-
     const handleCreateInstructor = async () => {
+        setYearLevel(null);
+        setSemester(null);
         try {
             if (!newInstructor?.name.trim()) return;
 
@@ -173,10 +178,10 @@ const InstructorsPage: React.FC = () => {
             // Generate initials for the new instructor
             const initials = createdInstructor?.name
                 ? createdInstructor.name
-                    .split(" ")
-                    .map((part: string) => part[0])
-                    .join("")
-                    .toUpperCase()
+                      .split(" ")
+                      .map((part: string) => part[0])
+                      .join("")
+                      .toUpperCase()
                 : "";
 
             // Format the new instructor object
@@ -224,7 +229,8 @@ const InstructorsPage: React.FC = () => {
     };
 
     const [instructorCounts, setInstructorCounts] = useState<
-        InstructorCount[] | null>(null);
+        InstructorCount[] | null
+    >(null);
     const fetchInstructorCounts = async () => {
         try {
             const response = await axios.get("/api/instructor-counts");
@@ -235,6 +241,15 @@ const InstructorsPage: React.FC = () => {
             console.error("Error fetching instructor counts:", error);
         }
     };
+
+    const [yearLevel, setYearLevel] = useState<number | null>(null);
+    const [semester, setSemester] = useState<string | null>(null);
+
+    const filteredSubjects = allSubjects.filter((subject) => {
+        const matchesYearLevel = yearLevel ? subject.year_level === yearLevel : true;
+        const matchesSemester = semester ? subject.semester === semester : true;
+        return matchesYearLevel && matchesSemester;
+    });
 
     return (
         <Layout>
@@ -252,7 +267,8 @@ const InstructorsPage: React.FC = () => {
                         className="px-4 py-2 w-[10rem] rounded-md font-medium"
                         onClick={() => {
                             setIsCreateModalOpen(true);
-                            setTab("Professional Subjects");}}
+                            setTab("Professional Subjects");
+                        }}
                     >
                         Add Instructor
                     </PrimaryButton>
@@ -263,7 +279,7 @@ const InstructorsPage: React.FC = () => {
                     </div>
                 ) : (
                     <table className="bg-white border-t border-l border-r border-gray-500 w-full">
-                        <thead >
+                        <thead>
                             <tr>
                                 <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Name
@@ -280,8 +296,8 @@ const InstructorsPage: React.FC = () => {
                             {filteredInstructors.map((instructor) => (
                                 <tr
                                     key={instructor.id}
-                                    className="border-t border-gray-200 divide-x divide-gray-500">
-
+                                    className="border-t border-gray-200 divide-x divide-gray-500"
+                                >
                                     <td className="h-full bg-white flex items-center m-2 p-2 rounded    ">
                                         <h2 className="w-10 h-10 border border-gray-500 rounded-md flex items-center justify-center font-bold mr-3">
                                             {instructor.initials}
@@ -290,22 +306,26 @@ const InstructorsPage: React.FC = () => {
                                     </td>
                                     <td className="bg-white w-[60rem]">
                                         <div className="flex flex-wrap gap-2 m-2 p-2 rounded">
-                                            {instructor.subjects.map((subject) => (
-                                                <span
-                                                    key={subject.id}
-                                                    className="border border-gray-500 px-2 py-1 text-xs rounded-md"
-                                                >
-                                                    {subject.subject_code ||
-                                                        subject.name}
-                                                </span>
-                                            ))}
+                                            {instructor.subjects.map(
+                                                (subject) => (
+                                                    <span
+                                                        key={subject.id}
+                                                        className="border border-gray-500 px-2 py-1 text-xs rounded-md"
+                                                    >
+                                                        {subject.subject_code ||
+                                                            subject.name}
+                                                    </span>
+                                                )
+                                            )}
                                         </div>
                                     </td>
                                     <td className="bg-white text-center gap-3">
                                         <button
                                             className="text-blue-600 p-2"
                                             onClick={() =>
-                                                handleInstructorClick(instructor)
+                                                handleInstructorClick(
+                                                    instructor
+                                                )
                                             }
                                         >
                                             <Edit size={24} />
@@ -321,10 +341,8 @@ const InstructorsPage: React.FC = () => {
                                             <Trash2 size={24} />
                                         </button>
                                     </td>
-
                                 </tr>
                             ))}
-
                         </tbody>
                     </table>
                 )}
@@ -332,7 +350,7 @@ const InstructorsPage: React.FC = () => {
                 {/* Create Instructor Modal */}
                 {isCreateModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white max-h-[80vh] overflow-y-auto rounded-lg shadow-lg p-6 w-[60rem]">
+                        <div className="bg-white max-h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6 w-[60rem]">
                             <h2 className="text-lg font-semibold mb-4">
                                 Create New Instructor
                             </h2>
@@ -346,25 +364,29 @@ const InstructorsPage: React.FC = () => {
                                     setNewInstructor((prev) => ({
                                         ...prev,
                                         name: e.target.value,
-                                    }))}
+                                    }))
+                                }
                             />
                             <div className="flex items-center gap-4 mb-4">
                                 <input
                                     type="checkbox"
                                     name="prof_subject_instructor"
                                     className=""
-                                    checked={newInstructor?.prof_subject_instructor}
+                                    checked={
+                                        newInstructor?.prof_subject_instructor
+                                    }
                                     onChange={(e) => {
-
                                         setNewInstructor((prev) => ({
                                             ...prev,
-                                            prof_subject_instructor: e.target.checked,
+                                            prof_subject_instructor:
+                                                e.target.checked,
                                         }));
                                         setTab("Professional Subjects");
-                                    }
-                                    }
+                                    }}
                                 />
-                                <h2 className="font-semibold text-md underline">General Education Instructor?</h2>
+                                <h2 className="font-semibold text-md underline">
+                                    General Education Instructor?
+                                </h2>
                             </div>
                             <div className="mb-4">
                                 <h3 className="font-medium mb-2">
@@ -385,12 +407,19 @@ const InstructorsPage: React.FC = () => {
                                                     <button
                                                         className="ml-2 text-red-500 hover:text-red-700"
                                                         onClick={() =>
-                                                            setNewInstructor((prev) => ({
-                                                                ...prev,
-                                                                subjects: prev.subjects.filter(
-                                                                    (s) => s.id !== subject.id
-                                                                ),
-                                                            }))
+                                                            setNewInstructor(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    subjects:
+                                                                        prev.subjects.filter(
+                                                                            (
+                                                                                s
+                                                                            ) =>
+                                                                                s.id !==
+                                                                                subject.id
+                                                                        ),
+                                                                })
+                                                            )
                                                         }
                                                         disabled={isLoading}
                                                     >
@@ -410,38 +439,80 @@ const InstructorsPage: React.FC = () => {
                                 <h3 className="font-medium mb-2">
                                     Available Subjects:
                                 </h3>
-                                {newInstructor.prof_subject_instructor && (
-                                    <button
-                                        value="General Education"
-                                        onClick={() =>
-                                            handleTabChange("General Education")
-                                        }
-                                        className={`${tab === "General Education"
-                                            ? "border-b-2 border-blue-500 font-semibold"
-                                            : ""
+                                <div className="flex justify-between">
+                                    <div>
+                                        {newInstructor.prof_subject_instructor && (
+                                            <button
+                                                value="General Education"
+                                                onClick={() =>
+                                                    handleTabChange(
+                                                        "General Education"
+                                                    )
+                                                }
+                                                className={`${
+                                                    tab === "General Education"
+                                                        ? "border-b-2 border-blue-500 font-semibold"
+                                                        : ""
+                                                } px-4 py-2`}
+                                            >
+                                                {" "}
+                                                General Education
+                                            </button>
+                                        )}
+                                        <button
+                                            value="Professional Subjects"
+                                            onClick={() =>
+                                                handleTabChange(
+                                                    "Professional Subjects"
+                                                )
+                                            }
+                                            className={`${
+                                                tab === "Professional Subjects"
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
                                             } px-4 py-2`}
-                                    >
-                                        {" "}
-                                        General Education
-                                    </button>
-                                )}
-                                <button
-                                    value="Professional Subjects"
-                                    onClick={() =>
-                                        handleTabChange("Professional Subjects")
-                                    }
-                                    className={`${tab === "Professional Subjects"
-                                        ? "border-b-2 border-blue-500 font-semibold"
-                                        : ""
-                                        } px-4 py-2`}
-                                >
-                                    Professional Subjects
-                                </button>
-                                
+                                        >
+                                            Professional Subjects
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <select
+                                            onChange={(e) =>
+                                                setSemester(e.target.value)
+                                            }
+                                        >
+                                            <option value="">
+                                                Select Semester
+                                            </option>
+                                            <option value="1st">
+                                                1st Semester
+                                            </option>
+                                            <option value="2nd">
+                                                2nd Semester
+                                            </option>
+                                            <option value="summer">
+                                                Summer
+                                            </option>
+                                        </select>
+                                        <select
+                                            onChange={(e) =>
+                                                setYearLevel(
+                                                    parseInt(e.target.value)
+                                                )
+                                            }
+                                        >
+                                            <option value="">Select Year Level</option>
+                                            <option value="1">1st Year</option>
+                                            <option value="2">2nd Year</option>
+                                            <option value="3">3rd Year</option>
+                                            <option value="4">4th Year</option>
+                                        </select>
+                                    </div>
+                                </div>
 
                                 {tab === "Professional Subjects" ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                                        {allSubjects
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto">
+                                        {filteredSubjects
                                             .filter(
                                                 (subject) =>
                                                     subject.prof_subject
@@ -449,27 +520,39 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
-                                                        (s) => s.id === subject.id
-                                                    )
-                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                        : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        newInstructor.subjects.some(
+                                                            (s) =>
+                                                                s.id ===
+                                                                subject.id
+                                                        )
+                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !newInstructor.subjects.some(
-                                                                (s) => s.id === subject.id
+                                                                (s) =>
+                                                                    s.id ===
+                                                                    subject.id
                                                             )
                                                         ) {
-                                                            setNewInstructor((prev) => ({
-                                                                ...prev,
-                                                                subjects: [...prev.subjects, subject],
-                                                            }));
+                                                            setNewInstructor(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    subjects: [
+                                                                        ...prev.subjects,
+                                                                        subject,
+                                                                    ],
+                                                                })
+                                                            );
                                                         }
                                                     }}
                                                     disabled={
                                                         newInstructor.subjects.some(
-                                                            (s) => s.id === subject.id
+                                                            (s) =>
+                                                                s.id ===
+                                                                subject.id
                                                         ) || isLoading
                                                     }
                                                 >
@@ -478,13 +561,13 @@ const InstructorsPage: React.FC = () => {
                                                     </div>
                                                     <div className="text-xs text-gray-600">
                                                         {subject.name}
-                                                    </div>  
+                                                    </div>
                                                 </button>
                                             ))}
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                                        {allSubjects
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto">
+                                        {filteredSubjects
                                             .filter(
                                                 (subject) =>
                                                     !subject.prof_subject
@@ -492,27 +575,39 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
-                                                        (s) => s.id === subject.id
-                                                    )
-                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                        : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        newInstructor.subjects.some(
+                                                            (s) =>
+                                                                s.id ===
+                                                                subject.id
+                                                        )
+                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !newInstructor.subjects.some(
-                                                                (s) => s.id === subject.id
+                                                                (s) =>
+                                                                    s.id ===
+                                                                    subject.id
                                                             )
                                                         ) {
-                                                            setNewInstructor((prev) => ({
-                                                                ...prev,
-                                                                subjects: [...prev.subjects, subject],
-                                                            }));
+                                                            setNewInstructor(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    subjects: [
+                                                                        ...prev.subjects,
+                                                                        subject,
+                                                                    ],
+                                                                })
+                                                            );
                                                         }
                                                     }}
                                                     disabled={
                                                         newInstructor.subjects.some(
-                                                            (s) => s.id === subject.id
+                                                            (s) =>
+                                                                s.id ===
+                                                                subject.id
                                                         ) || isLoading
                                                     }
                                                 >
@@ -529,7 +624,10 @@ const InstructorsPage: React.FC = () => {
                             </div>
                             <div className="flex justify-end space-x-2">
                                 <button
-                                    onClick={() => setIsCreateModalOpen(false)}
+                                    onClick={() => {
+                                        setIsCreateModalOpen(false)
+                                        setYearLevel(null)
+                                        setSemester(null)}}
                                     className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
                                 >
                                     Cancel
@@ -606,38 +704,80 @@ const InstructorsPage: React.FC = () => {
                                 <h3 className="font-medium mb-2">
                                     Available Subjects:
                                 </h3>
-                                {!selectedInstructor.prof_subject_instructor && (
-                                    <button
-                                        value="General Education"
-                                        onClick={() =>
-                                            handleTabChange("General Education")
-                                        }
-                                        className={`${tab === "General Education"
-                                            ? "border-b-2 border-blue-500 font-semibold"
-                                            : ""
+                                <div className="flex justify-between">
+                                    <div>
+                                        {!selectedInstructor.prof_subject_instructor && (
+                                            <button
+                                                value="General Education"
+                                                onClick={() =>
+                                                    handleTabChange(
+                                                        "General Education"
+                                                    )
+                                                }
+                                                className={`${
+                                                    tab === "General Education"
+                                                        ? "border-b-2 border-blue-500 font-semibold"
+                                                        : ""
+                                                } px-4 py-2`}
+                                            >
+                                                {" "}
+                                                General Education
+                                            </button>
+                                        )}
+                                        <button
+                                            value="Professional Subjects"
+                                            onClick={() =>
+                                                handleTabChange(
+                                                    "Professional Subjects"
+                                                )
+                                            }
+                                            className={`${
+                                                tab === "Professional Subjects"
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
                                             } px-4 py-2`}
-                                    >
-                                        {" "}
-                                        General Education
-                                    </button>
-                                )}
-                                <button
-                                    value="Professional Subjects"
-                                    onClick={() =>
-                                        handleTabChange("Professional Subjects")
-                                    }
-                                    className={`${tab === "Professional Subjects"
-                                        ? "border-b-2 border-blue-500 font-semibold"
-                                        : ""
-                                        } px-4 py-2`}
-                                >
-                                    Professional Subjects
-                                </button>
-                                
+                                        >
+                                            Professional Subjects
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <select
+                                            onChange={(e) =>
+                                                setSemester(e.target.value)
+                                            }
+                                        >
+                                            <option value="">
+                                                Select Semester
+                                            </option>
+                                            <option value="1st">
+                                                1st Semester
+                                            </option>
+                                            <option value="2nd">
+                                                2nd Semester
+                                            </option>
+                                            <option value="summer">
+                                                Summer
+                                            </option>
+                                        </select>
+                                        <select
+                                            onChange={(e) =>
+                                                setYearLevel(
+                                                    parseInt(e.target.value)
+                                                )
+                                            }
+                                        >
+                                            <option value="">Select Year Level</option>
+                                            <option value="1">1st Year</option>
+                                            <option value="2">2nd Year</option>
+                                            <option value="3">3rd Year</option>
+                                            <option value="4">4th Year</option>
+                                        </select>
+                                    </div>
+                                </div>
 
                                 {tab === "Professional Subjects" ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                                        {allSubjects
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto">
+                                        {filteredSubjects
                                             .filter(
                                                 (subject) =>
                                                     subject.prof_subject
@@ -645,12 +785,13 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
-                                                        subject.id
-                                                    )
-                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                        : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
+                                                            subject.id
+                                                        )
+                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -681,14 +822,15 @@ const InstructorsPage: React.FC = () => {
                                                                 count.subject_code ===
                                                                 subject.id
                                                         )[0]
-                                                            ?.instructor_count || 0}
+                                                            ?.instructor_count ||
+                                                            0}
                                                     </label>
                                                 </button>
                                             ))}
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-64 overflow-y-auto">
-                                        {allSubjects
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto">
+                                        {filteredSubjects
                                             .filter(
                                                 (subject) =>
                                                     !subject.prof_subject
@@ -696,12 +838,13 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
-                                                        subject.id
-                                                    )
-                                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                                        : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
+                                                            subject.id
+                                                        )
+                                                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                            : "bg-gray-100 hover:bg-gray-200"
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -732,7 +875,8 @@ const InstructorsPage: React.FC = () => {
                                                                 count.subject_code ===
                                                                 subject.id
                                                         )[0]
-                                                            ?.instructor_count || 0}
+                                                            ?.instructor_count ||
+                                                            0}
                                                     </label>
                                                 </button>
                                             ))}
@@ -743,7 +887,10 @@ const InstructorsPage: React.FC = () => {
                             <div className="mt-6 flex justify-end">
                                 <button
                                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md"
-                                    onClick={() => setIsModalOpen(false)}
+                                    onClick={() => {
+                                        setIsModalOpen(false)
+                                        setYearLevel(null)
+                                        setSemester(null)}}
                                 >
                                     Close
                                 </button>

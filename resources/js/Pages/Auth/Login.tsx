@@ -44,11 +44,10 @@ export default function Login({
             <div className="relative z-10 grid md:grid-cols-2 grid-cols-1 gap-4">
                 <div className="flex flex-col items-center ">
                     <div className="w-full">
-                        <img
-                            src="/genix.png"
-                            className="h-[10rem] w-[25rem] fill-current text-gray-500"/>
+                        <img 
+                            src="calendargenetic.png"
+                            className="h-[25rem] w-[25rem]"/>
                     </div>
-                    <h2 className="pt-10 text-blue-100 text-semi-bold font-lucida">A COURSE SCHEDULING SYSTEM</h2>
                 </div>
                 <div>
                     <div className="mt-6 w-full overflow-hidden bg-transparent px-6 py-4 sm:max-w-md w-[40rem] sm:rounded-lg">
