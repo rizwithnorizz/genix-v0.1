@@ -29,10 +29,10 @@ export default function Login({
     };
 
     return (
-        <div className="relative flex min-h-screen flex-col items-center bg-gray-900 bg-opacity-60 pt-6 sm:justify-center sm:pt-0">
+        <div className="relative flex min-h-screen flex-col items-center bg-[#150d25] bg-opacity-70 pt-6 sm:justify-center sm:pt-0">
             {/* Video Background */}
             <video
-                className="absolute top-0 bg-opacity-100 left-0 w-full h-full object-cover -z-10"
+                className="absolute top-0 left-0 w-full h-full object-cover -z-10"
                 src="/videos/ub.mp4"
                 autoPlay
                 loop
@@ -42,12 +42,13 @@ export default function Login({
 
             <Head title="Log in" />
             <div className="relative z-10 grid md:grid-cols-2 grid-cols-1 gap-4">
-                <div className="flex flex-col items-center ">
+                <div className="flex flex-col items-center rounded-xl md:h-[30rem] ">
                     <div className="w-full">
                         <img 
                             src="calendargenetic.png"
                             className="h-[25rem] w-[25rem]"/>
                     </div>
+                    
                 </div>
                 <div>
                     <div className="mt-6 w-full overflow-hidden bg-transparent px-6 py-4 sm:max-w-md w-[40rem] sm:rounded-lg">

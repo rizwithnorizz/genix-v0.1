@@ -108,6 +108,23 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
+    const [selectedYearLevel, setSelectedYearLevel] =
+        useState<string>("Year Level");
+    const [selectedSemester, setSelectedSemester] =
+        useState<string>("First Semester");
+    const filteredSections = sections.filter((section) => {
+        const yearLevelMap: {
+            [key: string]: number;
+        } = {
+            "First Year": 1,
+            "Second Year": 2,
+            "Third Year": 3,
+            "Fourth Year": 4,
+        };
+        const yearLevelMatch = yearLevelMap[selectedYearLevel] ? section.year_level === yearLevelMap[selectedYearLevel] : true;
+        const programMatch = selectedCurriculum?.programID ? section.programID === selectedCurriculum.programID : true;
+        return yearLevelMatch && programMatch;
+    });
     {/*fetch course subjects*/ }
     const [courseSubjects, setCourseSubjects] = useState<CourseSubject[]>([]);
     const fetchCourseSubjects = async (request: Curriculum) => {
@@ -122,10 +139,6 @@ const CourseOfferingsPage: React.FC = () => {
             console.error("Error fetching course subjects:", error);
         }
     };
-    const [selectedYearLevel, setSelectedYearLevel] =
-        useState<string>("Year Level");
-    const [selectedSemester, setSelectedSemester] =
-        useState<string>("First Semester");
     {
         /*course subjects api*/
     }
@@ -935,8 +948,8 @@ const CourseOfferingsPage: React.FC = () => {
                                                     setSelectedCurriculum(
                                                         curriculum.find(
                                                             (curr) =>
-                                                                curr.programID.toString() ===
-                                                                e.target.value
+                                                                curr.programID ===
+                                                                parseInt(e.target.value)
                                                         ) || null
                                                     )
                                                 }
@@ -955,7 +968,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                         <option
                                                             key={idx}
                                                             value={
-                                                                curr.program_short_name
+                                                                curr.programID
                                                             }
                                                         >
                                                             {curr.program_short_name}
@@ -982,45 +995,7 @@ const CourseOfferingsPage: React.FC = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
-                                                    {sections
-                                                        .filter((section) => {
-                                                            const yearLevelMap: {
-                                                                [key: string]: number;
-                                                            } = {
-                                                                "First Year": 1,
-                                                                "Second Year": 2,
-                                                                "Third Year": 3,
-                                                                "Fourth Year": 4,
-                                                            };
-
-                                                            if (
-                                                                selectedYearLevel ==
-                                                                "Year Level" &&
-                                                                selectedCurriculum === null
-                                                            ) {
-                                                                return true;
-                                                            } else if (
-                                                                selectedCurriculum !==
-                                                                null &&
-                                                                selectedYearLevel ==
-                                                                "Year Level"
-                                                            ) {
-                                                                return (
-                                                                    section.programID ===
-                                                                    selectedCurriculum?.programID
-                                                                );
-                                                            }
-                                                            return (
-                                                                (!selectedCurriculum ||
-                                                                    section.programID ===
-                                                                    selectedCurriculum?.programID) &&
-                                                                (!selectedYearLevel ||
-                                                                    section.year_level ===
-                                                                    yearLevelMap[
-                                                                    selectedYearLevel
-                                                                    ])
-                                                            );
-                                                        })
+                                                    {filteredSections
                                                         .map((section) => (
                                                             <tr
                                                                 key={section.id}

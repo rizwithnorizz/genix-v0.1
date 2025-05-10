@@ -178,10 +178,10 @@ const InstructorsPage: React.FC = () => {
             // Generate initials for the new instructor
             const initials = createdInstructor?.name
                 ? createdInstructor.name
-                      .split(" ")
-                      .map((part: string) => part[0])
-                      .join("")
-                      .toUpperCase()
+                    .split(" ")
+                    .map((part: string) => part[0])
+                    .join("")
+                    .toUpperCase()
                 : "";
 
             // Format the new instructor object
@@ -449,11 +449,10 @@ const InstructorsPage: React.FC = () => {
                                                         "General Education"
                                                     )
                                                 }
-                                                className={`${
-                                                    tab === "General Education"
+                                                className={`${tab === "General Education"
                                                         ? "border-b-2 border-blue-500 font-semibold"
                                                         : ""
-                                                } px-4 py-2`}
+                                                    } px-4 py-2`}
                                             >
                                                 {" "}
                                                 General Education
@@ -466,48 +465,50 @@ const InstructorsPage: React.FC = () => {
                                                     "Professional Subjects"
                                                 )
                                             }
-                                            className={`${
-                                                tab === "Professional Subjects"
+                                            className={`${tab === "Professional Subjects"
                                                     ? "border-b-2 border-blue-500 font-semibold"
                                                     : ""
-                                            } px-4 py-2`}
+                                                } px-4 py-2`}
                                         >
                                             Professional Subjects
                                         </button>
                                     </div>
-                                    <div>
-                                        <select
-                                            onChange={(e) =>
-                                                setSemester(e.target.value)
-                                            }
-                                        >
-                                            <option value="">
-                                                Select Semester
-                                            </option>
-                                            <option value="1st">
-                                                1st Semester
-                                            </option>
-                                            <option value="2nd">
-                                                2nd Semester
-                                            </option>
-                                            <option value="summer">
-                                                Summer
-                                            </option>
-                                        </select>
-                                        <select
-                                            onChange={(e) =>
-                                                setYearLevel(
-                                                    parseInt(e.target.value)
-                                                )
-                                            }
-                                        >
-                                            <option value="">Select Year Level</option>
-                                            <option value="1">1st Year</option>
-                                            <option value="2">2nd Year</option>
-                                            <option value="3">3rd Year</option>
-                                            <option value="4">4th Year</option>
-                                        </select>
-                                    </div>
+                                    {tab !== "General Education" && (
+                                        <div>
+                                            <select
+                                                onChange={(e) =>
+                                                    setSemester(e.target.value)
+                                                }
+                                            >
+                                                <option value="">
+                                                    Select Semester
+                                                </option>
+                                                <option value="1st">
+                                                    1st Semester
+                                                </option>
+                                                <option value="2nd">
+                                                    2nd Semester
+                                                </option>
+                                                <option value="summer">
+                                                    Summer
+                                                </option>
+                                            </select>
+                                            <select
+                                                onChange={(e) =>
+                                                    setYearLevel(
+                                                        parseInt(e.target.value)
+                                                    )
+                                                }
+                                            >
+                                                <option value="">Select Year Level</option>
+                                                <option value="1">1st Year</option>
+                                                <option value="2">2nd Year</option>
+                                                <option value="3">3rd Year</option>
+                                                <option value="4">4th Year</option>
+                                            </select>
+                                        </div>
+                                    )}
+
                                 </div>
 
                                 {tab === "Professional Subjects" ? (
@@ -520,15 +521,14 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${
-                                                        newInstructor.subjects.some(
-                                                            (s) =>
-                                                                s.id ===
-                                                                subject.id
-                                                        )
+                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
+                                                        (s) =>
+                                                            s.id ===
+                                                            subject.id
+                                                    )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                    }`}
+                                                        }`}
                                                     onClick={() => {
                                                         if (
                                                             !newInstructor.subjects.some(
@@ -575,15 +575,14 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${
-                                                        newInstructor.subjects.some(
-                                                            (s) =>
-                                                                s.id ===
-                                                                subject.id
-                                                        )
+                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
+                                                        (s) =>
+                                                            s.id ===
+                                                            subject.id
+                                                    )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                    }`}
+                                                        }`}
                                                     onClick={() => {
                                                         if (
                                                             !newInstructor.subjects.some(
@@ -627,7 +626,8 @@ const InstructorsPage: React.FC = () => {
                                     onClick={() => {
                                         setIsCreateModalOpen(false)
                                         setYearLevel(null)
-                                        setSemester(null)}}
+                                        setSemester(null)
+                                    }}
                                     className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
                                 >
                                     Cancel
@@ -714,11 +714,10 @@ const InstructorsPage: React.FC = () => {
                                                         "General Education"
                                                     )
                                                 }
-                                                className={`${
-                                                    tab === "General Education"
+                                                className={`${tab === "General Education"
                                                         ? "border-b-2 border-blue-500 font-semibold"
                                                         : ""
-                                                } px-4 py-2`}
+                                                    } px-4 py-2`}
                                             >
                                                 {" "}
                                                 General Education
@@ -731,11 +730,10 @@ const InstructorsPage: React.FC = () => {
                                                     "Professional Subjects"
                                                 )
                                             }
-                                            className={`${
-                                                tab === "Professional Subjects"
+                                            className={`${tab === "Professional Subjects"
                                                     ? "border-b-2 border-blue-500 font-semibold"
                                                     : ""
-                                            } px-4 py-2`}
+                                                } px-4 py-2`}
                                         >
                                             Professional Subjects
                                         </button>
@@ -785,13 +783,12 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${
-                                                        isSubjectAssigned(
-                                                            subject.id
-                                                        )
+                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
+                                                        subject.id
+                                                    )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                    }`}
+                                                        }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -838,13 +835,12 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${
-                                                        isSubjectAssigned(
-                                                            subject.id
-                                                        )
+                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
+                                                        subject.id
+                                                    )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                    }`}
+                                                        }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -890,7 +886,8 @@ const InstructorsPage: React.FC = () => {
                                     onClick={() => {
                                         setIsModalOpen(false)
                                         setYearLevel(null)
-                                        setSemester(null)}}
+                                        setSemester(null)
+                                    }}
                                 >
                                     Close
                                 </button>

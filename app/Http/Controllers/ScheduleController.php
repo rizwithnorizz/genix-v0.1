@@ -320,9 +320,13 @@ class ScheduleController extends Controller
                     \Log::error("Processing section: " . $section->section_name);
                     $eligibleInstructors = $this->getEligibleInstructors($subject, $instructors, $subjectInstructors);
                     \Log::error($eligibleInstructors);
+                    if ($eligibleInstructors->count() === 0){
+                        \Log::error("No eligible instructors teaching the subject");
+                        break;
+                    }
                     $eligibleInstructors = $eligibleInstructors->shuffle();
                     $rooms = $rooms->shuffle();
-                    
+                    \Log::error($eligibleInstructors);
                     if ($subject->lec == 3 && $subject->lab == 0) {
                         
                         
