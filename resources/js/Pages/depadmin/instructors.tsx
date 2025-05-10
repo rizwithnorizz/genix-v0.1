@@ -2,7 +2,7 @@ import React, { useState, useEffect, ChangeEventHandler } from "react";
 import axios from "axios";
 import Layout from "@/Components/ui/layout";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, X } from "lucide-react";
 
 // Types
 interface Instructor {
@@ -178,10 +178,10 @@ const InstructorsPage: React.FC = () => {
             // Generate initials for the new instructor
             const initials = createdInstructor?.name
                 ? createdInstructor.name
-                    .split(" ")
-                    .map((part: string) => part[0])
-                    .join("")
-                    .toUpperCase()
+                      .split(" ")
+                      .map((part: string) => part[0])
+                      .join("")
+                      .toUpperCase()
                 : "";
 
             // Format the new instructor object
@@ -246,7 +246,9 @@ const InstructorsPage: React.FC = () => {
     const [semester, setSemester] = useState<string | null>(null);
 
     const filteredSubjects = allSubjects.filter((subject) => {
-        const matchesYearLevel = yearLevel ? subject.year_level === yearLevel : true;
+        const matchesYearLevel = yearLevel
+            ? subject.year_level === yearLevel
+            : true;
         const matchesSemester = semester ? subject.semester === semester : true;
         return matchesYearLevel && matchesSemester;
     });
@@ -351,9 +353,17 @@ const InstructorsPage: React.FC = () => {
                 {isCreateModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white max-h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6 w-[60rem]">
-                            <h2 className="text-lg font-semibold mb-4">
-                                Create New Instructor
-                            </h2>
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold">
+                                    Create New Instructor
+                                </h2>
+                                <button
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
                             <input
                                 type="text"
                                 name="name"
@@ -449,10 +459,11 @@ const InstructorsPage: React.FC = () => {
                                                         "General Education"
                                                     )
                                                 }
-                                                className={`${tab === "General Education"
+                                                className={`${
+                                                    tab === "General Education"
                                                         ? "border-b-2 border-blue-500 font-semibold"
                                                         : ""
-                                                    } px-4 py-2`}
+                                                } px-4 py-2`}
                                             >
                                                 {" "}
                                                 General Education
@@ -465,17 +476,19 @@ const InstructorsPage: React.FC = () => {
                                                     "Professional Subjects"
                                                 )
                                             }
-                                            className={`${tab === "Professional Subjects"
+                                            className={`${
+                                                tab === "Professional Subjects"
                                                     ? "border-b-2 border-blue-500 font-semibold"
                                                     : ""
-                                                } px-4 py-2`}
+                                            } px-4 py-2`}
                                         >
                                             Professional Subjects
                                         </button>
                                     </div>
                                     {tab !== "General Education" && (
-                                        <div>
+                                        <div className="flex gap-4">
                                             <select
+                                                className="border-gray-500 rounded-xl"
                                                 onChange={(e) =>
                                                     setSemester(e.target.value)
                                                 }
@@ -494,25 +507,35 @@ const InstructorsPage: React.FC = () => {
                                                 </option>
                                             </select>
                                             <select
+                                                className="border-gray-500 rounded-xl"
                                                 onChange={(e) =>
                                                     setYearLevel(
                                                         parseInt(e.target.value)
                                                     )
                                                 }
                                             >
-                                                <option value="">Select Year Level</option>
-                                                <option value="1">1st Year</option>
-                                                <option value="2">2nd Year</option>
-                                                <option value="3">3rd Year</option>
-                                                <option value="4">4th Year</option>
+                                                <option value="">
+                                                    Select Year Level
+                                                </option>
+                                                <option value="1">
+                                                    1st Year
+                                                </option>
+                                                <option value="2">
+                                                    2nd Year
+                                                </option>
+                                                <option value="3">
+                                                    3rd Year
+                                                </option>
+                                                <option value="4">
+                                                    4th Year
+                                                </option>
                                             </select>
                                         </div>
                                     )}
-
                                 </div>
 
                                 {tab === "Professional Subjects" ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto mt-4">
                                         {filteredSubjects
                                             .filter(
                                                 (subject) =>
@@ -521,14 +544,15 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
-                                                        (s) =>
-                                                            s.id ===
-                                                            subject.id
-                                                    )
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        newInstructor.subjects.some(
+                                                            (s) =>
+                                                                s.id ===
+                                                                subject.id
+                                                        )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !newInstructor.subjects.some(
@@ -566,7 +590,7 @@ const InstructorsPage: React.FC = () => {
                                             ))}
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-[40rem] overflow-y-auto mt-4">
                                         {filteredSubjects
                                             .filter(
                                                 (subject) =>
@@ -575,14 +599,15 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${newInstructor.subjects.some(
-                                                        (s) =>
-                                                            s.id ===
-                                                            subject.id
-                                                    )
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        newInstructor.subjects.some(
+                                                            (s) =>
+                                                                s.id ===
+                                                                subject.id
+                                                        )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !newInstructor.subjects.some(
@@ -621,24 +646,23 @@ const InstructorsPage: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="flex justify-end space-x-2">
-                                <button
+                            <div className="flex justify-center space-x-2 mt-6">
+                                <PrimaryButton
                                     onClick={() => {
-                                        setIsCreateModalOpen(false)
-                                        setYearLevel(null)
-                                        setSemester(null)
+                                        setIsCreateModalOpen(false);
+                                        setYearLevel(null);
+                                        setSemester(null);
                                     }}
-                                    className="bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400"
                                 >
                                     Cancel
-                                </button>
-                                <button
+                                </PrimaryButton>
+                                <PrimaryButton
                                     onClick={handleCreateInstructor}
                                     disabled={isLoading}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                                    className="hover:bg-green-600 hover:text-white"
                                 >
                                     {isLoading ? "Saving..." : "Create"}
-                                </button>
+                                </PrimaryButton>
                             </div>
                         </div>
                     </div>
@@ -647,7 +671,7 @@ const InstructorsPage: React.FC = () => {
                 {/* Subject Management Modal */}
                 {isModalOpen && selectedInstructor && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg shadow-lg p-6 w-[60rem]">
+                        <div className="bg-white rounded-lg shadow-lg p-6 w-[60rem] overflow-y-auto max-h-[90vh]">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-bold">
                                     Manage Subjects for{" "}
@@ -714,10 +738,11 @@ const InstructorsPage: React.FC = () => {
                                                         "General Education"
                                                     )
                                                 }
-                                                className={`${tab === "General Education"
+                                                className={`${
+                                                    tab === "General Education"
                                                         ? "border-b-2 border-blue-500 font-semibold"
                                                         : ""
-                                                    } px-4 py-2`}
+                                                } px-4 py-2`}
                                             >
                                                 {" "}
                                                 General Education
@@ -730,47 +755,62 @@ const InstructorsPage: React.FC = () => {
                                                     "Professional Subjects"
                                                 )
                                             }
-                                            className={`${tab === "Professional Subjects"
+                                            className={`${
+                                                tab === "Professional Subjects"
                                                     ? "border-b-2 border-blue-500 font-semibold"
                                                     : ""
-                                                } px-4 py-2`}
+                                            } px-4 py-2`}
                                         >
                                             Professional Subjects
                                         </button>
                                     </div>
-                                    <div>
-                                        <select
-                                            onChange={(e) =>
-                                                setSemester(e.target.value)
-                                            }
-                                        >
-                                            <option value="">
-                                                Select Semester
-                                            </option>
-                                            <option value="1st">
-                                                1st Semester
-                                            </option>
-                                            <option value="2nd">
-                                                2nd Semester
-                                            </option>
-                                            <option value="summer">
-                                                Summer
-                                            </option>
-                                        </select>
-                                        <select
-                                            onChange={(e) =>
-                                                setYearLevel(
-                                                    parseInt(e.target.value)
-                                                )
-                                            }
-                                        >
-                                            <option value="">Select Year Level</option>
-                                            <option value="1">1st Year</option>
-                                            <option value="2">2nd Year</option>
-                                            <option value="3">3rd Year</option>
-                                            <option value="4">4th Year</option>
-                                        </select>
-                                    </div>
+                                    {tab !== "General Education" && (
+                                        <div className="flex gap-4">
+                                            <select 
+                                                className="border-gray-500 rounded-xl"
+                                                onChange={(e) =>
+                                                    setSemester(e.target.value)
+                                                }
+                                            >
+                                                <option value="">
+                                                    Select Semester
+                                                </option>
+                                                <option value="1st">
+                                                    1st Semester
+                                                </option>
+                                                <option value="2nd">
+                                                    2nd Semester
+                                                </option>
+                                                <option value="summer">
+                                                    Summer
+                                                </option>
+                                            </select>
+                                            <select
+                                                className="border-gray-500 rounded-xl"
+                                                onChange={(e) =>
+                                                    setYearLevel(
+                                                        parseInt(e.target.value)
+                                                    )
+                                                }
+                                            >
+                                                <option value="">
+                                                    Select Year Level
+                                                </option>
+                                                <option value="1">
+                                                    1st Year
+                                                </option>
+                                                <option value="2">
+                                                    2nd Year
+                                                </option>
+                                                <option value="3">
+                                                    3rd Year
+                                                </option>
+                                                <option value="4">
+                                                    4th Year
+                                                </option>
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {tab === "Professional Subjects" ? (
@@ -783,12 +823,13 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
-                                                        subject.id
-                                                    )
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
+                                                            subject.id
+                                                        )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -835,12 +876,13 @@ const InstructorsPage: React.FC = () => {
                                             .map((subject) => (
                                                 <button
                                                     key={subject.id}
-                                                    className={`px-3 py-2 rounded-md text-left ${isSubjectAssigned(
-                                                        subject.id
-                                                    )
+                                                    className={`px-3 py-2 rounded-md text-left ${
+                                                        isSubjectAssigned(
+                                                            subject.id
+                                                        )
                                                             ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                                             : "bg-gray-100 hover:bg-gray-200"
-                                                        }`}
+                                                    }`}
                                                     onClick={() => {
                                                         if (
                                                             !isSubjectAssigned(
@@ -884,9 +926,9 @@ const InstructorsPage: React.FC = () => {
                                 <button
                                     className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md"
                                     onClick={() => {
-                                        setIsModalOpen(false)
-                                        setYearLevel(null)
-                                        setSemester(null)
+                                        setIsModalOpen(false);
+                                        setYearLevel(null);
+                                        setSemester(null);
                                     }}
                                 >
                                     Close

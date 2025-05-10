@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/Components/ui/layout";
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
-import { Upload, Edit, Trash, Trash2, X } from "lucide-react";
+import { Upload, Edit, Trash, Trash2, X, PlusCircle, Plus } from "lucide-react";
 
 interface Curriculum {
     id: number;
@@ -96,7 +96,9 @@ const CourseOfferingsPage: React.FC = () => {
         }
     };
 
-    {/*fetch section information*/ }
+    {
+        /*fetch section information*/
+    }
     const [sections, setSections] = useState<Section[]>([]);
     const fetchSections = async () => {
         try {
@@ -121,11 +123,17 @@ const CourseOfferingsPage: React.FC = () => {
             "Third Year": 3,
             "Fourth Year": 4,
         };
-        const yearLevelMatch = yearLevelMap[selectedYearLevel] ? section.year_level === yearLevelMap[selectedYearLevel] : true;
-        const programMatch = selectedCurriculum?.programID ? section.programID === selectedCurriculum.programID : true;
+        const yearLevelMatch = yearLevelMap[selectedYearLevel]
+            ? section.year_level === yearLevelMap[selectedYearLevel]
+            : true;
+        const programMatch = selectedCurriculum?.programID
+            ? section.programID === selectedCurriculum.programID
+            : true;
         return yearLevelMatch && programMatch;
     });
-    {/*fetch course subjects*/ }
+    {
+        /*fetch course subjects*/
+    }
     const [courseSubjects, setCourseSubjects] = useState<CourseSubject[]>([]);
     const fetchCourseSubjects = async (request: Curriculum) => {
         try {
@@ -224,10 +232,10 @@ const CourseOfferingsPage: React.FC = () => {
         const { name, value } = e.target;
         setCurriculumUploaded(
             (prevCurriculum) =>
-            ({
-                ...prevCurriculum,
-                [name]: value || "", // Ensure the value is never undefined
-            } as uploadedCurriculum)
+                ({
+                    ...prevCurriculum,
+                    [name]: value || "", // Ensure the value is never undefined
+                } as uploadedCurriculum)
         );
     };
     {
@@ -299,7 +307,6 @@ const CourseOfferingsPage: React.FC = () => {
 
             const updatedSubjects = prevCurriculum.subjects.map((sub) => {
                 if (sub.subject_code === subject.subject_code) {
-
                     console.log("Modified subject", sub);
                     return { ...sub, prof_sub: !sub.prof_sub };
                 }
@@ -310,8 +317,7 @@ const CourseOfferingsPage: React.FC = () => {
                 ...prevCurriculum,
                 subjects: updatedSubjects,
             } as uploadedCurriculum;
-        }
-        );
+        });
     };
     const [isLoading, setLoading] = useState<boolean>(false);
     return (
@@ -322,19 +328,21 @@ const CourseOfferingsPage: React.FC = () => {
                     {/* Tabs */}
                     <div className="flex border-b mb-4">
                         <button
-                            className={`px-4 py-2 ${activeTab === "Course Offerings"
-                                ? "border-b-2 border-blue-500 font-semibold"
-                                : ""
-                                }`}
+                            className={`px-4 py-2 ${
+                                activeTab === "Course Offerings"
+                                    ? "border-b-2 border-blue-500 font-semibold"
+                                    : ""
+                            }`}
                             onClick={() => handleSwitchTabs("Course Offerings")}
                         >
                             Course Offerings
                         </button>
                         <button
-                            className={`px-4 py-2 ${activeTab === "Sections"
-                                ? "border-b-2 border-blue-500 font-semibold"
-                                : ""
-                                }`}
+                            className={`px-4 py-2 ${
+                                activeTab === "Sections"
+                                    ? "border-b-2 border-blue-500 font-semibold"
+                                    : ""
+                            }`}
                             onClick={() => handleSwitchTabs("Sections")}
                         >
                             Sections
@@ -370,7 +378,10 @@ const CourseOfferingsPage: React.FC = () => {
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {curriculum.map((curr, idx) => (
-                                            <tr key={idx} className="hover:bg-gray-50 text-center">
+                                            <tr
+                                                key={idx}
+                                                className="hover:bg-gray-50 text-center"
+                                            >
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     {curr.curriculum_name}
                                                 </td>
@@ -379,7 +390,11 @@ const CourseOfferingsPage: React.FC = () => {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     <button
-                                                        onClick={() => handleShowCurriculumCourses(curr)}
+                                                        onClick={() =>
+                                                            handleShowCurriculumCourses(
+                                                                curr
+                                                            )
+                                                        }
                                                         className="text-blue-600 hover:text-blue-900"
                                                     >
                                                         View Curriculum
@@ -419,11 +434,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "First Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${selectedYearLevel ===
+                                            className={`px-4 py-2 ${
+                                                selectedYearLevel ===
                                                 "First Year"
-                                                ? "border-b-2 border-blue-500 font-semibold"
-                                                : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                            }`}
                                         >
                                             First Year
                                         </button>
@@ -434,11 +450,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "Second Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${selectedYearLevel ===
+                                            className={`px-4 py-2 ${
+                                                selectedYearLevel ===
                                                 "Second Year"
-                                                ? "border-b-2 border-blue-500 font-semibold"
-                                                : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                            }`}
                                         >
                                             Second Year
                                         </button>
@@ -449,11 +466,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "Third Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${selectedYearLevel ===
+                                            className={`px-4 py-2 ${
+                                                selectedYearLevel ===
                                                 "Third Year"
-                                                ? "border-b-2 border-blue-500 font-semibold"
-                                                : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                            }`}
                                         >
                                             Third Year
                                         </button>
@@ -464,11 +482,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                     "Fourth Year"
                                                 )
                                             }
-                                            className={`px-4 py-2 ${selectedYearLevel ===
+                                            className={`px-4 py-2 ${
+                                                selectedYearLevel ===
                                                 "Fourth Year"
-                                                ? "border-b-2 border-blue-500 font-semibold"
-                                                : ""
-                                                }`}
+                                                    ? "border-b-2 border-blue-500 font-semibold"
+                                                    : ""
+                                            }`}
                                         >
                                             Fourth Year
                                         </button>
@@ -509,13 +528,13 @@ const CourseOfferingsPage: React.FC = () => {
 
                                             return (
                                                 subject.year_level ===
-                                                yearLevelMap[
-                                                selectedYearLevel
-                                                ] &&
+                                                    yearLevelMap[
+                                                        selectedYearLevel
+                                                    ] &&
                                                 subject.semester ===
-                                                semesterMap[
-                                                selectedSemester
-                                                ]
+                                                    semesterMap[
+                                                        selectedSemester
+                                                    ]
                                             );
                                         })
                                         .map((subject) => (
@@ -551,82 +570,14 @@ const CourseOfferingsPage: React.FC = () => {
                         </div>
                     )}
                     {/*adding curriculum pop up*/}
-                    {showAddCurriculum && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                            <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl">
-                                <h2 className="text-2xl font-semibold mb-4">
-                                    Add Curriculum
-                                </h2>
-
-                                <div className="flex flex-col items-center justify-center mb-4">
-                                    <label
-                                        className={`bg-blue-500 hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center text-white font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
-                                            ? "bg-green-500 hover:bg-green-400"
-                                            : ""
-                                            }`}
-                                    >
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            onChange={handleFileChange}
-                                            accept=".pdf,.doc,.docx,.txt,.csv,.xlsx,.xls"
-                                        />
-                                        <Upload size={48} />
-                                        {uploadedFile ? (
-                                            <span className="mt-2">
-                                                {uploadedFile.name}
-                                            </span>
-                                        ) : (
-                                            <span className="mt-2">
-                                                Upload Curriculum
-                                            </span>
-                                        )}
-                                    </label>
-
-                                    {uploadError && (
-                                        <p className="text-red-500 text-sm mt-1">
-                                            {uploadError}
-                                        </p>
-                                    )}
-
-                                    {uploadSuccess && (
-                                        <p className="text-green-500 text-sm mt-1">
-                                            Upload successful!
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex justify-center items-center">
-                                    <PrimaryButton
-                                        className="bg-black hover:bg-gray-900 text-white py-2 px-4 rounded-lg disabled:bg-red"
-                                        onClick={handleFileUpload}
-                                        disabled={isUploading || !uploadedFile}
-                                    >
-                                        {isUploading
-                                            ? "Uploading..."
-                                            : "Upload Curriculum"}
-                                    </PrimaryButton>
-                                </div>
-
-                                <div></div>
-                                <button
-                                    className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
-                                    onClick={handleToggleCurriculumPopup}
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                    {/*adding curriculum pop up*/}
                     {/*adding curriculum pop up*/}
                     {showAddCurriculum &&
                         (curriculumUploaded ? (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30 ">
-                                <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 shadow-full max-h-[90vh] overflow-y-auto">
+                                <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 w-[90vw] shadow-full max-h-[90vh] overflow-y-auto">
                                     <div className="flex justify-end text-red-500">
                                         <button>
-                                            <X size={24}/>
+                                            <X size={24} />
                                         </button>
                                     </div>
                                     <h2>Curriculum Name</h2>
@@ -679,11 +630,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "First Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${selectedYearLevel ===
+                                                className={`px-4 py-2 ${
+                                                    selectedYearLevel ===
                                                     "First Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                                    }`}
+                                                        ? "border-b-2 border-blue-500 font-semibold"
+                                                        : ""
+                                                }`}
                                             >
                                                 First Year
                                             </button>
@@ -694,11 +646,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "Second Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${selectedYearLevel ===
+                                                className={`px-4 py-2 ${
+                                                    selectedYearLevel ===
                                                     "Second Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                                    }`}
+                                                        ? "border-b-2 border-blue-500 font-semibold"
+                                                        : ""
+                                                }`}
                                             >
                                                 Second Year
                                             </button>
@@ -709,11 +662,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "Third Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${selectedYearLevel ===
+                                                className={`px-4 py-2 ${
+                                                    selectedYearLevel ===
                                                     "Third Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                                    }`}
+                                                        ? "border-b-2 border-blue-500 font-semibold"
+                                                        : ""
+                                                }`}
                                             >
                                                 Third Year
                                             </button>
@@ -724,11 +678,12 @@ const CourseOfferingsPage: React.FC = () => {
                                                         "Fourth Year"
                                                     )
                                                 }
-                                                className={`px-4 py-2 ${selectedYearLevel ===
+                                                className={`px-4 py-2 ${
+                                                    selectedYearLevel ===
                                                     "Fourth Year"
-                                                    ? "border-b-2 border-blue-500 font-semibold"
-                                                    : ""
-                                                    }`}
+                                                        ? "border-b-2 border-blue-500 font-semibold"
+                                                        : ""
+                                                }`}
                                             >
                                                 Fourth Year
                                             </button>
@@ -771,13 +726,13 @@ const CourseOfferingsPage: React.FC = () => {
 
                                                     return (
                                                         subject.year_level ===
-                                                        yearLevelMap[
-                                                        selectedYearLevel
-                                                        ] &&
+                                                            yearLevelMap[
+                                                                selectedYearLevel
+                                                            ] &&
                                                         subject.semester ===
-                                                        semesterMap[
-                                                        selectedSemester
-                                                        ]
+                                                            semesterMap[
+                                                                selectedSemester
+                                                            ]
                                                     );
                                                 })
                                                 .map((subject) => (
@@ -789,13 +744,18 @@ const CourseOfferingsPage: React.FC = () => {
                                                     >
                                                         <div className="grid grid-cols-2 pl-5 flex items-center justify-center col-span-2">
                                                             <h2>Prof. Sub?</h2>
-                                                            <input type="checkbox"
+                                                            <input
+                                                                type="checkbox"
                                                                 name="prof_sub"
                                                                 className="h-6 w-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                                                 checked={
                                                                     subject.prof_sub
                                                                 }
-                                                                onChange={() => handleEditUploadedCurriculum(subject)}
+                                                                onChange={() =>
+                                                                    handleEditUploadedCurriculum(
+                                                                        subject
+                                                                    )
+                                                                }
                                                             />
                                                         </div>
                                                         <label className="p-4 truncate overflow-hidden whitespace-nowrap col-span-1">
@@ -833,16 +793,27 @@ const CourseOfferingsPage: React.FC = () => {
                         ) : (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
                                 <div className="bg-white p-6 rounded-lg shadow-lg w-2/3 max-w-2xl">
-                                    <h2 className="text-2xl font-semibold mb-4">
-                                        Add Curriculum
-                                    </h2>
+                                    <div className="flex justify-between">
+                                        <h2 className="text-2xl font-semibold mb-4">
+                                            Add Curriculum
+                                        </h2>
+                                        <button
+                                            className="text-red-500 hover:text-red-700"
+                                            onClick={
+                                                handleToggleCurriculumPopup
+                                            }
+                                        >
+                                            <X size={24} />
+                                        </button>
+                                    </div>
 
                                     <div className="flex flex-col items-center justify-center mb-4">
                                         <label
-                                            className={`border border-gray-500 bg-white hover:bg-blue-400 h-[200px] w-[350px] rounded-lg flex flex-col items-center justify-center font-semibold mb-4 cursor-pointer transition-all ${uploadedFile
-                                                ? "bg-green-500 hover:bg-green-400"
-                                                : ""
-                                                }`}
+                                            className={`border border-gray-500 bg-white hover:bg-blue-400 h-[30vh] w-2/3 rounded-lg flex flex-col items-center justify-center font-semibold mb-4 cursor-pointer transition-all ${
+                                                uploadedFile
+                                                    ? "bg-green-500 hover:bg-green-400"
+                                                    : ""
+                                            }`}
                                         >
                                             <input
                                                 type="file"
@@ -888,14 +859,6 @@ const CourseOfferingsPage: React.FC = () => {
                                                 : "Upload Curriculum"}
                                         </PrimaryButton>
                                     </div>
-
-                                    <div></div>
-                                    <button
-                                        className="border border-gray-500 py-2 px-4 rounded-md hover:bg-red-600"
-                                        onClick={handleToggleCurriculumPopup}
-                                    >
-                                        Close
-                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -903,11 +866,9 @@ const CourseOfferingsPage: React.FC = () => {
                     {activeTab === "Sections" && (
                         <div className="bg-white p-4">
                             <div className="flex grid grid-cols-2 mb-4">
-
                                 <div>
                                     <PrimaryButton
                                         onClick={handleToggleAddSection}
-                                        className=""
                                     >
                                         Add Section
                                     </PrimaryButton>
@@ -923,7 +884,9 @@ const CourseOfferingsPage: React.FC = () => {
                                                 className="border border-gray-500 rounded p-2 w-1/3"
                                                 value={selectedYearLevel}
                                                 onChange={(e) =>
-                                                    setSelectedYearLevel(e.target.value)
+                                                    setSelectedYearLevel(
+                                                        e.target.value
+                                                    )
                                                 }
                                             >
                                                 <option value="">
@@ -949,12 +912,17 @@ const CourseOfferingsPage: React.FC = () => {
                                                         curriculum.find(
                                                             (curr) =>
                                                                 curr.programID ===
-                                                                parseInt(e.target.value)
+                                                                parseInt(
+                                                                    e.target
+                                                                        .value
+                                                                )
                                                         ) || null
                                                     )
                                                 }
                                             >
-                                                <option value="">All Programs</option>
+                                                <option value="">
+                                                    All Programs
+                                                </option>
                                                 {curriculum
                                                     .filter(
                                                         (curr, index, self) =>
@@ -971,7 +939,9 @@ const CourseOfferingsPage: React.FC = () => {
                                                                 curr.programID
                                                             }
                                                         >
-                                                            {curr.program_short_name}
+                                                            {
+                                                                curr.program_short_name
+                                                            }
                                                         </option>
                                                     ))}
                                             </select>
@@ -995,14 +965,16 @@ const CourseOfferingsPage: React.FC = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
-                                                    {filteredSections
-                                                        .map((section) => (
+                                                    {filteredSections.map(
+                                                        (section) => (
                                                             <tr
                                                                 key={section.id}
                                                                 className="hover:bg-gray-50 text-center"
                                                             >
                                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                                    {section.section_name}
+                                                                    {
+                                                                        section.section_name
+                                                                    }
                                                                 </td>
                                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                                     {
@@ -1010,7 +982,9 @@ const CourseOfferingsPage: React.FC = () => {
                                                                     }
                                                                 </td>
                                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    {section.year_level}
+                                                                    {
+                                                                        section.year_level
+                                                                    }
                                                                 </td>
                                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                                     <button
@@ -1021,21 +995,22 @@ const CourseOfferingsPage: React.FC = () => {
                                                                             )
                                                                         }
                                                                     >
-                                                                        <Trash2 size={18} />
+                                                                        <Trash2
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
                                                                     </button>
                                                                 </td>
                                                             </tr>
-                                                        ))}
+                                                        )
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>
-
                                     </>
                                 )}
-
                             </div>
-
-
                         </div>
                     )}
                 </div>
@@ -1047,14 +1022,15 @@ const CourseOfferingsPage: React.FC = () => {
                                     Add Section
                                 </h2>
                                 <button className="text-red-500">
-                                    <X size={24} onClick={handleToggleAddSection} />
+                                    <X
+                                        size={24}
+                                        onClick={handleToggleAddSection}
+                                    />
                                 </button>
                             </div>
                             <div className="mb-4 grid md:grid-cols-2 grid-cols-1 gap-4">
                                 <div>
-                                    <h2>
-                                        Section Name
-                                    </h2>
+                                    <h2>Section Name</h2>
                                     <input
                                         type="text"
                                         placeholder="Section Name"
@@ -1066,18 +1042,21 @@ const CourseOfferingsPage: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                    <h2>
-                                        Population
-                                    </h2>
+                                    <h2>Population</h2>
                                     <input
                                         type="text"
                                         placeholder="Population"
                                         value={population}
                                         onChange={(e) => {
-                                            const value = parseInt(e.target.value);
-                                            setPopulation(isNaN(value) ? 0 : value);
+                                            const value = parseInt(
+                                                e.target.value
+                                            );
+                                            setPopulation(
+                                                isNaN(value) ? 0 : value
+                                            );
                                         }}
-                                        className="p-3 rounded-lg w-full md:col-span-1 col-span-2" />
+                                        className="p-3 rounded-lg w-full md:col-span-1 col-span-2"
+                                    />
                                 </div>
                                 <select
                                     onChange={(e) => {
@@ -1141,12 +1120,14 @@ const CourseOfferingsPage: React.FC = () => {
                                     <option>Summer</option>
                                 </select>
                             </div>
-                            <div className="flex justify-end mb-4">
-
+                            <div className="flex justify-center mb-4">
+                                
                                 <PrimaryButton
-                                    className="py-2 px-4 rounded-md hover:bg-blue-600"
+                                    className="py-2 rounded-md hover:bg-green-600 hover:text-white"
                                     onClick={handleAddSection}
                                 >
+                                    
+                                    <Plus size={18} className="mr-2" />
                                     Add Section
                                 </PrimaryButton>
                             </div>
@@ -1171,9 +1152,9 @@ const CourseOfferingsPage: React.FC = () => {
 
                                         return (
                                             subject.year_level ===
-                                            yearLevelMap[yearLevelCourse] &&
+                                                yearLevelMap[yearLevelCourse] &&
                                             subject.semester ===
-                                            semesterMap[selectedSemester]
+                                                semesterMap[selectedSemester]
                                         );
                                     })
                                     .map((subject, idx) => (
@@ -1204,7 +1185,6 @@ const CourseOfferingsPage: React.FC = () => {
                                     Cancel
                                 </PrimaryButton>
                             </div>
-
                         </div>
                     </div>
                 )}

@@ -21,7 +21,10 @@ Route::get("/api/schedules/instructor/published", [DataRelay::class, 'getPublish
 Route::post('/api/feedback/post', [DataCreate::class, 'createFeedback'])->name('feedback');
 
 Route::get('/', function () {
-    return redirect('login');
+    if (auth()->check()) {
+        return redirect()->route('dep-dashboard'); // Redirect to a logged-in user's page, e.g., profile
+    }
+    return redirect()->route('login'); // Redirect to login if not authenticated
 });
 
 Route::get('guest/about', function () {

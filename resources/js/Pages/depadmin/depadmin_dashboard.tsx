@@ -255,10 +255,10 @@ const DepAdminDashboard: React.FC = () => {
                                         key={idx}
                                         className="bg-white p-2 flex border-2 border-gray-500 rounded-xl relative items-center justify-between"
                                     >
-                                        <div className="ps-5 text-gray-500 flex items-center justify-center">
+                                        <p className="ps-5 text-gray-500 flex items-center justify-center">
                                             <span>{schedule.repo_name}</span>
-                                        </div>
-                                        <div className="flex gap-2 pr-4">
+                                        </p>
+                                        <div className="flex gap-2 pr-4 pl-2">
                                             <button
                                                 className="border-2 border-gray-500 text-gray-500 hover:border-gray-200 hover:text-gray-200 rounded-xl p-2"
                                                 onClick={async () => {
@@ -365,7 +365,7 @@ const DepAdminDashboard: React.FC = () => {
                                             key={idx}
                                             className="w-full h-[55px] hover:bg-gray-100 bg-white text-gray-700 p-2 rounded-xl flex relative items-center justify-between border-2 border-gray-500"
                                         >
-                                            <div className="pl-5 flex items-center">
+                                            <div className="pl-5 flex items-center  truncate text-nowrap ">
                                                 <span>
                                                     {Curriculum.curriculum_name}
                                                 </span>
@@ -384,7 +384,7 @@ const DepAdminDashboard: React.FC = () => {
                     <div className="mt-4 mb-4 bg-white p-4 rounded-xl border-2 border-gray-500 col-span-2  ">
                         <h2 className="font-semibold text-lg mb-4">Faculty</h2>
                         <div className="relative">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4">
                                 {instructors?.length === 0 ? (
                                     <div className="text-center text-gray-500 col-span-5 mt-10">
                                         No instructors available.
@@ -485,9 +485,9 @@ const DepAdminDashboard: React.FC = () => {
                                     <tbody>
                                         <tr>
                                             {Object.keys(DAY_MAPPING).map(
-                                                (day) => (
+                                                (day, idx) => (
                                                     <td
-                                                        key={day}
+                                                        key={idx}
                                                         className="border border-gray-500 px-4 py-2 align-top"
                                                     >
                                                         {scheduleFileView[day]
@@ -726,7 +726,7 @@ const DepAdminDashboard: React.FC = () => {
                         </div>
                     ) : (
                         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-                            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 max-w-2xl shadow-full">
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 max-w-2xl w-[90vw] shadow-full">
                                 <h2 className="text-xl font-semibold mb-4">
                                     Generate Class Schedule
                                 </h2>
@@ -788,7 +788,6 @@ const DepAdminDashboard: React.FC = () => {
                                     <div className="mt-5 flex items-center justify-center">
                                         {retrievedFeedback.length > 0 && (
                                             <PrimaryButton
-                                                className="w-1/2 bg-green-600 hover:bg-green-500 text-white flex justify-center rounded-lg"
                                                 onClick={async () => {
                                                     try {
                                                         setIsLoading(true);
