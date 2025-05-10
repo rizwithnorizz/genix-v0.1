@@ -32,8 +32,8 @@ export default function Login({
         <div className="relative flex min-h-screen flex-col items-center bg-gray-900 bg-opacity-60 pt-6 sm:justify-center sm:pt-0">
             {/* Video Background */}
             <video
-                className="absolute top-0 bg-opacity-90 left-0 w-full h-full object-cover -z-10"
-                src="/videos/dna.mp4"
+                className="absolute top-0 bg-opacity-100 left-0 w-full h-full object-cover -z-10"
+                src="/videos/ub.mp4"
                 autoPlay
                 loop
                 muted

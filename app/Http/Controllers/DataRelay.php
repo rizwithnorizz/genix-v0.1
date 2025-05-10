@@ -443,7 +443,12 @@ class DataRelay extends Controller
             ->join('course_subjects', 'subjects.id', '=', 'course_subjects.subjectID')
             ->join('program_offerings', 'course_subjects.programID', '=', 'program_offerings.id')
             ->where('program_offerings.departmentID', $department)
-            ->select('subjects.*', 'course_subjects.year_level as year_level', 'course_subjects.semester as semester')
+            ->select('subjects.*')
+            ->union(
+            DB::table('subjects')
+                ->where('prof_subject', false)
+                ->select('subjects.*')
+            )
             ->get();
             return response()->json([
                 'status' => 'success',
