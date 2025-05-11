@@ -11,6 +11,31 @@ use Illuminate\Support\Facades\Mail;
 
 class DataUpdate extends Controller
 {
+    public function rejectStudentFeedback(Request $request){
+        $validated = $request->validate([
+            'feedback_id' => 'required|integer|exists:course_subject_feedback,id',
+        ]);
+        DB::table('course_subject_feedback')
+        ->where('id', $request->input('feedback_id'))
+        ->update(['status' => false]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback approved successfully'
+        ], 200);
+    }
+
+    public function rejectInstructorFeedback(Request $request){
+        $validated = $request->validate([
+            'feedback_id' => 'required|integer|exists:instructor_feedback,id',
+        ]);
+        DB::table('instructor_feedback')
+        ->where('id', $request->input('feedback_id'))
+        ->update(['status' => false]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Feedback approved successfully'
+        ], 200);
+    }
     public function publishSchedule($scheduleID){
         $schedule = DB::table('schedule_repos')
             ->where('id', $scheduleID)

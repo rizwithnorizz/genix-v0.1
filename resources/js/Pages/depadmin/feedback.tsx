@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/Components/ui/layout";
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
+import { Check, FileQuestion, X } from "lucide-react";
 
 interface studentFeedback {
     id: number;
@@ -48,8 +49,10 @@ const Feedback: React.FC = () => {
         type: "student" | "instructor",
         id: number
     ) => {
-        const confirm = window.confirm("Are you sure you want to approve this feedback?");
-        if (!confirm){
+        const confirm = window.confirm(
+            "Are you sure you want to approve this feedback?"
+        );
+        if (!confirm) {
             return;
         }
         try {
@@ -63,9 +66,31 @@ const Feedback: React.FC = () => {
                 fetchInstructorFeedbacks();
             }
         } catch (error) {
-            console.error("Error toggling feedback status:", error);
+            window.alert(error);
         }
     };
+    const rejectFeedback = async (
+        type: "student" | "instructor",
+        id: number
+    ) => {
+        const confirm = window.confirm("Are you sure you want to reject this feedback?");
+        if (!confirm){
+            return;
+        }
+        try{
+            const endpoint = `/api/feedback/${type}/reject`;
+            await axios.post(endpoint, {
+                feedback_id: id,
+            });
+            if (type === "student") {
+                fetchStudentFeedbacks();
+            } else {
+                fetchInstructorFeedbacks();
+            }
+        }catch (error){
+            window.alert(error);
+        }
+    }
 
     useEffect(() => {
         fetchStudentFeedbacks();
@@ -85,14 +110,16 @@ const Feedback: React.FC = () => {
             fetchInstructorFeedbacks();
         }
     };
-    const [searchTerm, setSearchTerm] = useState<string>(""); 
+    const [searchTerm, setSearchTerm] = useState<string>("");
     const filteredStudentFeedbacks = studentFeedbacks?.filter((feedback) =>
         feedback.section_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const filteredInstructorFeedbacks = instructorFeedbacks?.filter((feedback) =>
-        feedback.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredInstructorFeedbacks = instructorFeedbacks?.filter(
+        (feedback) =>
+            feedback.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     return (
         <Layout>
             <main className="col-span-3 space-y-4">
@@ -134,66 +161,106 @@ const Feedback: React.FC = () => {
                                     type="text"
                                     placeholder="Search section..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
                                 />
                             </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-center border-l border-r border-t border-gray-500">
-                                    <thead >
-                                        <tr>
-                                            <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Course Section
-                                            </th>
-                                            <th className="border border-gray-500 px-6 py-3  text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Subject Code
-                                            </th>
-                                            <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Feedback
-                                            </th>
-                                            <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {studentFeedbacks?.map(
-                                            (feedback, idx) => (
-                                                <tr key={idx} className="divide-x divide-gray-500">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {feedback.section_name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {feedback.subject_code}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                                        {feedback.feedback}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        <button
-                                                            onClick={() =>
-                                                                toggleFeedbackStatus(
-                                                                    "student",
-                                                                    feedback.id
-                                                                )
+                            {studentFeedbacks?.length !== 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-center border-l border-r border-t border-gray-500">
+                                        <thead>
+                                            <tr>
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Course Section
+                                                </th>
+                                                <th className="border border-gray-500 px-6 py-3  text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Subject Code
+                                                </th>
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Feedback
+                                                </th>
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Status
+                                                </th>
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {filteredStudentFeedbacks?.map(
+                                                (feedback, idx) => (
+                                                    <tr
+                                                        key={idx}
+                                                        className="divide-x divide-gray-500"
+                                                    >
+                                                        <td className="w-[10rem] px-6 py-4 whitespace-nowrap font-semibold text-gray-900">
+                                                            {
+                                                                feedback.section_name
                                                             }
-                                                            className={`px-4 py-1 border border-gray-500 rounded text-xs font-medium ${
-                                                                feedback.status
-                                                                    ? "bg-green-300 text-green-800 hover:bg-green-200"
-                                                                    : "text-red-800 hover:bg-red-300"
-                                                            }`}
-                                                        >
-                                                            {feedback.status
-                                                                ? "Approved"
-                                                                : "Pending"}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                        </td>
+                                                        <td className="w-[10rem] px-6 py-4 whitespace-nowrap text-red-500">
+                                                            {
+                                                                feedback.subject_code
+                                                            }
+                                                        </td>
+                                                        <td className="px-6 py-4 text-left text-gray-900">
+                                                            {feedback.feedback}
+                                                        </td>
+                                                        <td className="w-[10rem] px-6 py-4 whitespace-nowrap">
+                                                            <div
+                                                                className={`px-4 py-1 border-2 text-lg rounded font-bold ${
+                                                                    feedback.status
+                                                                        ? "border-green-500 text-green-500"
+                                                                        : "border-red-600 text-red-600"
+                                                                }`}
+                                                            >
+                                                                {feedback.status
+                                                                    ? "Approved"
+                                                                    : "Pending"}
+                                                            </div>
+                                                        </td>
+                                                        <td className="w-[5rem] px-6 py-4 whitespace-nowrap">
+                                                            <button
+                                                                disabled={feedback.status}
+                                                                onClick={() =>
+                                                                    toggleFeedbackStatus(
+                                                                        "student",
+                                                                        feedback.id
+                                                                    )
+                                                                }
+                                                                className="text-lg px-4 py-1 rounded font-medium text-white bg-green-500 hover:bg-green-400 mr-2 disabled:bg-gray-100 disabled:border-transparent disabled:text-gray-500 disabled:cursor-not-allowed">
+                                                                Approve
+                                                                <Check size={20} className="inline ml-2" />
+                                                            </button>
+                                                            <button
+                                                                disabled={!feedback.status}
+                                                                onClick={() =>
+                                                                    rejectFeedback(
+                                                                        "student",
+                                                                        feedback.id
+                                                                    )
+                                                                }
+                                                                className="text-lg px-4 py-1 bg-red-500 text-white rounded font-medium hover:bg-red-400 disabled:bg-gray-100 disabled:border-transparent disabled:text-gray-500 disabled:cursor-not-allowed"
+                                                            >
+                                                                Reject 
+                                                                <X size={20} className="inline ml-2" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center h-64">
+                                    <p className="text-gray-500">
+                                        No feedback available yet.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -206,66 +273,106 @@ const Feedback: React.FC = () => {
                                     type="text"
                                     placeholder="Search instructor..."
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
                                 />
                             </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200 border-l border-r border-t border-gray-500 text-center">
-                                    <thead>
-                                        <tr>
-                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Instructor Name
-                                            </th>
-                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Subject Code
-                                            </th>
-                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Feedback
-                                            </th>
-                                            <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {filteredInstructorFeedbacks?.map(
-                                            (feedback, idx) => (
-                                                <tr key={idx} className="divide-x divide-gray-500">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {feedback.name}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        {feedback.subject_code}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                                        {feedback.feedback}
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <button
-                                                            onClick={() =>
-                                                                toggleFeedbackStatus(
-                                                                    "instructor",
-                                                                    feedback.id
-                                                                )
+                            {instructorFeedbacks?.length !== 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200 border-l border-r border-t border-gray-500 text-center">
+                                        <thead>
+                                            <tr>
+                                                <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Instructor Name
+                                                </th>
+                                                <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Subject Code
+                                                </th>
+                                                <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Feedback
+                                                </th>
+                                                <th className="border-gray-500 border px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Status
+                                                </th>
+                                                <th className="border border-gray-500 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {filteredInstructorFeedbacks?.map(
+                                                (feedback, idx) => (
+                                                   <tr
+                                                        key={idx}
+                                                        className="divide-x divide-gray-500"
+                                                    >
+                                                        <td className="w-[10rem] px-6 py-4 whitespace-nowrap font-semibold text-gray-900">
+                                                            {
+                                                                feedback.name
                                                             }
-                                                            className={`px-4 py-1 border border-gray-500 rounded text-xs font-medium ${
-                                                                feedback.status
-                                                                    ? "bg-green-300 text-green-800 hover:bg-green-200"
-                                                                    : "text-red-800 hover:bg-red-300"
-                                                            }`}
-                                                        >
-                                                            {feedback.status
-                                                                ? "Approved"
-                                                                : "Pending"}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                        </td>
+                                                        <td className="w-[10rem] px-6 py-4 whitespace-nowrap text-red-500">
+                                                            {
+                                                                feedback.subject_code
+                                                            }
+                                                        </td>
+                                                        <td className="px-6 py-4 text-left text-gray-900">
+                                                            {feedback.feedback}
+                                                        </td>
+                                                        <td className="w-[10rem] px-6 py-4 whitespace-nowrap">
+                                                            <div
+                                                                className={`px-4 py-1 border-2 text-lg rounded font-bold ${
+                                                                    feedback.status
+                                                                        ? "border-green-500 text-green-500"
+                                                                        : "border-red-600 text-red-600"
+                                                                }`}
+                                                            >
+                                                                {feedback.status
+                                                                    ? "Approved"
+                                                                    : "Pending"}
+                                                            </div>
+                                                        </td>
+                                                        <td className="w-[5rem] px-6 py-4 whitespace-nowrap">
+                                                            <button
+                                                                disabled={feedback.status}
+                                                                onClick={() =>
+                                                                    toggleFeedbackStatus(
+                                                                        "instructor",
+                                                                        feedback.id
+                                                                    )
+                                                                }
+                                                                className="text-lg px-4 py-1 rounded font-medium text-white bg-green-500 hover:bg-green-400 mr-2 disabled:bg-gray-100 disabled:border-transparent disabled:text-gray-500 disabled:cursor-not-allowed">
+                                                                Approve
+                                                                <Check size={20} className="inline ml-2" />
+                                                            </button>
+                                                            <button
+                                                                disabled={!feedback.status}
+                                                                onClick={() =>
+                                                                    rejectFeedback(
+                                                                        "instructor",
+                                                                        feedback.id
+                                                                    )
+                                                                }
+                                                                className="text-lg px-4 py-1 bg-red-500 text-white rounded font-medium hover:bg-red-400 disabled:bg-gray-100 disabled:border-transparent disabled:text-gray-500 disabled:cursor-not-allowed"
+                                                            >
+                                                                Reject 
+                                                                <X size={20} className="inline ml-2" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center h-64">
+                                    <p className="text-gray-500">
+                                        No feedback available yet.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

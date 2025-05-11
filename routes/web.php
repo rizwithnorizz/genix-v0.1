@@ -75,6 +75,8 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::get('/api/feedback/instructor', [DataRelay::class, 'getInstructorFeedback'])->name('depadmin.feedback.instructor');
     Route::get('/api/schedules/generate-from-feedback' , [ScheduleController::class, 'generateScheduleFromFeedback'])->name('depadmin.generate-schedule-from-feedback');
 
+    Route::post('/api/feedback/student/reject', [DataUpdate::class, 'rejectStudentFeedback'])->name('depadmin.reject.student');
+    Route::post('/api/feedback/instructor/reject', [DataUpdate::class, 'rejectInstructorFeedback'])->name('depadmin.reject.instructor');
     Route::post('/api/feedback/student/approve', [DataCreate::class, 'approveStudentFeedback'])->name('depadmin.approve.student');
     Route::post('/api/feedback/instructor/approve', [DataCreate::class, 'approveInstructorFeedback'])->name('depadmin.approve.instructor');
 

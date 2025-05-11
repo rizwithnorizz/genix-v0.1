@@ -2,7 +2,7 @@ import React, { useState, useEffect, ChangeEventHandler } from "react";
 import axios from "axios";
 import Layout from "@/Components/ui/layout";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { Edit, Trash2, X } from "lucide-react";
+import { Edit, Minus, Trash2, X } from "lucide-react";
 
 // Types
 interface Instructor {
@@ -266,6 +266,7 @@ const InstructorsPage: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <PrimaryButton
+                        title="Add Instructor"
                         className="px-4 py-2 w-[10rem] rounded-md font-medium"
                         onClick={() => {
                             setIsCreateModalOpen(true);
@@ -294,25 +295,22 @@ const InstructorsPage: React.FC = () => {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200 ">
+                        <tbody className="bg-white divide-y divide-gray-200">
                             {filteredInstructors.map((instructor) => (
                                 <tr
                                     key={instructor.id}
                                     className="border-t border-gray-200 divide-x divide-gray-500"
                                 >
-                                    <td className="h-full bg-white flex items-center m-2 p-2 rounded    ">
-                                        <h2 className="w-10 h-10 border border-gray-500 rounded-md flex items-center justify-center font-bold mr-3">
-                                            {instructor.initials}
-                                        </h2>
+                                    <td className="text-center font-medium text-lg p-4">
                                         <span>{instructor.name}</span>
                                     </td>
-                                    <td className="bg-white w-[60rem]">
-                                        <div className="flex flex-wrap gap-2 m-2 p-2 rounded">
+                                    <td className="bg-white min-w-80">
+                                        <div className="flex flex-wrap gap-2 p-5 rounded">
                                             {instructor.subjects.map(
                                                 (subject) => (
                                                     <span
                                                         key={subject.id}
-                                                        className="border border-gray-500 px-2 py-1 text-xs rounded-md"
+                                                        className="w-20 text-center border border-gray-500 px-2 py-1 text-red-500 font-bold rounded-md"
                                                     >
                                                         {subject.subject_code ||
                                                             subject.name}
@@ -674,46 +672,43 @@ const InstructorsPage: React.FC = () => {
                         <div className="bg-white rounded-lg shadow-lg p-6 w-[60rem] overflow-y-auto max-h-[90vh]">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-bold">
-                                    Manage Subjects for{" "}
-                                    {selectedInstructor.name}
+                                    Manage Subjects for:{" "}
+                                    <span className="text-red-500">
+                                        {selectedInstructor.name}
+                                    </span>
                                 </h2>
                                 <button
+                                    title="Close"
                                     onClick={() => setIsModalOpen(false)}
-                                    className="text-gray-500 hover:text-gray-700"
+                                    className="text-red-500 hover:text-red-700"
                                 >
-                                    ✕
+                                    <X size={24} />
                                 </button>
                             </div>
 
                             <div className="mb-4">
-                                <h3 className="font-medium mb-2">
+                                <h3 className="font-semibold text-lg mb-4">
                                     Current Subjects:
                                 </h3>
-                                <div className="flex flex-wrap gap-2 mb-4">
+                                <div className="flex flex-wrap gap-2 mb-4 border-b border-gray-500 pb-4">
                                     {selectedInstructor.subjects.length > 0 ? (
                                         selectedInstructor.subjects.map(
                                             (subject) => (
-                                                <div
+                                                <button
+                                                    title="Remove Subject"
+                                                    onClick={() =>
+                                                    removeSubjectFromInstructor(
+                                                        selectedInstructor.id,
+                                                        subject.id
+                                                    )}
                                                     key={subject.id}
-                                                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md flex items-center"
+                                                    className="text-lg border border-gray-500 text-red-800 px-3 py-1 rounded-md flex items-center gap-2"
                                                 >
                                                     <span>
-                                                        {subject.subject_code ||
-                                                            subject.name}
+                                                        {subject.subject_code}
                                                     </span>
-                                                    <button
-                                                        className="ml-2 text-red-500 hover:text-red-700"
-                                                        onClick={() =>
-                                                            removeSubjectFromInstructor(
-                                                                selectedInstructor.id,
-                                                                subject.id
-                                                            )
-                                                        }
-                                                        disabled={isLoading}
-                                                    >
-                                                        ✕
-                                                    </button>
-                                                </div>
+                                                    <Minus size={24} className="text-red-500"/>
+                                                </button>
                                             )
                                         )
                                     ) : (
@@ -728,7 +723,7 @@ const InstructorsPage: React.FC = () => {
                                 <h3 className="font-medium mb-2">
                                     Available Subjects:
                                 </h3>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between mb-4">
                                     <div>
                                         {!selectedInstructor.prof_subject_instructor && (
                                             <button
@@ -923,8 +918,8 @@ const InstructorsPage: React.FC = () => {
                             </div>
 
                             <div className="mt-6 flex justify-end">
-                                <button
-                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md"
+                                <PrimaryButton
+                                    className="px-4 py-2 rounded-md"
                                     onClick={() => {
                                         setIsModalOpen(false);
                                         setYearLevel(null);
@@ -932,7 +927,7 @@ const InstructorsPage: React.FC = () => {
                                     }}
                                 >
                                     Close
-                                </button>
+                                </PrimaryButton>
                             </div>
                         </div>
                     </div>
