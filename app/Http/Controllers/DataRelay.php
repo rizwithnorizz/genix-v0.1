@@ -18,7 +18,30 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
-
+    public function getRemainingFeedback($id, $type){
+        if ($type === "instructor"){
+            $count = DB::table('instructor_feedback')
+                ->where('instructor_id', $id)
+                ->count();
+            \Log::error($id);
+            return response()->json([
+                'success' => true,
+                'data' => 3-$count
+            ]);
+        } else {
+            $count = DB::table('course_subject_feedback')
+                ->where('sectionID', $id)
+                ->count();
+            return response()->json([
+                'success' => true,
+                'data' => 3-$count
+            ]);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Role Not found'
+        ]);
+    }
     public function getInstructorCounts()
     {
         try {

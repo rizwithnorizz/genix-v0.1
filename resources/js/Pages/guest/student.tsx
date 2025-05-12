@@ -77,13 +77,25 @@ const SchedulePage: React.FC = () => {
     return acc;
   }, {} as { [key: string]: Schedule[] });
 
-  const handleScheduleClick = (schedule: Schedule) => {
-    setSelectedSubject(schedule);
-    setShowFeedbackPopup(true);
+  const handleScheduleClick = async(schedule: Schedule) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/getRemainingFeedback/${schedule.sectionID}/student`);
+      setFeedbackRemaining(response.data.data);
+    } catch (error) {
+      window.alert(error);
+    } finally{
+      setLoading(false);
+      setSelectedSubject(schedule);
+      setShowFeedbackPopup(true);
+    }
   };
 
   const handleSubmitFeedback = async(schedule: Schedule) => {
-    console.log('Feedback submitted:', feedbackText);
+    if (feedbackRemaining <= 0 ){
+      window.alert("You have exceeded the number of feedbacks.");
+      return;
+    }
     try{
       await axios.post('/api/feedback/post', {
         sender: true,
@@ -103,6 +115,7 @@ const SchedulePage: React.FC = () => {
     setFeedbackText('');
   };
 
+  const [isLoading, setLoading] = useState<boolean>(false);
   return (
     <Layout>
       <main className="col-span-3 space-y-4">
@@ -198,28 +211,28 @@ const SchedulePage: React.FC = () => {
             <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-semibold">Create Feedback</h2>
-                <div className="bg-gray-200 px-3 py-1 rounded-full text-sm">
+                <div className="px-3 py-1 rounded-xl text-lg">
                   Feedback remaining: {feedbackRemaining}
                 </div>
               </div>
 
               <div className="mb-4">
-                <label >
-                  <h2>
+                <div >
+                  <p>
                     Subject: {selectedSubject.subject_code}
-                  </h2>
-                  <h2>Section: {selectedSubject.section_name}</h2> 
+                  </p>
+                  <p>Section: {selectedSubject.section_name}</p> 
                     Day: {DAY_MAPPING[selectedSubject.day_slot]}
-                  <h2>
+                  <p>
                     Room: {selectedSubject.room_number}
-                  </h2>
-                  <h2>
+                  </p>
+                  <p>
                     Time: {selectedSubject.time_start} - {selectedSubject.time_end}
-                  </h2>
-                  <h2>
+                  </p>
+                  <p>
                     Instructor: {selectedSubject.instructor_name}
-                  </h2>
-                </label>
+                  </p>
+                </div>
               </div>
 
               <textarea
@@ -247,6 +260,11 @@ const SchedulePage: React.FC = () => {
           </div>
         )}
       </main>
+      {isLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-30">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-100"></div>
+          </div>
+      )}
     </Layout>
   );
 };

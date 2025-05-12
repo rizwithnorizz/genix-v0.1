@@ -40,7 +40,7 @@ class DataCreate extends Controller
                 $feedbackCount = DB::table('course_subject_feedback')
                     ->where('sectionID', $sched->sectionID)
                     ->count();
-                if ($feedbackCount > 3) {
+                if ($feedbackCount >= 3) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Feedback limit reached for this section.'
@@ -57,7 +57,7 @@ class DataCreate extends Controller
                 $feedbackCount = DB::table('instructor_feedback')
                     ->where('instructor_id', $sched->instructor_id)
                     ->count();
-                if ($feedbackCount > 3) {
+                if ($feedbackCount >= 3) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Feedback limit reached for this section.'

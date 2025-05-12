@@ -19,7 +19,7 @@ use App\Http\Controllers\MailService;
 Route::get('/api/schedules', [ScheduleController::class, 'index']);
 Route::get("/api/schedules/instructor/published", [DataRelay::class, 'getPublishedSchedules']);
 Route::post('/api/feedback/post', [DataCreate::class, 'createFeedback'])->name('feedback');
-
+Route::get('/api/getRemainingFeedback/{id}/{type}', [DataRelay::class, 'getRemainingFeedback'])->name('feedback.count');
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dep-dashboard'); // Redirect to a logged-in user's page, e.g., profile

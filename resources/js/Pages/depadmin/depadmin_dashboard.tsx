@@ -2,12 +2,23 @@ import Layout from "@/Components/ui/layout";
 import { useEffect, useState } from "react";
 import {
     Bell,
+    CalendarArrowUp,
     CheckCheck,
     ChevronLeft,
     ChevronRight,
+    ComponentIcon,
+    FileJson2,
+    FilesIcon,
+    FileSpreadsheet,
+    House,
     MoreVertical,
+    Network,
     SendHorizonal,
+    ShapesIcon,
     Trash2,
+    UserCheck,
+    UserPenIcon,
+    Users,
     View,
     X,
     type LucideIcon,
@@ -15,6 +26,8 @@ import {
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
 import News from "@/Components/news";
+import { Chart } from "@/Components/Chart";
+import { Bar_Chart } from "@/Components/Bar_Chart";
 
 interface Instructor {
     id: number;
@@ -53,6 +66,14 @@ interface GeneratedSchedule {
     section_name: string;
     time_start: number;
     time_end: number;
+}
+
+interface HeaderCount {
+    id: number;
+    icon: LucideIcon;
+    desc: string;
+    count: number;
+    url: string;
 }
 const DepAdminDashboard: React.FC = () => {
     const [curriculum, setCurriculum] = useState<Curriculum[]>([]);
@@ -99,7 +120,10 @@ const DepAdminDashboard: React.FC = () => {
             setViewGeneratedSchedule(response.data.data);
             fetchGeneratedSchedule();
         } catch (error) {
-            window.alert(error + "\nCheck parameters: Instructor-Subject Assignment, Room Assignment");
+            window.alert(
+                error +
+                    "\nCheck parameters: Instructor-Subject Assignment, Room Assignment"
+            );
         } finally {
             setIsLoading(false);
         }
@@ -151,7 +175,9 @@ const DepAdminDashboard: React.FC = () => {
     ]);
 
     const [instructors, setInstructors] = useState<Instructor[] | null>(null);
-    const [genEdInstructors, setGenEdInstructors] = useState<Instructor[] | null>(null);
+    const [genEdInstructors, setGenEdInstructors] = useState<
+        Instructor[] | null
+    >(null);
     const fetchInstructors = async () => {
         try {
             const response = await axios.get("/api/instructors");
@@ -205,6 +231,7 @@ const DepAdminDashboard: React.FC = () => {
         5: "Friday",
         6: "Saturday",
     };
+
     const groupedSchedules = Object.keys(DAY_MAPPING).reduce((acc, day) => {
         const daySchedules =
             viewGeneratedSchedule
@@ -236,13 +263,77 @@ const DepAdminDashboard: React.FC = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const headerCount: HeaderCount[] = [
+        {
+            id: 1,
+            icon: FileJson2,
+            desc: "Curriculums",
+            count: 0,
+            url: "/dep-admin/courseOfferings",
+
+        },
+        {
+            id: 2,
+            icon: ShapesIcon,
+            desc: "Sections",
+            count: 0,
+            url: "/dep-admin/courseOfferings",
+        },
+        {
+            id: 3,
+            icon: Users,
+            desc: "Instructors",
+            count: 0,
+            url: "/dep-admin/instructors",
+        },
+        {
+            id: 4,
+            icon: UserPenIcon,
+            count: 0,
+            desc: "Feedback",
+            url: "/dep-admin/feedback",
+        }
+    ];
     return (
         <Layout>
-            <main>
+            <main className="pr-8">
                 <h1 className="font-bold text-2xl mb-4">
                     Department Admin Dashboard
                 </h1>
+                <div className="grid md:grid-cols-5 grid-cols-2 gap-4 mb-4">
+                    {headerCount.map((count, idx) => (
+                        <a href={count.url} key={idx}>
+                        <div
+                            key={idx}
+                            className="bg-white p-4 border-2 border-gray-500 rounded-xl md:row-start-1 s:h-70"
+                        >
+                            <div className="flex items-center justify-center">
+                                <count.icon className="h-20 w-20" />
+                            </div>
+                            <div>
+                                <p className="text-lg overflow-hidden truncate text-ellipsis">{count.desc}</p>
+                            </div>
+                            <div>
+                                <label className="text-4xl font-bold">
+                                    {count.count}
+                                </label>
+                            </div>
+                        </div>
+                        </a>
+                    ))}
+                </div>
+                <div className="grid grid-cols-2 gap-4 flex mb-12">
+                    <div className="h-80">
+                        <Chart className="h-full w-full p-4"/>
+                        <h2 className="text-center font-semibold text-lg truncate" title="Feedback Rate to Approval Rate">Feedback Rate to Approval Rate</h2>
+                    </div>
+                    <div className="h-80 rounded-xl p-4">
+                        <Bar_Chart className="h-full w-full p-4"/>
+                        <h2 className="text-center font-semibold text-lg truncate" title="Generation to Feedback Ratings">Generation to Feedback Ratings</h2>
+                    </div>
+                </div>
 
+                
                 <div className="grid md:grid-cols-2 grid-cols1 gap-4">
                     <div className="bg-white p-4 rounded-2xl border-2 border-gray-500 md:row-start-1 s:h-70">
                         <h2 className="font-semibold text-lg mb-2">
@@ -300,7 +391,8 @@ const DepAdminDashboard: React.FC = () => {
                                                     if (!schedule.status) {
                                                         try {
                                                             await axios.put(
-                                                                `/api/schedules/${schedule.id
+                                                                `/api/schedules/${
+                                                                    schedule.id
                                                                 }/${1}`
                                                             );
                                                         } catch (error) {
@@ -312,7 +404,8 @@ const DepAdminDashboard: React.FC = () => {
                                                     } else {
                                                         try {
                                                             await axios.put(
-                                                                `/api/schedules/${schedule.id
+                                                                `/api/schedules/${
+                                                                    schedule.id
                                                                 }/${0}`
                                                             );
                                                         } catch (error) {
@@ -416,7 +509,6 @@ const DepAdminDashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    <News className="w-full" />
                 </div>
                 {viewFile && selectedSchedule && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
@@ -536,8 +628,9 @@ const DepAdminDashboard: React.FC = () => {
                                                                                     ) =>
                                                                                         instructor.id ===
                                                                                         schedule.instructor_id
-                                                                                )?.name
-                                                                                || "Unknown"}
+                                                                                )
+                                                                                    ?.name ||
+                                                                                "Unknown"}
                                                                         </p>
                                                                     </div>
                                                                 )
@@ -574,7 +667,9 @@ const DepAdminDashboard: React.FC = () => {
                                     <h2 className="text-xl font-semibold mb-4">
                                         Generated Schedule
                                     </h2>
-                                    <button onClick={() => setGenerateTab(false)}>
+                                    <button
+                                        onClick={() => setGenerateTab(false)}
+                                    >
                                         <X size={24} />
                                     </button>
                                 </div>
@@ -678,7 +773,6 @@ const DepAdminDashboard: React.FC = () => {
                                                                                 {
                                                                                     schedule.time_end
                                                                                 }{" "}
-
                                                                             </p>
                                                                             <p className="text-sm text-gray-600">
                                                                                 {instructors?.find(
@@ -695,8 +789,9 @@ const DepAdminDashboard: React.FC = () => {
                                                                                         ) =>
                                                                                             instructor.id ===
                                                                                             schedule.instructor_id
-                                                                                    )?.name
-                                                                                    || "Unknown"}
+                                                                                    )
+                                                                                        ?.name ||
+                                                                                    "Unknown"}
                                                                             </p>
                                                                         </div>
                                                                     )
@@ -784,7 +879,6 @@ const DepAdminDashboard: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="mb-4">
-
                                     <div className="mt-5 flex items-center justify-center">
                                         {retrievedFeedback.length > 0 && (
                                             <PrimaryButton

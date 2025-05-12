@@ -58,29 +58,6 @@ const SuperAdminDashboard: React.FC = () => {
         }
     };
 
-    const [news, setNews] = useState<News[]>([
-        {
-            id: 1,
-            name: "Computer Science",
-            content: "Approved Schedule for CICT",
-        },
-        {
-            id: 2,
-            name: "Information Technology",
-            content: "New schedule request from CAS",
-        },
-        {
-            id: 3,
-            name: "Civil Engineering",
-            content: "Approved Schedule for CAMS",
-        },
-        {
-            id: 4,
-            name: "Electrical Engineering",
-            content: "New schedule request from CICT",
-        },
-    ]);
-
     const [roomCount, setRoomCount] = useState<number>(0);
     const [departmentCount, setDepartmentCount] = useState<number>(0);
     const [scheduleForApprovalCount, setScheduleForApprovalCount] = useState<number>(0);

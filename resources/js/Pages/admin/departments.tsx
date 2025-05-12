@@ -168,12 +168,13 @@ const DepartmentPage: React.FC = () => {
             });
 
             await axios.post("/admin/create-department", formData);
-            fetchData();
-            setShowCreateModal(false);
-            resetForm();
         } catch (error) {
             console.error("Error creating department:", error);
             alert(`Department already exists. Please try again. ${error}`);
+        } finally{
+            fetchData();
+            setShowCreateModal(false);
+            resetForm();
         }
     };
 
@@ -208,6 +209,10 @@ const DepartmentPage: React.FC = () => {
             console.log(response.data.message);
         } catch (error) {
             console.error("Error updating department:", error);
+        } finally{
+            fetchData();
+            setShowCreateModal(false);
+            resetForm();
         }
     };
 
