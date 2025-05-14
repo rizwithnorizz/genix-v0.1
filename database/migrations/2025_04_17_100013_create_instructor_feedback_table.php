@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('instructor_id')->unsigned();
             $table->unsignedBigInteger('subjectID');
             $table->unsignedBigInteger('departmentID');
-            $table->boolean('status')->default(false);
+            $table->boolean('status')->nullable();
             $table->string('feedback');
             $table->unsignedBigInteger('scheduleID');
             $table->timestamps();

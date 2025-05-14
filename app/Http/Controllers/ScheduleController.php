@@ -81,41 +81,26 @@ class ScheduleController extends Controller
                 ->get();
             $currentSchedules = DB::table('schedules')
                 ->where('departmentID', $userDepartment)
-                ->get();
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        $schedule->id,
+                        $schedule->subjectID,
+                        $schedule->time_start,
+                        $schedule->time_end,
+                        $schedule->day_slot,
+                        $schedule->roomID,
+                        $schedule->sectionID,
+                        $schedule->instructor_id,
+                        $schedule->departmentID,
+                        $schedule->semester,
+                        $schedule->created_at,
+                        $schedule->updated_at,
+                    ];
+                });
             \Log::error("Current schedule: " . json_encode($currentSchedules));
             $availableTimeSlots = [];
-            foreach (self::DAYS as $daySlot => $dayName) { // Loop through days
-                foreach (self::TIME_SLOTS as $timeSlot => $timeRange) {
-                    $slotStart = explode('-', $timeRange)[0];
-                    $slotEnd = explode('-', $timeRange)[1];
-
-                    $isAvailable = true; // Assume the slot is available
-
-                    $decodedSchedule = json_decode($currentSchedules);    
-                    foreach ($decodedSchedule as $schedule) {
-                        
-                        if (
-                            $schedule->day_slot == $daySlot &&
-                            $slotStart < $schedule->time_end &&
-                            $slotEnd > $schedule->time_start
-                        ) {
-                            $isAvailable = false; // Mark as unavailable if there's a conflict
-                            break;
-                        }
-                    }
-
-                    if ($isAvailable) {
-                        $availableTimeSlots[] = [
-                            'day_slot' => $daySlot,
-                            'time_start' => $slotStart,
-                            'time_end' => $slotEnd,
-                        ];
-                    }
-                }
-            }
-            // Compile data
             $feedbackJson = json_encode($feedback);
-            $availableTimeSlotsJson = json_encode($availableTimeSlots);
             
             $prompt = <<<PROMPT
             Generate an optimized class schedule in valid JSON format (no markdown, no explanations). Follow the exact structure shown below.
@@ -123,42 +108,35 @@ class ScheduleController extends Controller
             INPUT DATA:
             1. Feedback: {$feedbackJson}
             2. Current Schedules: {$currentSchedules}
-            3. Available Time Slots: {$availableTimeSlotsJson}
 
             CONSTRAINTS:
-            - Only adjust the subjects on the feedback.
-            - With the feedback's scheduleID, find the subject to adjust in the currentSchedules then ONLY ADJUST that.
-            - Find feasible and available time slots from availableTimeSlotsJson
-            - Prioritize student feedback when assigning subjects.
-            - Avoid double-booking rooms (same room/day/time).
-            - Evenly distribute schedules across days and time slots per section.
-            - All time slots must fall within availability.
+            - Only adjust the schedules that match the feedback's scheduleID.
+            - Use the feedback to find the corresponding subject in the currentSchedules and adjust ONLY that schedule.
+            - Prioritize the feedback when assigning time slots, rooms, and instructors for the adjustment.
+            - Ensure the adjusted schedule adheres to the feedback while avoiding conflicts with existing schedules.
 
             OUTPUT FORMAT:
             {
                 "schedule": [
                     {
-                        "id": number, 
+                        "id": number, // ID from the schedules table
+                        "scheduleID": number, // ID from the feedback
                         "subjectID": number,
                         "time_start": "08:00",
                         "time_end": "09:30",
-                        "day_slot": number, 
+                        "day_slot": number,
                         "roomID": string,
                         "sectionID": number,
                         "instructor_id": number,
-                        "departmentID": {$userDepartment}, //Do note change this
+                        "departmentID": {$userDepartment} // Do not change this
                     }
                 ]
             }
             PROMPT;
-            
             $response = $deepseek->query($prompt)->run();
-            \Log::error($response);
-            // Clean the response
             $cleanedResponse = preg_replace('/^```json|```$/m', '', trim($response));
             $scheduleArray = json_decode($cleanedResponse, true);
-
-            // Check for JSON decoding errors
+            \Log::error($cleanedResponse);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 \Log::error('JSON Decode Error: ' . json_last_error_msg());
                 return response()->json([
@@ -168,31 +146,43 @@ class ScheduleController extends Controller
                 ], 500);
             }
                 
+            $scheduleArray = collect($scheduleArray['schedule']);
+
+            $actualSchedule = DB::table('schedules')
+                ->where('departmentID', $userDepartment)
+                ->get();
+                
+            $adjustedSchedules = $actualSchedule->map(function ($actualSchedule) use ($scheduleArray) {
+                // Find the adjusted schedule in $scheduleArray by matching the 'id'
+                $adjustedSchedule = $scheduleArray->firstWhere('id', $actualSchedule->id); // Match by 'id'
+                if ($adjustedSchedule) {
+                    // Replace values in $actualSchedule with values from $adjustedSchedule
+                    $actualSchedule->time_start = $adjustedSchedule['time_start']; // Replace time_start
+                    $actualSchedule->time_end = $adjustedSchedule['time_end'];     // Replace time_end
+                    $actualSchedule->day_slot = $adjustedSchedule['day_slot'];     // Replace day_slot
+                    $actualSchedule->roomID = $adjustedSchedule['roomID'];         // Replace roomID
+                    $actualSchedule->sectionID = $adjustedSchedule['sectionID'];   // Replace sectionID
+                    $actualSchedule->instructor_id = $adjustedSchedule['instructor_id']; // Replace instructor_id
+                }
+                return $actualSchedule;
+            });
+            \LOG::error("Adjusted schedule: " . json_encode($adjustedSchedules));
             $semester = DB::table('course_subjects')
-                ->where('subjectID', $scheduleArray['schedule'][0]['subjectID'])
+                ->where('subjectID', $scheduleArray[0]['subjectID'])
                 ->select('semester')
                 ->first();
 
             DB::table('schedule_repos')->insert([
-                'schedule' => json_encode($scheduleArray['schedule']),
+                'schedule' => json_encode($adjustedSchedules),
                 'repo_name' => "Generated Schedule from Feedback " . date('Y-m-d'),
                 'departmentID' => $userDepartment,
                 'semester' => $semester->semester,
             ]);
-            \Log::error('magnetic');
-            DB::table('course_subject_feedback')
-                ->where('departmentID', $userDepartment)
-                ->where('status', true)
-                ->delete();
-            DB::table('instructor_feedback')
-                ->where('departmentID', $userDepartment)
-                ->where('status', true)
-                ->delete();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Schedule generated successfully from feedback.',
-                'data' => $scheduleArray['schedule'],
+                'data' => $adjustedSchedules,
             ]);
         } catch (\Exception $e) {
             return response()->json([

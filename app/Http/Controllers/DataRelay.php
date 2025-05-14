@@ -83,6 +83,7 @@ class DataRelay extends Controller
         return response()->json([
             'name' => "feedback_accumulate",
             'data' => $feedback,
+            'length' => $feedback->count(),
         ]);
     }
 
@@ -158,7 +159,8 @@ class DataRelay extends Controller
             ->get();
         return response()->json([
             'name' => "course_sections",
-            'data' => $courseSections
+            'data' => $courseSections,
+            'length' => $courseSections->count(),
         ]);
     }
 

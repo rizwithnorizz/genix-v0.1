@@ -216,14 +216,16 @@ const Feedback: React.FC = () => {
                                                                         : "border-red-600 text-red-600"
                                                                 }`}
                                                             >
-                                                                {feedback.status
-                                                                    ? "Approved"
-                                                                    : "Pending"}
+                                                                {feedback.status !== null ? (
+                                                                    feedback.status == false ? "Rejected" : "Approved"
+                                                                ) : (
+                                                                    "Pending"
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td className="w-[5rem] px-6 py-4 whitespace-nowrap">
                                                             <button
-                                                                disabled={feedback.status}
+                                                                disabled={feedback.status ? true : false}
                                                                 onClick={() =>
                                                                     toggleFeedbackStatus(
                                                                         "student",
@@ -235,7 +237,7 @@ const Feedback: React.FC = () => {
                                                                 <Check size={20} className="inline ml-2" />
                                                             </button>
                                                             <button
-                                                                disabled={!feedback.status}
+                                                                disabled={false}
                                                                 onClick={() =>
                                                                     rejectFeedback(
                                                                         "student",
@@ -328,14 +330,16 @@ const Feedback: React.FC = () => {
                                                                         : "border-red-600 text-red-600"
                                                                 }`}
                                                             >
-                                                                {feedback.status
-                                                                    ? "Approved"
-                                                                    : "Pending"}
+                                                                {feedback.status !== null ? (
+                                                                    feedback.status == false ? "Rejected" : "Approved"
+                                                                ) : (
+                                                                    "Pending"
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td className="w-[5rem] px-6 py-4 whitespace-nowrap">
                                                             <button
-                                                                disabled={feedback.status}
+                                                                disabled={feedback.status ? true : false}
                                                                 onClick={() =>
                                                                     toggleFeedbackStatus(
                                                                         "instructor",
@@ -347,7 +351,7 @@ const Feedback: React.FC = () => {
                                                                 <Check size={20} className="inline ml-2" />
                                                             </button>
                                                             <button
-                                                                disabled={!feedback.status}
+                                                                disabled={false}
                                                                 onClick={() =>
                                                                     rejectFeedback(
                                                                         "instructor",

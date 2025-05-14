@@ -13,7 +13,7 @@ class DeepSeekClient
     protected $prompt;
     protected $model = 'deepseek-coder';
     protected $temperature = 0.1;
-    protected $maxTokens = 4000; // Default value within allowed range
+    protected $maxTokens = 8192; 
 
     public function __construct()
     {
@@ -52,18 +52,9 @@ class DeepSeekClient
 
     public function run()
     {
-        try {
-            // For large files, we may need to truncate the prompt
-            // to ensure the total request size is reasonable
-            $promptLength = strlen($this->prompt);
-            if ($promptLength > 100000) {
-                Log::warning('Large prompt detected, truncating', ['length' => $promptLength]);
-                // Keep some beginning part and some end part
-                $beginPart = substr($this->prompt, 0, 40000);
-                $endPart = substr($this->prompt, -40000);
-                $this->prompt = $beginPart . "\n\n[CONTENT TRUNCATED DUE TO SIZE]\n\n" . $endPart;
-            }
-            
+            try {
+                try {
+            // Removed the truncation logic for large prompts
             $response = $this->client->post($this->apiEndpoint, [
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -94,6 +85,9 @@ class DeepSeekClient
                 Log::error('Invalid DeepSeek API response format', ['response' => $body]);
                 throw new \Exception('Invalid API response format');
             }
+        } catch (\Exception $e) {
+            throw $e;
+        }
         } catch (\Exception $e) {
             throw $e;
         }

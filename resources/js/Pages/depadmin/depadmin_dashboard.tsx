@@ -216,12 +216,6 @@ const DepAdminDashboard: React.FC = () => {
         }
     };
     const [selectedSection, setSelectedSection] = useState<string | null>(null);
-    useState(() => {
-        fetchCurriculum();
-        fetchGeneratedSchedule();
-        fetchInstructors();
-        fetchFeedback();
-    });
 
     const DAY_MAPPING: { [key: number]: string } = {
         1: "Monday",
@@ -263,12 +257,32 @@ const DepAdminDashboard: React.FC = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const [sectionCount, setSectionCount] = useState<number>(0);
+    const [feedbackCount, setFeedbackCount] = useState<number>(0);
+
+    const fetchSectionCount = async () => {
+        try { 
+            const response = await axios.get('/api/section');
+            setSectionCount(response.data.length);
+
+        }catch(error){
+            console.error("Error fetching section count:", error);
+        }
+    }
+    const fetchFeedBackCount = async () => {
+        try {
+            const response = await axios.get('/api/feedback/accumulate');
+            setFeedbackCount(response.data.length);
+        }catch(error){
+            console.error("Error fetching feedback count:", error);
+        }
+    }
     const headerCount: HeaderCount[] = [
         {
             id: 1,
             icon: FileJson2,
             desc: "Curriculums",
-            count: 0,
+            count: curriculum.length,
             url: "/dep-admin/courseOfferings",
 
         },
@@ -276,24 +290,33 @@ const DepAdminDashboard: React.FC = () => {
             id: 2,
             icon: ShapesIcon,
             desc: "Sections",
-            count: 0,
+            count: sectionCount,
             url: "/dep-admin/courseOfferings",
         },
         {
             id: 3,
             icon: Users,
             desc: "Instructors",
-            count: 0,
+            count: instructors?.length || 0,
             url: "/dep-admin/instructors",
         },
         {
             id: 4,
             icon: UserPenIcon,
-            count: 0,
+            count: feedbackCount,
             desc: "Feedback",
             url: "/dep-admin/feedback",
         }
     ];
+    
+    useState(() => {
+        fetchCurriculum();
+        fetchGeneratedSchedule();
+        fetchInstructors();
+        fetchFeedback();
+        fetchSectionCount();
+        fetchFeedBackCount();
+    });
     return (
         <Layout>
             <main className="pr-8">

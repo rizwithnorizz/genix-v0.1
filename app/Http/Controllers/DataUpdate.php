@@ -20,7 +20,7 @@ class DataUpdate extends Controller
         ->update(['status' => false]);
         return response()->json([
             'success' => true,
-            'message' => 'Feedback approved successfully'
+            'message' => 'Feedback rejected successfully'
         ], 200);
     }
 
@@ -33,13 +33,16 @@ class DataUpdate extends Controller
         ->update(['status' => false]);
         return response()->json([
             'success' => true,
-            'message' => 'Feedback approved successfully'
+            'message' => 'Feedback rejected successfully'
         ], 200);
     }
     public function publishSchedule($scheduleID){
         $schedule = DB::table('schedule_repos')
             ->where('id', $scheduleID)
             ->first();
+        DB::table('schedules')
+            ->where('departmentID', $schedule->departmentID)
+            ->delete();
         DB::table('class_schedule_archives')->insert([
             'schedule' => $schedule->schedule,
             'repo_name' => $schedule->repo_name,
