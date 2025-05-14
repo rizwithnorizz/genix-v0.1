@@ -52,6 +52,7 @@ class DataCreate extends Controller
                     'subjectID' => $sched->subjectID,
                     'feedback' => $validated['feedback'],
                     'departmentID' => $sched->departmentID,
+                    'created_at' => now(),
                 ]);
             } else {
                 $feedbackCount = DB::table('instructor_feedback')
@@ -69,6 +70,7 @@ class DataCreate extends Controller
                     'subjectID' => $sched->subjectID,
                     'feedback' => $validated['feedback'],
                     'departmentID' => $sched->departmentID,
+                    'created_at' => now(),
                 ]);
             }
             
@@ -743,7 +745,7 @@ PROMPT;
         ]);
         DB::table('course_subject_feedback')
         ->where('id', $request->input('feedback_id'))
-        ->update(['status' => true]);
+        ->update(['status' => 1]);
         return response()->json([
             'success' => true,
             'message' => 'Feedback approved successfully'
@@ -756,7 +758,7 @@ PROMPT;
         ]);
         DB::table('instructor_feedback')
         ->where('id', $request->input('feedback_id'))
-        ->update(['status' => true]);
+        ->update(['status' => 1]);
         return response()->json([
             'success' => true,
             'message' => 'Feedback approved successfully'

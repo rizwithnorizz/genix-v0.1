@@ -18,6 +18,55 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
+    public function feedbackToApproval()
+    {
+        $department = auth()->user()->departmentID;
+        // Total feedback grouped by created_at
+        $waiting = DB::table('course_subject_feedback')
+            ->where('departmentID', $department)
+            ->select('feedback', 'created_at as version_date')
+            ->union(
+                DB::table('instructor_feedback')
+                    ->where('departmentID', $department)
+                    ->select('feedback', 'created_at as version_date')
+            )
+            ->union(
+                DB::table('feedback_archives')
+                    ->where('departmentID', $department)
+                    ->select('feedback', 'version_date')
+            )
+            ->orderBy('version_date')
+            ->get()
+            ->groupBy('version_date');
+
+        // Approved feedback grouped by created_at
+        $approved = DB::table('course_subject_feedback')
+            ->where('departmentID', $department)
+            ->where('status', 1)
+            ->select('feedback', 'created_at as version_date')
+            ->union(
+                DB::table('instructor_feedback')
+                    ->where('departmentID', $department)
+                    ->where('status', 1)
+                    ->select('feedback', 'created_at as version_date')
+            )
+            ->union(
+                DB::table('feedback_archives')
+                    ->where('departmentID', $department)
+                    ->where('status', 1)
+                    ->select('feedback', 'version_date')
+            )
+            ->orderBy('version_date')
+            ->get()
+            ->groupBy('version_date');
+        \Log::error($waiting);
+        \Log::error($approved);
+        return response()->json([
+            'message' => 'Feedback counts retrieved successfully',
+            'waiting_feedback' => $waiting,
+            'approved_feedback' => $approved,
+        ]);
+    }
     public function getRemainingFeedback($id, $type){
         if ($type === "instructor"){
             $count = DB::table('instructor_feedback')
@@ -71,22 +120,43 @@ class DataRelay extends Controller
         $department = auth()->user()->departmentID;    
         $feedback = DB::table('instructor_feedback')
             ->where('departmentID', $department)
-            ->where('status', true)
+            ->where('status', 1)
             ->select('id', 'feedback')
             ->union(
                 DB::table('course_subject_feedback')
                     ->where('departmentID', $department)
-                    ->where('status', true)
+                    ->where('status', 1)
                     ->select('id', 'feedback')
             )
             ->get();
         return response()->json([
             'name' => "feedback_accumulate",
             'data' => $feedback,
-            'length' => $feedback->count(),
         ]);
     }
 
+    public function getPendingFeedback() 
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $department = auth()->user()->departmentID;    
+        $feedback = DB::table('instructor_feedback')
+            ->where('departmentID', $department)
+            ->where('status', NULL)
+            ->select('id', 'feedback')
+            ->union(
+                DB::table('course_subject_feedback')
+                    ->where('departmentID', $department)
+                    ->where('status', NULL)
+                    ->select('id', 'feedback')
+            )
+            ->get();
+        return response()->json([
+            'name' => "pending_feedback",
+            'length' => $feedback->count(),
+        ]);
+    }
     public function getDashboardCount () 
     {
         if (!auth()->check()) {

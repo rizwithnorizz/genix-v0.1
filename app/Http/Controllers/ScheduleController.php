@@ -71,14 +71,15 @@ class ScheduleController extends Controller
             $feedback = DB::table('instructor_feedback')
                 ->where('departmentID', $userDepartment)
                 ->where('status', 1)
-                ->select('id', 'instructor_id', 'feedback', 'subjectID')
+                ->select('id', 'instructor_id', 'feedback', 'subjectID', 'scheduleID')
                 ->union(
                     DB::table('course_subject_feedback')
                         ->where('departmentID', $userDepartment)
                         ->where('status', 1)
-                        ->select('id', 'sectionID',  'feedback', 'subjectID')
+                        ->select('id', 'sectionID',  'feedback', 'subjectID', 'scheduleID')
                 )
                 ->get();
+            \Log::error("Feedback: " . $feedback);
             $currentSchedules = DB::table('schedules')
                 ->where('departmentID', $userDepartment)
                 ->get()
@@ -100,7 +101,7 @@ class ScheduleController extends Controller
             $feedbackJson = json_encode($feedback);
             
             $prompt = <<<PROMPT
-            Generate an optimized class schedule in valid JSON format (no markdown, no explanations). Follow the exact structure shown below.
+            Generate an optimized class schedule in valid JSON format. Follow the exact structure shown below.
 
             INPUT DATA:
             1. Feedback: {$feedbackJson}
@@ -137,8 +138,7 @@ class ScheduleController extends Controller
             {
                 "schedule": [
                     {
-                        "id": number, // ID from the schedules table
-                        "scheduleID": number, // ID from the feedback
+                        "scheduleID": number, // scheduleID from the current schedule
                         "subjectID": number,
                         "time_start": "08:00",
                         "time_end": "09:30",
@@ -151,6 +151,7 @@ class ScheduleController extends Controller
                 ]
             }
             PROMPT;
+            $deepseek->setModel('deepseek-reasoner');
             $response = $deepseek->query($prompt)->run();
             $cleanedResponse = preg_replace('/^```json|```$/m', '', trim($response));
             $scheduleArray = json_decode($cleanedResponse, true);
@@ -171,8 +172,7 @@ class ScheduleController extends Controller
                 ->get();
                 
             $adjustedSchedules = $actualSchedule->map(function ($actualSchedule) use ($scheduleArray) {
-                // Find the adjusted schedule in $scheduleArray by matching the 'id'
-                $adjustedSchedule = $scheduleArray->firstWhere('id', $actualSchedule->id); // Match by 'id'
+                $adjustedSchedule = $scheduleArray->firstWhere('scheduleID', $actualSchedule->id); 
                 if ($adjustedSchedule) {
                     // Replace values in $actualSchedule with values from $adjustedSchedule
                     $actualSchedule->time_start = $adjustedSchedule['time_start']; // Replace time_start
@@ -292,6 +292,7 @@ class ScheduleController extends Controller
                 'repo_name' => $repo_name . " " . "(created at " . date('Y-m-d') . " )",
                 'departmentID' => $userDepartment,
                 'semester' => $semester,
+                'created_at' => date('m-d'),
             ]);
 
             return response()->json([

@@ -16,9 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('instructor_id')->unsigned();
             $table->unsignedBigInteger('subjectID');
             $table->unsignedBigInteger('departmentID');
-            $table->boolean('status')->nullable();
             $table->string('feedback');
             $table->unsignedBigInteger('scheduleID');
+            $table->integer('status')->nullable();
             $table->timestamps();
 
             $table->foreign('scheduleID')->references('id')->on('schedules')->onDelete('cascade');

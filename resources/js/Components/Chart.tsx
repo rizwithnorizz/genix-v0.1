@@ -8,14 +8,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/Components/ui/chart"
-const chartData = [
-  { month: "January", approval: 186, feedback: 80 },
-  { month: "February", approval: 305, feedback: 200 },
-  { month: "March", approval: 237, feedback: 120 },
-  { month: "April", approval: 73, feedback: 190 },
-  { month: "May", approval: 209, feedback: 130 },
-  { month: "June", approval: 214, feedback: 140 },
-]
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const chartConfig = {
   approval: {
@@ -31,23 +25,66 @@ const chartConfig = {
 export function Chart({
     className = '',
 }) {
+    interface ChartData {
+      day: string;
+      approval: number;
+      feedback: number;
+    }
+    
+    const [chartData, setChartData] = useState<ChartData[]>([]);
+    useEffect(() => {
+   
+    async function fetchData() {
+      try {
+        const response = await axios.get("/api/feedback-to-approval"); 
+        const data = response.data; 
+        const allDates = Array.from(
+        new Set([
+            ...Object.keys(data.waiting_feedback),
+            ...Object.keys(data.approved_feedback),
+        ])
+        );
+
+        // Process the data for the chart
+        const processedData = allDates.map((date) => {
+        const waitingCount = data.waiting_feedback[date]?.length || 0;
+        const approvedCount = data.approved_feedback[date]?.length || 0;
+
+        return {
+            day: date.split(" ")[0], 
+            approval: approvedCount,
+            feedback: waitingCount,
+        };
+        });
+
+        console.log("Processed Data:", processedData);
+        setChartData(processedData);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
   return (
         <ChartContainer config={chartConfig} className={`${className}`}>
           <LineChart
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
-              right: 12,
+                top: 20,
+                bottom: 20,
+                left: 40,
+                right: 20,
             }}
-          >
+            >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="day"
               tickLine={true}
               axisLine={true}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickFormatter={(value) => value}
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Line

@@ -261,22 +261,21 @@ const DepAdminDashboard: React.FC = () => {
     const [feedbackCount, setFeedbackCount] = useState<number>(0);
 
     const fetchSectionCount = async () => {
-        try { 
-            const response = await axios.get('/api/section');
+        try {
+            const response = await axios.get("/api/section");
             setSectionCount(response.data.length);
-
-        }catch(error){
+        } catch (error) {
             console.error("Error fetching section count:", error);
         }
-    }
+    };
     const fetchFeedBackCount = async () => {
         try {
-            const response = await axios.get('/api/feedback/accumulate');
+            const response = await axios.get("/api/feedback/getPending");
             setFeedbackCount(response.data.length);
-        }catch(error){
+        } catch (error) {
             console.error("Error fetching feedback count:", error);
         }
-    }
+    };
     const headerCount: HeaderCount[] = [
         {
             id: 1,
@@ -284,7 +283,6 @@ const DepAdminDashboard: React.FC = () => {
             desc: "Curriculums",
             count: curriculum.length,
             url: "/dep-admin/courseOfferings",
-
         },
         {
             id: 2,
@@ -304,11 +302,10 @@ const DepAdminDashboard: React.FC = () => {
             id: 4,
             icon: UserPenIcon,
             count: feedbackCount,
-            desc: "Feedback",
+            desc: "Pending Feedback",
             url: "/dep-admin/feedback",
-        }
+        },
     ];
-    
     useState(() => {
         fetchCurriculum();
         fetchGeneratedSchedule();
@@ -326,37 +323,48 @@ const DepAdminDashboard: React.FC = () => {
                 <div className="grid md:grid-cols-5 grid-cols-2 gap-4 mb-4">
                     {headerCount.map((count, idx) => (
                         <a href={count.url} key={idx}>
-                        <div
-                            key={idx}
-                            className="bg-white p-4 border-2 border-gray-500 rounded-xl md:row-start-1 s:h-70"
-                        >
-                            <div className="flex items-center justify-center">
-                                <count.icon className="h-20 w-20" />
+                            <div
+                                key={idx}
+                                className="bg-white p-4 border-2 border-gray-500 rounded-xl md:row-start-1 s:h-70"
+                            >
+                                <div className="flex items-center justify-center">
+                                    <count.icon className="h-20 w-20" />
+                                </div>
+                                <div>
+                                    <p className="text-lg overflow-hidden truncate text-ellipsis">
+                                        {count.desc}
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="text-4xl font-bold">
+                                        {count.count}
+                                    </label>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-lg overflow-hidden truncate text-ellipsis">{count.desc}</p>
-                            </div>
-                            <div>
-                                <label className="text-4xl font-bold">
-                                    {count.count}
-                                </label>
-                            </div>
-                        </div>
                         </a>
                     ))}
                 </div>
                 <div className="grid grid-cols-2 gap-4 flex mb-12">
                     <div className="h-80">
-                        <Chart className="h-full w-full p-4"/>
-                        <h2 className="text-center font-semibold text-lg truncate" title="Feedback Rate to Approval Rate">Feedback Rate to Approval Rate</h2>
+                        <Chart className="h-full w-full p-4" />
+                        <h2
+                            className="text-center font-semibold text-lg truncate"
+                            title="Feedback Rate to Approval Rate"
+                        >
+                            Feedback Rate to Approval Rate
+                        </h2>
                     </div>
                     <div className="h-80 rounded-xl p-4">
-                        <Bar_Chart className="h-full w-full p-4"/>
-                        <h2 className="text-center font-semibold text-lg truncate" title="Generation to Feedback Ratings">Generation to Feedback Ratings</h2>
+                        <Bar_Chart className="h-full w-full p-4" />
+                        <h2
+                            className="text-center font-semibold text-lg truncate"
+                            title="Generation to Feedback Ratings"
+                        >
+                            Generation to Feedback Ratings
+                        </h2>
                     </div>
                 </div>
 
-                
                 <div className="grid md:grid-cols-2 grid-cols1 gap-4">
                     <div className="bg-white p-4 rounded-2xl border-2 border-gray-500 md:row-start-1 s:h-70">
                         <h2 className="font-semibold text-lg mb-2">
@@ -456,12 +464,42 @@ const DepAdminDashboard: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        <PrimaryButton
-                            onClick={handleGenerateScheduleClick}
-                            className="mt-10 py-2 px-4 rounded-lg "
-                        >
-                            Generate New Class Schedule
-                        </PrimaryButton>
+                        <div className="flex justify-between mt-4">
+                            <PrimaryButton
+                                onClick={handleGenerateScheduleClick}
+                                className="mt-10 py-2 px-4 rounded-lg "
+                            >
+                                Generate New Class Schedule
+                            </PrimaryButton>
+                            {retrievedFeedback.length > 0 && (
+                                <PrimaryButton
+                                    onClick={async () => {
+                                        try {
+                                            setIsLoading(true);
+                                            const response = await axios.get(
+                                                "/api/schedules/generate-from-feedback"
+                                            );
+                                            console.log(
+                                                "Generated schedule from feedback:",
+                                                response.data.data
+                                            );
+                                            fetchGeneratedSchedule();
+                                        } catch (error) {
+                                            console.error(
+                                                "Error generating schedule from feedback:",
+                                                error
+                                            );
+                                        } finally {
+                                            setIsLoading(false);
+                                        }
+                                    }}
+                                    disabled={isLoading ? true : false}
+                                    className="mt-10 py-2 px-4 rounded-lg"
+                                >
+                                    Generate Class Schedule from Feedback
+                                </PrimaryButton>
+                            )}
+                        </div>
                     </div>
                     <div className="bg-white p-4 rounded-xl border-2 border-gray-500">
                         <div className="flex justify-between">
@@ -531,7 +569,6 @@ const DepAdminDashboard: React.FC = () => {
                             </a>
                         </div>
                     </div>
-
                 </div>
                 {viewFile && selectedSchedule && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
@@ -899,46 +936,6 @@ const DepAdminDashboard: React.FC = () => {
                                         >
                                             Generate Schedule
                                         </PrimaryButton>
-                                    </div>
-                                </div>
-                                <div className="mb-4">
-                                    <div className="mt-5 flex items-center justify-center">
-                                        {retrievedFeedback.length > 0 && (
-                                            <PrimaryButton
-                                                onClick={async () => {
-                                                    try {
-                                                        setIsLoading(true);
-                                                        const response =
-                                                            await axios.get(
-                                                                "/api/schedules/generate-from-feedback"
-                                                            );
-                                                        console.log(
-                                                            "Generated schedule from feedback:",
-                                                            response.data.data
-                                                        );
-                                                        setViewGeneratedSchedule(
-                                                            response.data.data
-                                                        );
-                                                        setGenerateTab(true);
-                                                        setViewFile(false);
-                                                        fetchGeneratedSchedule();
-                                                    } catch (error) {
-                                                        console.error(
-                                                            "Error generating schedule from feedback:",
-                                                            error
-                                                        );
-                                                    } finally {
-                                                        setIsLoading(false);
-                                                    }
-                                                }}
-                                                disabled={
-                                                    isLoading ? true : false
-                                                }
-                                            >
-                                                Generate Class Schedule from
-                                                Feedback
-                                            </PrimaryButton>
-                                        )}
                                     </div>
                                 </div>
                             </div>

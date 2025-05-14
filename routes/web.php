@@ -71,6 +71,7 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::post('/api/section/create', [DataCreate::class, 'createSection'])->name('depadmin.create-section');
 
     Route::get('/api/feedback/accumulate', [DataRelay::class, 'getFeedbackAccumulate'])->name('depadmin.feedback.accumulate');
+    Route::get('/api/feedback/getPending', [DataRelay::class, 'getPendingFeedback'])->name('depadmin.feedback.pending');
     Route::get('/api/feedback/student', [DataRelay::class, 'getStudentFeedback'])->name('depadmin.feedback.student');
     Route::get('/api/feedback/instructor', [DataRelay::class, 'getInstructorFeedback'])->name('depadmin.feedback.instructor');
     Route::get('/api/schedules/generate-from-feedback' , [ScheduleController::class, 'generateScheduleFromFeedback'])->name('depadmin.generate-schedule-from-feedback');
@@ -83,7 +84,7 @@ Route::middleware(['auth', 'rolemanager:dep_admin'])->group(function () {
     Route::delete('/api/section/delete/{section}', [DataUpdate::class, 'deleteSection'])->name('depadmin.delete-section');
     Route::put('/api/section/update/{sectionID}', [DataUpdate::class, 'updateSection'])->name('depadmin.update-section');
 
-    
+    Route::get('/api/feedback-to-approval', [DataRelay::class, 'feedbackToApproval'])->name('depadmin.feedback-to-approval');
 
     Route::get('/api/instructor-counts', [DataRelay::class, 'getInstructorCounts'])->name('admin.getInstructorCounts');
     //Route::get('dep-admin/course-sections', [/CourseSectionController::class, 'index'])->name('dep.course-sections');

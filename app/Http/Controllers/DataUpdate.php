@@ -17,7 +17,7 @@ class DataUpdate extends Controller
         ]);
         DB::table('course_subject_feedback')
         ->where('id', $request->input('feedback_id'))
-        ->update(['status' => false]);
+        ->update(['status' => 0]);
         return response()->json([
             'success' => true,
             'message' => 'Feedback rejected successfully'
@@ -30,7 +30,7 @@ class DataUpdate extends Controller
         ]);
         DB::table('instructor_feedback')
         ->where('id', $request->input('feedback_id'))
-        ->update(['status' => false]);
+        ->update(['status' => 0]);
         return response()->json([
             'success' => true,
             'message' => 'Feedback rejected successfully'
@@ -40,9 +40,7 @@ class DataUpdate extends Controller
         $schedule = DB::table('schedule_repos')
             ->where('id', $scheduleID)
             ->first();
-        DB::table('schedules')
-            ->where('departmentID', $schedule->departmentID)
-            ->delete();
+        
         DB::table('class_schedule_archives')->insert([
             'schedule' => $schedule->schedule,
             'repo_name' => $schedule->repo_name,
@@ -50,18 +48,55 @@ class DataUpdate extends Controller
             'semester' => $schedule->semester,
             'status' => 1,
         ]);
+        \Log::error('Publishing schedule with ID: ' . $scheduleID);
+
+        DB::table('course_subject_feedback')
+            ->join('course_sections', 'course_subject_feedback.sectionID', '=', 'course_sections.id')
+            ->select('course_subject_feedback.id', 'course_sections.section_name as sender', 'course_subject_feedback.feedback', 'course_subject_feedback.scheduleID')
+            ->where('departmentID', $schedule->departmentID)
+            ->where('status', '!=', NULL)
+            ->orderBy('id')
+            ->each(function ($feedback) use ($schedule) {
+                DB::table('feedback_archives')->insert([
+                    'sender' => $feedback->sender,
+                    'feedback' => $feedback->feedback,
+                    'scheduleID' => $feedback->scheduleID,
+                    'version_date' => $schedule->created_at,
+                    'schedule_name' => $schedule->repo_name,
+                    'departmentID' => $schedule->departmentID,
+                    'status' => $feedback->status,
+                ]);
+                DB::table('course_subject_feedback')
+                    ->where('id', $feedback->id)
+                    ->delete();
+            });
+        DB::table('instructor_feedback')
+            ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
+            ->select('instructor_feedback.id', 'instructors.name as sender', 'instructor_feedback.feedback', 'instructor_feedback.scheduleID')
+            ->where('zdepartmentID', $schedule->departmentID)
+            ->where('status', '!=', NULL)
+            ->orderBy('id')
+            ->each(function ($feedback) use ($schedule) {
+                DB::table('feedback_archives')->insert([
+                    'sender' => $feedback->sender,
+                    'feedback' => $feedback->feedback,
+                    'scheduleID' => $feedback->scheduleID,
+                    'version_date' => $schedule->created_at,
+                    'schedule_name' => $schedule->repo_name,
+                    'departmentID' => $schedule->departmentID,
+                    'status' => $feedback->status,
+                ]);
+                DB::table('instructor_feedback')
+                    ->where('id', $feedback->id)
+                    ->delete();
+            });
+
 
         $decodedSchedule = json_decode($schedule->schedule);
         foreach ($decodedSchedule as $item) {
             if (!isset($item->id)) {
                 \Log::error('Inserting schedule item: ' . json_encode($item));
-                DB::table('schedules')->updateOrInsert([
-                'subjectID' => $item->subjectID,
-                'day_slot' => $item->day_slot,  
-                'roomID' => $item->roomID,
-                'departmentID' => $schedule->departmentID,
-                'semester' => $schedule->semester,
-                ], [
+                DB::table('schedules')->insert([
                 'subjectID' => $item->subjectID,
                 'time_start' => $item->time_start,
                 'time_end' => $item->time_end,
@@ -77,6 +112,7 @@ class DataUpdate extends Controller
                 DB::table('schedules')->updateOrInsert([
                 'id' => $item->id,
                 ], [
+                'subjectID' => $item->subjectID,
                 'time_start' => $item->time_start,
                 'time_end' => $item->time_end,
                 'day_slot' => $item->day_slot,  
@@ -92,6 +128,7 @@ class DataUpdate extends Controller
             ->where('id', $scheduleID)
             ->delete();
     }
+
     public function approveSchedule($scheduleID, $value){
         DB::table('schedule_repos')
             ->where('id', $scheduleID)

@@ -53,8 +53,6 @@ class DeepSeekClient
     public function run()
     {
             try {
-                try {
-            // Removed the truncation logic for large prompts
             $response = $this->client->post($this->apiEndpoint, [
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -65,7 +63,7 @@ class DeepSeekClient
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'You are a curriculum parser AI that extracts structured information from curriculum documents.'
+                            'content' => 'You are a helpful assistant. Capable of parsing documents and accomodating requests for schedule adjustments.'
                         ],
                         [
                             'role' => 'user',
@@ -76,7 +74,6 @@ class DeepSeekClient
                     'max_tokens' => $this->maxTokens
                 ]
             ]);
-
             $body = json_decode($response->getBody(), true);
             
             if (isset($body['choices'][0]['message']['content'])) {
@@ -85,9 +82,6 @@ class DeepSeekClient
                 Log::error('Invalid DeepSeek API response format', ['response' => $body]);
                 throw new \Exception('Invalid API response format');
             }
-        } catch (\Exception $e) {
-            throw $e;
-        }
         } catch (\Exception $e) {
             throw $e;
         }
