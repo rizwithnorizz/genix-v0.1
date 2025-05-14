@@ -33,7 +33,7 @@ export default function Login({
             {/* Video Background */}
             <video
                 className="absolute top-0 left-0 w-full h-full object-cover -z-10"
-                src="/videos/ub.mp4"
+                src="/videos/bg.mp4"
                 autoPlay
                 loop
                 muted

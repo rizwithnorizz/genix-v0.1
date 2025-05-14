@@ -93,9 +93,6 @@ class ScheduleController extends Controller
                         $schedule->sectionID,
                         $schedule->instructor_id,
                         $schedule->departmentID,
-                        $schedule->semester,
-                        $schedule->created_at,
-                        $schedule->updated_at,
                     ];
                 });
             \Log::error("Current schedule: " . json_encode($currentSchedules));
@@ -108,12 +105,33 @@ class ScheduleController extends Controller
             INPUT DATA:
             1. Feedback: {$feedbackJson}
             2. Current Schedules: {$currentSchedules}
+            3. Current Schedules format goes like this: 
+                    {
+                        "id": number,
+                        "scheduleID": number, 
+                        "subjectID": number,
+                        "time_start": "08:00",
+                        "time_end": "09:30",
+                        "day_slot": number,
+                        "roomID": string,
+                        "sectionID": number,
+                        "instructor_id": number,
+                        "departmentID": 
+                    }
 
             CONSTRAINTS:
-            - Only adjust the schedules that match the feedback's scheduleID.
+            - Only adjust the schedule that match the feedback's scheduleID.
             - Use the feedback to find the corresponding subject in the currentSchedules and adjust ONLY that schedule.
-            - Prioritize the feedback when assigning time slots, rooms, and instructors for the adjustment.
+            - Check the time_start, time_end, and day_slot for every section, instructor, and room if there are existing or overlapping slots.
             - Ensure the adjusted schedule adheres to the feedback while avoiding conflicts with existing schedules.
+
+            STEPS:
+            - Group the schedules of the sections involved in feedback using the "scheduleID" in currentSchedules.
+            - Group the schedules of the rooms involved in feedback using the "roomID" in currentSchedules.
+            - Group the schedules of the instructors involved in feedback using the "instructor_id" in currentSchedules.
+            - Find available time slots (time start, time end) and day slot that has no conflicts between the entities involved.
+            - Ensure that the found available time and day slot conforms to the feedback's request.
+            - If there are no available time slots, no adjustments means don't generate response.
 
             OUTPUT FORMAT:
             {
