@@ -73,7 +73,7 @@ export function Chart({
             margin={{
                 top: 20,
                 bottom: 20,
-                left: 40,
+                left: 50,
                 right: 20,
             }}
             >
