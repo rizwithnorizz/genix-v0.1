@@ -80,7 +80,7 @@ export function Chart({
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="day"
-              tickLine={true}
+              tickLine={false}
               axisLine={true}
               tickMargin={8}
               tickFormatter={(value) => value}
