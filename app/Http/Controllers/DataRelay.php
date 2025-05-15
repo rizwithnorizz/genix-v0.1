@@ -18,6 +18,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class DataRelay extends Controller
 {
+    public function feedbackToVersions()
+    {
+        $department = auth()->user()->departmentID;
+        $count = DB::table('feedback_archives')
+            ->where('departmentID', $department)
+            ->get()
+            ->groupBy('schedule_name');
+        return response()->json([
+            'data' => $count,
+        ]);
+    }
     public function feedbackToApproval()
     {
         $department = auth()->user()->departmentID;

@@ -127,12 +127,12 @@ class ScheduleController extends Controller
             - Ensure the adjusted schedule adheres to the feedback while avoiding conflicts with existing schedules.
 
             STEPS:
-            - Group the schedules of the sections involved in feedback using the "scheduleID" in currentSchedules.
-            - Group the schedules of the rooms involved in feedback using the "roomID" in currentSchedules.
-            - Group the schedules of the instructors involved in feedback using the "instructor_id" in currentSchedules.
-            - Find available time slots (time start, time end) and day slot that has no conflicts between the entities involved.
-            - Ensure that the found available time and day slot conforms to the feedback's request.
-            - If there are no available time slots, no adjustments means don't generate response.
+            - Analyze the schedules of the sections involved in the feedback using the "scheduleID" in currentSchedules to identify their current time slots and day slots.
+            - Analyze the schedules of the rooms involved in the feedback using the "roomID" in currentSchedules to identify their current time slots and day slots.
+            - Analyze the schedules of the instructors involved in the feedback using the "instructor_id" in currentSchedules to identify their current time slots and day slots.
+            - Identify all potential time slots (time start, time end) and day slots that are free of conflicts for the sections, rooms, and instructors involved.
+            - Cross-check the identified time slots and day slots with the feedback's request to ensure compliance with the specified adjustments.
+            - If no suitable time slots and day slots are available that meet the feedback's requirements, do not generate a response or make adjustments.
 
             OUTPUT FORMAT:
             {
@@ -190,11 +190,13 @@ class ScheduleController extends Controller
                 ->select('semester')
                 ->first();
 
+            $latestRepoId = DB::table('schedule_repos')->max('id') + 1;
             DB::table('schedule_repos')->insert([
                 'schedule' => json_encode($adjustedSchedules),
-                'repo_name' => "Generated Schedule from Feedback " . date('Y-m-d'),
+                'repo_name' => "Generated Schedule from Feedback " . $latestRepoId,
                 'departmentID' => $userDepartment,
                 'semester' => $semester->semester,
+                'created_at' => date('Y-m-d'),
             ]);
 
             return response()->json([
@@ -286,15 +288,16 @@ class ScheduleController extends Controller
                 $instructors, 
                 $subjectInstructors
             );
+            \Log::error("Inserting to schedule repo");
                 
             DB::table('schedule_repos')->insert([
                 'schedule' => json_encode($bestSchedule),
                 'repo_name' => $repo_name . " " . "(created at " . date('Y-m-d') . " )",
                 'departmentID' => $userDepartment,
                 'semester' => $semester,
-                'created_at' => date('m-d'),
+                'created_at' => date('Y-m-d'),
             ]);
-
+            \Log::error("Inserted to schedule repo");
             return response()->json([
                 'success' => true,
                 'data' => $bestSchedule,

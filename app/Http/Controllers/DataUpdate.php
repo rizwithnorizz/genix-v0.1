@@ -52,11 +52,12 @@ class DataUpdate extends Controller
 
         DB::table('course_subject_feedback')
             ->join('course_sections', 'course_subject_feedback.sectionID', '=', 'course_sections.id')
-            ->select('course_subject_feedback.id', 'course_sections.section_name as sender', 'course_subject_feedback.feedback', 'course_subject_feedback.scheduleID')
+            ->select('course_subject_feedback.id', 'course_sections.section_name as sender', 'course_subject_feedback.feedback', 'course_subject_feedback.scheduleID', 'course_subject_feedback.status')
             ->where('departmentID', $schedule->departmentID)
             ->where('status', '!=', NULL)
             ->orderBy('id')
             ->each(function ($feedback) use ($schedule) {
+                \Log::error(json_encode($feedback)  );
                 DB::table('feedback_archives')->insert([
                     'sender' => $feedback->sender,
                     'feedback' => $feedback->feedback,
@@ -72,8 +73,8 @@ class DataUpdate extends Controller
             });
         DB::table('instructor_feedback')
             ->join('instructors', 'instructor_feedback.instructor_id', '=', 'instructors.id')
-            ->select('instructor_feedback.id', 'instructors.name as sender', 'instructor_feedback.feedback', 'instructor_feedback.scheduleID')
-            ->where('zdepartmentID', $schedule->departmentID)
+            ->select('instructor_feedback.id', 'instructors.name as sender', 'instructor_feedback.feedback', 'instructor_feedback.scheduleID', 'instructor_feedback.status')
+            ->where('instructors.departmentID', $schedule->departmentID)
             ->where('status', '!=', NULL)
             ->orderBy('id')
             ->each(function ($feedback) use ($schedule) {

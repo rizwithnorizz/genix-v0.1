@@ -1,3 +1,4 @@
+import PrimaryButton from '@/Components/PrimaryButton';
 import Layout from '@/Components/ui/layout';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -46,6 +47,10 @@ const SchedulePage: React.FC = () => {
   const handleSubmitFeedback = async(schedule: Schedule) => {
     if (feedbackRemaining <= 0 ){
       window.alert("You have exceeded the number of feedbacks.");
+      return;
+    }
+    if (feedbackText === "") {
+      window.alert("Please enter feedback.");
       return;
     }
     try{
@@ -197,7 +202,7 @@ const SchedulePage: React.FC = () => {
         {/* Feedback Popup */}
         {showFeedbackPopup && selectedSubject && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-            <div className="bg-white p-4 rounded-lg shadow-lg w-1/3">
+            <div className="bg-white p-4 rounded-lg shadow-lg md:w-1/3">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-semibold">Create Feedback</h2>
                 <div className="px-3 py-1 rounded-xl text-lg">
@@ -232,18 +237,18 @@ const SchedulePage: React.FC = () => {
               />
 
               <div className="flex justify-center space-x-4">
-                <button
+                <PrimaryButton
                   onClick={() => handleSubmitFeedback(selectedSubject)}
                   className="bg-green-500 text-white py-2 px-8 rounded-full"
                 >
                   Submit
-                </button>
-                <button
+                </PrimaryButton>
+                <PrimaryButton
                   onClick={handleCancelFeedback}
                   className="bg-red-500 text-white py-2 px-8 rounded-full"
                 >
                   Cancel
-                </button>
+                </PrimaryButton>
               </div>
             </div>
           </div>

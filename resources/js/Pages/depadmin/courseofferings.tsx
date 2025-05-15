@@ -890,7 +890,7 @@ const CourseOfferingsPage: React.FC = () => {
                                 </PrimaryButton>
                             </div>
 
-                            {filteredSections.length > 0 && (
+                            {filteredSections && (
                                 <div className="flex grid grid-cols-1 md:grid-cols-2 gap-2 w-1/2 mb-4">
                                     <select
                                         className="border border-gray-500 rounded p-2 pr-10"

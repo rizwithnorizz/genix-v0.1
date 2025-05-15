@@ -45,7 +45,6 @@ export function Chart({
         ])
         );
 
-        // Process the data for the chart
         const processedData = allDates.map((date) => {
         const waitingCount = data.waiting_feedback[date]?.length || 0;
         const approvedCount = data.approved_feedback[date]?.length || 0;
