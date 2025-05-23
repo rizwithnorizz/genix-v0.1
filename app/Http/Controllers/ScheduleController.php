@@ -269,7 +269,6 @@ class ScheduleController extends Controller
             
             $subjectInstructors = DB::table('subject_instructors')
                 ->get();
-            \Log::error("subject instructors: " . $subjectInstructors);
             
             $population = $this->initializePopulation(
                 $courseSubjects, 
@@ -279,7 +278,6 @@ class ScheduleController extends Controller
                 $subjectInstructors
             );
             
-            
             $bestSchedule = $this->evolvePopulation(
                 $population, 
                 $courseSubjects, 
@@ -288,7 +286,6 @@ class ScheduleController extends Controller
                 $instructors, 
                 $subjectInstructors
             );
-            \Log::error("Inserting to schedule repo");
             \Log::error("Best schedule: " . json_encode($bestSchedule));
                 
             DB::table('schedule_repos')->insert([
@@ -298,7 +295,6 @@ class ScheduleController extends Controller
                 'semester' => $semester,
                 'created_at' => date('Y-m-d'),
             ]);
-            \Log::error("Inserted to schedule repo");
             return response()->json([
                 'success' => true,
                 'data' => $bestSchedule,
@@ -315,7 +311,6 @@ class ScheduleController extends Controller
     private function initializePopulation($courseSubjects, $courseSections, $rooms, $instructors, $subjectInstructors)
     {
         $population = [];
-        \Log::info('Initializing Population...');
 
         for ($i = 0; $i < self::POPULATION_SIZE; $i++) {
             $schedule = [];
@@ -328,12 +323,8 @@ class ScheduleController extends Controller
                 });
 
                 foreach ($sectionSubjects as $subject) {
-
-                    \Log::error("Processing subject: " . $subject->subject_code);
-                    \Log::error("Processing section: " . $section->section_name);
                     $eligibleInstructors = $this->getEligibleInstructors($subject, $instructors, $subjectInstructors);
                     if ($eligibleInstructors->count() === 0){
-                        \Log::error("No eligible instructors teaching the subject");
                         break;
                     }
                     $eligibleInstructors = $eligibleInstructors->shuffle();
@@ -345,7 +336,6 @@ class ScheduleController extends Controller
                         $roomLec = $rooms->filter(function ($room) {
                             return $room->room_type === 'Lecture';
                         });
-                        \Log::info('Room Lec: ' . json_encode($roomLec));
                         $daySlot1 = collect(range(1, 4))->shuffle();
                         foreach($daySlot1 as $daySlot1){
                             foreach($roomLec as $room){
@@ -374,7 +364,6 @@ class ScheduleController extends Controller
                                 break;
                             }
                         }
-                        \Log::error("Chosen instructor : " . $instructorId->name);
                         $daySlot2 = $daySlot1 + 2;
                         while($daySlot2 < 7){   
                             foreach ($roomLec as $room){
@@ -461,7 +450,6 @@ class ScheduleController extends Controller
                         }
                     }
                     elseif ($subject->lec > 0 && $subject->lab > 0) {
-                        \Log::info("Lecture and Lab subject: " . $subject->subjectID);
                         $roomLab = $rooms->filter(function ($room) {
                             return $room->room_type === 'Laboratory';
                         });
@@ -480,7 +468,6 @@ class ScheduleController extends Controller
                                         $instructorId->id,
                                         $section->sectionID
                                     );
-                                    \Log::error("Day slot: $daySlotLec -> 1st day Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLec));
                                     if (!empty($availableTimeSlotsLec)) {
                                         usort($availableTimeSlotsLec, function ($a, $b) {
                                             return $a['time_start'] <=> $b['time_start'];
@@ -545,8 +532,6 @@ class ScheduleController extends Controller
                                     $instructorId->id,
                                     $section->sectionID
                                 );
-
-                                \Log::error("Day slot: $daySlotLab -> 2nd day Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLab));
                                 if (!empty($availableTimeSlotsLab)) {
                                     usort($availableTimeSlotsLab, function ($a, $b) {
                                         return $a['time_start'] <=> $b['time_start'];
@@ -556,7 +541,6 @@ class ScheduleController extends Controller
                                 }
                             }
                             if (!empty($availableTimeSlotsLab)) {
-                                \Log::error("break3");
                                 break;
                             }
                             $daySlotLab++;
@@ -610,11 +594,10 @@ class ScheduleController extends Controller
                                             $room->roomID,
                                             $daySlotLec,
                                             $schedule,
-                                            3, // 1.5 hours (3 * 30 minutes)
+                                            3, 
                                             $instructorId->id,
                                             $section->sectionID
                                         );
-                                        \Log::error("Day Slot: $daySlotLec Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLec));
                                         if (!empty($availableTimeSlotsLec)) {
                                             usort($availableTimeSlotsLec, function ($a, $b) {
                                                 return $a['time_start'] <=> $b['time_start'];
@@ -662,11 +645,10 @@ class ScheduleController extends Controller
                                             $room->roomID,
                                             $daySlotLab,
                                             $schedule,
-                                            3, // 1.5 hours (3 * 30 minutes)
+                                            3, 
                                             $instructorId->id,
                                             $section->sectionID
                                         );
-                                        \Log::error("Day Slot: $daySlotLab Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLab));
                                         if (!empty($availableTimeSlotsLab)) {
                                             usort($availableTimeSlotsLab, function ($a, $b) {
                                                 return $a['time_start'] <=> $b['time_start'];
@@ -719,16 +701,13 @@ class ScheduleController extends Controller
         int $subjectId,
         $rooms
     ): ?array {
-        \Log::error("Fusing invoked ");
         foreach ($currentSchedule as $item) {
             $room = $rooms->firstWhere('roomID', $item['roomID']);
-            \Log::error("Fusing room : $room");
             if (
                 $item['sectionID'] !== $sectionId &&
                 $item['subjectID'] === $subjectId &&
                 $item['population'] + $sectionPopulation <= $room->capacity
             ) {
-                \Log::error("Found fusable");
                 $item['population'] += $sectionPopulation;
                 return [
                     'subjectID' => $subjectId,
@@ -747,26 +726,21 @@ class ScheduleController extends Controller
                 ];
             }
         }
-        return null; // No suitable schedule found
+        return null; 
     }
     private function evolvePopulation($population, $courseSubjects, $courseSections, $rooms, $instructors, $subjectInstructors)
     {
         $bestFitness = -INF;
         $bestSchedule = null;
         for ($generation = 0; $generation < self::MAX_GENERATIONS; $generation++) {
-            \Log::info('Generation: ' . $generation);
             $fitnessScores = [];
             foreach ($population as $index => $schedule) {
                 $fitnessScores[$index] = $this->calculateFitness($schedule, $courseSubjects, $courseSections, $rooms, $instructors);
                 if ($fitnessScores[$index] > $bestFitness) {
                     $bestFitness = $fitnessScores[$index];
                     $bestSchedule = $schedule;
-                    \Log::info('New Best Schedule Found: ' . json_encode($bestSchedule));
                 }
             }
-            \Log::info('Best Fitness: ' . $bestFitness);
-            
-            
             $newPopulation = [];
             
             
@@ -775,36 +749,25 @@ class ScheduleController extends Controller
             foreach ($eliteIndices as $eliteIndex) {
                 $newPopulation[] = $population[$eliteIndex];
             }
-            \Log::info('Elite Population Size: ' . count($newPopulation));
             
             while (count($newPopulation) < self::POPULATION_SIZE) {
-                \Log::info('Current Population Size: ' . count($newPopulation));
             
                 $parent1Index = $this->selectParent($fitnessScores);
                 $parent2Index = $this->selectParent($fitnessScores);
             
-                \Log::info("Selected Parent 1 Index: $parent1Index");
-                \Log::info("Selected Parent 2 Index: $parent2Index");
-            
                 if (mt_rand() / mt_getrandmax() < self::CROSSOVER_RATE) {
                     $child = $this->crossover($population[$parent1Index], $population[$parent2Index]);
-                    \Log::info('Crossover Child: ' . json_encode($child));
                 } else {
                     $child = $population[$parent1Index];
-                    \Log::info('Child from Parent 1: ' . json_encode($child));
                 }
                 $child = $this->mutate($child, $courseSubjects, $courseSections, $rooms, $instructors, $subjectInstructors);
-                \Log::info('Mutated Child: ' . json_encode($child));
             
                 if (!empty($child)) {
                     $newPopulation[] = $child;
-                    \Log::info('Child added to newPopulation. Current size: ' . count($newPopulation));
                 } else {
-                    \Log::warning('Failed to generate a valid child.');
                     throw new Exception('Failed to generate a valid child.');
                 }
-            }
-            \Log::info('New Population Size: ' . count($newPopulation));    
+            }   
             $population = $newPopulation;
         }
         
@@ -894,8 +857,7 @@ class ScheduleController extends Controller
                 $currentItem = $schedule[$indices[0]];
         
                 switch ($mutationType) {
-                    case 1: // Room mutation
-                        \Log::info("Mutating room for subject: $subjectCode");
+                    case 1: 
                         $eligibleRooms = $this->getEligibleRooms($subject, $rooms);
                         if ($eligibleRooms->isEmpty()) break;
 
@@ -919,7 +881,6 @@ class ScheduleController extends Controller
                             );
 
                             if (empty($availableSlots)) {
-                                \Log::warning("No slots in room: {$newRoom->roomID}");
                                 continue 3;
                             }
 
@@ -931,8 +892,7 @@ class ScheduleController extends Controller
                         }
                         break;
 
-                    case 2: // Instructor mutation
-                        \Log::info("Mutating instructor for subject: $subjectCode");
+                    case 2:
                         $eligibleInstructors = $this->getEligibleInstructors($subject, $instructors, $subjectInstructors);
                         if ($eligibleInstructors->isEmpty()) break;
 
@@ -960,8 +920,7 @@ class ScheduleController extends Controller
                         }
                         break;
 
-                    case 3: // Time/day mutation
-                        \Log::info("Mutating time/day for subject: $subjectCode");
+                    case 3:
                         $newDay = rand(1, 5);
                         $currentRoom = $currentItem['roomID'];
                         $currentInstructor = $currentItem['instructor_id'];
@@ -997,28 +956,59 @@ class ScheduleController extends Controller
     private function calculateFitness($schedule, $courseSubjects, $courseSections, $rooms, $instructors)
     {
         $score = 0;
-        $baseScore = count($schedule); // Base score based on number of scheduled items
-        \Log::info('Base Score: ' . $baseScore);
-        // Calculate penalties
+        $baseScore = count($schedule); 
         $instructorConflicts = $this->countInstructorConflicts($schedule);
-        \Log::info('Instructor Conflicts: ' . $instructorConflicts);
         $instructorConsecutiveHours = $this->checkInstructorConsecutiveHours($schedule);
-        \Log::info('Instructor Consecutive Hours: ' . $instructorConsecutiveHours);
         $sectionConflicts = $this->countSectionConflicts($schedule);
-        \Log::info('Section Conflicts: ' . $sectionConflicts);
         $distributionScore = $this->calculateDistributionScore($schedule);
-        \Log::info('Distribution Score: ' . $distributionScore);
-    
+        $vacancy = $this->countSectionVacancies($schedule);
 
         $score = $baseScore + $distributionScore;
         $score -= ($sectionConflicts * 0.3); 
         $score -= ($instructorConflicts * 0.2); 
         $score -= ($instructorConsecutiveHours * 0.2); 
+        $score -= ($vacancy['vacant_count'] * 0.05); 
+        $score -= ($vacancy['vacant_minutes'] * 0.05); 
+    
         
         return max(0, $score); 
     }
     
-   
+   private function countSectionVacancies($schedule)
+    {
+        $vacantCount = 0;
+        $vacantMinutes = 0;
+
+        $bySectionDay = [];
+        foreach ($schedule as $item) {
+            $bySectionDay[$item['sectionID']][$item['day_slot']][] = $item;
+        }
+
+        foreach ($bySectionDay as $sectionID => $days) {
+            foreach ($days as $daySlot => $classes) {
+                usort($classes, function ($a, $b) {
+                    return strtotime($a['time_start']) <=> strtotime($b['time_start']);
+                });
+
+                $lastEnd = strtotime('07:00');
+                foreach ($classes as $class) {
+                    $start = strtotime($class['time_start']);
+                    if ($start > $lastEnd) {
+                        $vacantCount++;
+                        $vacantMinutes += ($start - $lastEnd) / 60;
+                    }
+                    $lastEnd = max($lastEnd, strtotime($class['time_end']));
+                }
+                    $endOfDay = strtotime('19:00');
+                    if ($lastEnd < $endOfDay) {
+                    $vacantCount++;
+                    $vacantMinutes += ($endOfDay - $lastEnd) / 60;
+                }
+            }
+        }
+
+        return ['vacant_count' => $vacantCount, 'vacant_minutes' => $vacantMinutes];
+    }
 
     private function countInstructorConflicts($schedule)
     {
@@ -1198,21 +1188,19 @@ class ScheduleController extends Controller
         int $roomId,
         int $daySlot,
         array $currentSchedule,
-        int $durationUnits, // Number of 30-minute units
+        int $durationUnits,
         ?int $instructorId = null,
         ?int $sectionId = null
     ): array {
         $timeSlots = [];
-        $durationSeconds = $durationUnits * 1800; // Convert to seconds
+        $durationSeconds = $durationUnits * 1800; 
     
-        // Generate all possible time slots within working hours
         $startTime = strtotime('07:00');
         $endTime = strtotime('19:00') - $durationSeconds;
     
         for ($slotStart = $startTime; $slotStart <= $endTime; $slotStart += 1800*$durationUnits) {
             $slotEnd = $slotStart + $durationSeconds;
     
-            // Skip time slots overlapping with lunch break (12:00 PM to 1:00 PM)
             if ($slotStart < strtotime('13:00') && $slotEnd > strtotime('12:00')) {
                 continue;
             }
@@ -1223,7 +1211,6 @@ class ScheduleController extends Controller
             ];
         }
     
-        // Filter out conflicting slots
         return array_filter($timeSlots, function ($slot) use (
             $roomId,
             $daySlot,
@@ -1252,31 +1239,25 @@ class ScheduleController extends Controller
     ): bool {
         $slotStart = strtotime($slot['time_start']);
         $slotEnd = strtotime($slot['time_end']);
-        \Log::error("Day slot checking: " . $daySlot);
-        // Check current schedule conflicts
         foreach ($currentSchedule as $item) {
             $itemStart = strtotime($item['time_start']);
             $itemEnd = strtotime($item['time_end']);
             
-            // Check section conflict
             if ($sectionId !== null &&
                 $item['sectionID'] === $sectionId &&
                 $item['day_slot'] === $daySlot &&
                 $slotStart < $itemEnd &&
                 $slotEnd > $itemStart
             ) {
-                \Log::info("Section conflict: Section {$sectionId} is unavailable for day slot {$daySlot} and time slot {$slot['time_start']} - {$slot['time_end']}");
                 return false;
             }
             
-            // Check room conflict
             if ($roomId !== null &&
                 $item['roomID'] === $roomId &&
                 $item['day_slot'] === $daySlot &&
                 $slotStart < $itemEnd &&
                 $slotEnd > $itemStart
             ) {
-                \Log::info("Room conflict: Room {$roomId} is unavailable for day slot {$daySlot} and time slot {$slot['time_start']} - {$slot['time_end']}");
                 return false;
             }
     
@@ -1287,7 +1268,6 @@ class ScheduleController extends Controller
                 $slotStart < $itemEnd &&
                 $slotEnd > $itemStart
             ) {
-                \Log::info("Instructor conflict: Instructor {$instructorId} is unavailable for day slot {$daySlot} and time slot {$slot['time_start']} - {$slot['time_end']}");
                 return false;
             }
     
