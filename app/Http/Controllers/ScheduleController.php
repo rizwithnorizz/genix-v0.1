@@ -289,6 +289,7 @@ class ScheduleController extends Controller
                 $subjectInstructors
             );
             \Log::error("Inserting to schedule repo");
+            \Log::error("Best schedule: " . json_encode($bestSchedule));
                 
             DB::table('schedule_repos')->insert([
                 'schedule' => json_encode($bestSchedule),
@@ -358,6 +359,9 @@ class ScheduleController extends Controller
                                         $section->sectionID
                                     );
                                     if (!empty($availableTimeSlots1)) {
+                                        usort($availableTimeSlots1, function ($a, $b) {
+                                            return $a['time_start'] <=> $b['time_start'];
+                                        });
                                         $roomLec1 = $room;
                                         break;
                                     }
@@ -383,6 +387,9 @@ class ScheduleController extends Controller
                                         $section->sectionID
                                     );
                                     if (!empty($availableTimeSlots2)) {
+                                        usort($availableTimeSlots2, function ($a, $b) {
+                                            return $a['time_start'] <=> $b['time_start'];
+                                        });
                                         $roomLec2 = $room;
                                         break;
                                     }
@@ -475,6 +482,9 @@ class ScheduleController extends Controller
                                     );
                                     \Log::error("Day slot: $daySlotLec -> 1st day Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLec));
                                     if (!empty($availableTimeSlotsLec)) {
+                                        usort($availableTimeSlotsLec, function ($a, $b) {
+                                            return $a['time_start'] <=> $b['time_start'];
+                                        });
                                         $roomLec = $room;
                                         break;
                                     }
@@ -606,6 +616,9 @@ class ScheduleController extends Controller
                                         );
                                         \Log::error("Day Slot: $daySlotLec Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLec));
                                         if (!empty($availableTimeSlotsLec)) {
+                                            usort($availableTimeSlotsLec, function ($a, $b) {
+                                                return $a['time_start'] <=> $b['time_start'];
+                                            });
                                             $roomLec = $room;
                                             break;
                                         }
@@ -655,6 +668,9 @@ class ScheduleController extends Controller
                                         );
                                         \Log::error("Day Slot: $daySlotLab Time slots for room $room->room_number: " . json_encode($availableTimeSlotsLab));
                                         if (!empty($availableTimeSlotsLab)) {
+                                            usort($availableTimeSlotsLab, function ($a, $b) {
+                                                return $a['time_start'] <=> $b['time_start'];
+                                            });
                                             $roomLab = $room;
                                             break;
                                         }
@@ -988,17 +1004,18 @@ class ScheduleController extends Controller
         \Log::info('Instructor Conflicts: ' . $instructorConflicts);
         $instructorConsecutiveHours = $this->checkInstructorConsecutiveHours($schedule);
         \Log::info('Instructor Consecutive Hours: ' . $instructorConsecutiveHours);
+        $sectionConflicts = $this->countSectionConflicts($schedule);
+        \Log::info('Section Conflicts: ' . $sectionConflicts);
         $distributionScore = $this->calculateDistributionScore($schedule);
-
         \Log::info('Distribution Score: ' . $distributionScore);
     
-    
-        // Apply penalties (each conflict drastically reduces the score)
+
         $score = $baseScore + $distributionScore;
-        $score -= ($instructorConflicts * 0.2); // -100 per instructor conflict
-        $score -= ($instructorConsecutiveHours * 0.2); // -50 per consecutive hour violation
+        $score -= ($sectionConflicts * 0.3); 
+        $score -= ($instructorConflicts * 0.2); 
+        $score -= ($instructorConsecutiveHours * 0.2); 
         
-        return max(0, $score); // Ensure score doesn't go negative
+        return max(0, $score); 
     }
     
    
@@ -1069,6 +1086,22 @@ class ScheduleController extends Controller
 
         return $violations;
     }
+
+    private function countSectionConflicts($schedule)
+    {
+        $conflicts = 0;
+        $sectionUsage = [];
+        
+        foreach ($schedule as $item) {
+            $key = $item['sectionID'] . '-' . $item['time_start'] . '-' . $item['time_end'] . '-' . $item['day_slot'];
+            if (isset($sectionUsage[$key])) {
+                $conflicts++;
+            }
+            $sectionUsage[$key] = true;
+        }
+        
+        return $conflicts;
+    }
     
     private function calculateDistributionScore($schedule)
     {
@@ -1080,7 +1113,7 @@ class ScheduleController extends Controller
 
         
         $workingHoursStart = strtotime('07:00');
-        $workingHoursEnd = strtotime('18:00');
+        $workingHoursEnd = strtotime('19:00');
 
         
         for ($time = $workingHoursStart; $time < $workingHoursEnd; $time += 1800) {
@@ -1174,7 +1207,7 @@ class ScheduleController extends Controller
     
         // Generate all possible time slots within working hours
         $startTime = strtotime('07:00');
-        $endTime = strtotime('18:00') - $durationSeconds;
+        $endTime = strtotime('19:00') - $durationSeconds;
     
         for ($slotStart = $startTime; $slotStart <= $endTime; $slotStart += 1800*$durationUnits) {
             $slotEnd = $slotStart + $durationSeconds;

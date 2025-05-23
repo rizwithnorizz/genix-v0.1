@@ -82,7 +82,6 @@ const SchedulePage: React.FC = () => {
         4: "Thursday",
         5: "Friday",
         6: "Saturday",
-        7: "Sunday",
     };
 
     const [selectedSection, setSelectedSection] = useState<string>("");
@@ -122,6 +121,8 @@ const SchedulePage: React.FC = () => {
             fetchSchedules(); // Refresh the schedule list after publishing
         } catch (error) {
             console.error("Error publishing schedule:", error);
+        }finally{
+            fetchArchiveSchedules(); 
         }
     };
 
@@ -137,6 +138,8 @@ const SchedulePage: React.FC = () => {
             fetchSchedules(); // Refresh the schedule list after rejecting
         } catch (error) {
             console.error("Error rejecting schedule:", error);
+        }finally{
+            fetchArchiveSchedules(); 
         }
     };
 
@@ -355,7 +358,7 @@ const SchedulePage: React.FC = () => {
                 {viewModal &&
                     ((viewGeneratedSchedule?.schedules ?? []).length > 0 ? (
                         <div className="flex items-center justify-center fixed inset-0 z-50 bg-gray-800 bg-opacity-50">
-                            <div className="bg-white h-[90vh] overflow-y-auto rounded-lg shadow-lg p-6">
+                            <div className="bg-white h-[90vh] w-3/4 overflow-y-auto rounded-lg shadow-lg p-6">
                                 <div className="w-full flex justify-between items-center">
                                     <h2 className="text-2xl font-bold mb-4">
                                         Generated Schedule
@@ -466,73 +469,73 @@ const SchedulePage: React.FC = () => {
                                 </div>
                                 <div className="h-[60vh] overflow-y-auto mr-2 mt-4">
                                     <table className="w-full table-auto border-collapse border border-gray-300">
-                                        <thead className="bg-gray-200">
+                                        <thead className="bg-gray-100">
                                             <tr>
-                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Section
-                                                </th>
-                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Subject
-                                                </th>
-                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Day
-                                                </th>
-                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Time
-                                                </th>
-                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Instructor
-                                                </th>
-                                                <th className="text-center px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    Room
-                                                </th>
+                                                {Object.values(DAY_MAPPING).map(
+                                                    (day) => (
+                                                        <th
+                                                            key={day}
+                                                            className="border border-gray-500 px-4 py-2 text-center"
+                                                        >
+                                                            {day}
+                                                        </th>
+                                                    )
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredSchedules?.map(
-                                                (schedule, idx) => (
-                                                    <tr
+                                            <tr>
+                                                {Object.keys(
+                                                    DAY_MAPPING
+                                                ).map((day, idx) => (
+                                                    <td
                                                         key={idx}
-                                                        className="hover:bg-gray-100"
+                                                        className="border border-gray-500 px-4 py-2 align-top"
                                                     >
-                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {
-                                                                schedule.section_name
-                                                            }
-                                                        </td>
-                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {
-                                                                schedule.subject_code
-                                                            }
-                                                        </td>
-                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {
-                                                                DAY_MAPPING[
-                                                                    schedule
-                                                                        .day_slot
-                                                                ]
-                                                            }
-                                                        </td>
-                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {
-                                                                schedule.time_start
-                                                            }{" "}
-                                                            -{" "}
-                                                            {schedule.time_end}
-                                                        </td>
-                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {
-                                                                schedule.instructor_name
-                                                            }
-                                                        </td>
-                                                        <td className="text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            {
-                                                                schedule.room_number
-                                                            }
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            )}
+                                                        {filteredSchedules
+                                                            ?.filter(
+                                                                (schedule) =>
+                                                                    schedule.day_slot ===
+                                                                    idx + 1
+                                                            )
+                                                            .map((schedule) => (
+                                                                <div
+                                                                    key={
+                                                                        schedule.id
+                                                                    }
+                                                                    className="mb-2 border border-gray-500 p-2 rounded-lg shadow text-center"
+                                                                >
+                                                                    <p className="font-semibold">
+                                                                        {
+                                                                            schedule.section_name
+                                                                        }
+                                                                    </p>
+                                                                    <p className="font-semibold text-blue-500">
+                                                                        {
+                                                                            schedule.room_number
+                                                                        }
+                                                                    </p>
+                                                                    <p className="font-semibold text-blue-500">
+                                                                        {
+                                                                            schedule.subject_code
+                                                                        }
+                                                                    </p>
+                                                                    <p className="text-sm text-gray-600">
+                                                                        {
+                                                                            schedule.instructor_name
+                                                                        }
+                                                                    </p>
+                                                                    <p className="text-sm text-gray-600">
+                                                                        {schedule.time_start} -{" "}
+                                                                        {
+                                                                            schedule.time_end
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                            ))}
+                                                    </td>
+                                                ))}
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
